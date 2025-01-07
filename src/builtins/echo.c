@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "builtins.h"
+#include "commands.h"
 
 static struct option l_opts[] = { { "e", no_argument, 0, 'e' },
                                   { 0, 0, 0, 0 } };
