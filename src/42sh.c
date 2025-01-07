@@ -5,12 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ast/ast.h"
 #include "utils/fill_input.h"
 #include "utils/logger.h"
+#include "utils/test_lexer.h"
 
 static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "comput", no_argument, 0, 'c' },
+                                  { "test-token", no_argument, 0, 't' },
                                   { 0, 0, 0, 0 } };
 
 int main(int argc, char *argv[])
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
     char *input = calloc(1, sizeof(char));
     int c;
     int opt_idx = 0;
-    while ((c = getopt_long(argc, argv, "v::c:", l_opts, &opt_idx)) != -1)
+    while ((c = getopt_long(argc, argv, "v::ct:", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
@@ -30,6 +31,12 @@ int main(int argc, char *argv[])
         case 'c':
             fill_input_with_argv(argv, argc, optind, input);
             logger("%s", input);
+            break;
+        case 't':
+            fill_input_with_argv(argv, argc, optind, input);
+            logger("%s\n", input);
+            test_lexer(input);
+            logger("start token debug");
             break;
         case '?':
             exit(1);

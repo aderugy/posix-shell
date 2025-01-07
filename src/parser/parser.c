@@ -6,6 +6,5 @@
 
 void print_parser()
 {
-    print_lexer();
     printf("parser !!!\n");
 }

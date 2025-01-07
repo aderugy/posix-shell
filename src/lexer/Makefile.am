@@ -2,7 +2,8 @@ lib_LIBRARIES = liblex.a
 
 liblex_a_SOURCES =  \
   lexer.c \
-  lexer.h
+  lexer.h \
+  token.h
 
 liblex_a_CPPFLAGS = -I$(top_srcdir)/src
 
