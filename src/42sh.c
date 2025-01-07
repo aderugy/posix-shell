@@ -12,7 +12,6 @@
 static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "comput", no_argument, 0, 'c' },
                                   { "test-token", no_argument, 0, 't' },
-                                  { "echo", no_argument, 0, 'h' },
 
                                   { 0, 0, 0, 0 } };
 
@@ -21,7 +20,7 @@ int main(int argc, char *argv[])
     char *input = calloc(1, sizeof(char));
     int c;
     int opt_idx = 0;
-    while ((c = getopt_long(argc, argv, "vh:ct:", l_opts, &opt_idx)) != -1)
+    while ((c = getopt_long(argc, argv, "v:ct:", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
@@ -38,10 +37,6 @@ int main(int argc, char *argv[])
             test_lexer(input);
             logger("start token debug");
             break;
-        case 'h':
-            echo(argc - 1, argv + 1);
-            break;
-
         case '?':
             exit(1);
 
