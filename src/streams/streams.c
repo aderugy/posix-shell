@@ -1,6 +1,5 @@
 #include "streams.h"
 
-#include <cstdio>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,9 +94,9 @@ char stream_read(struct stream *stream)
 }
 
 /**
-* Peeks at the next char in the stream, without modifying the cursor.
-* Returns the read char or EOF.
-*/
+ * Peeks at the next char in the stream, without modifying the cursor.
+ * Returns the read char or EOF.
+ */
 char stream_peek(struct stream *stream)
 {
     char c = fgetc(stream->in);
