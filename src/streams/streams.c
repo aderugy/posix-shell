@@ -1,8 +1,11 @@
 #include "streams.h"
 
+#include <cstdio>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <utils/logger.h>
+
+#include "utils/logger.h"
 
 static struct stream *stream_init(void)
 {
@@ -84,16 +87,24 @@ void stream_close(struct stream *stream)
 
 /**
  * Reads one char from stream.
- * Returns -1 on EOF
+ * Returns the read char or EOF
  */
 char stream_read(struct stream *stream)
 {
-    char buffer[1];
-    if (!fread(buffer, 1, 1, stream->in))
+    return fgetc(stream->in);
+}
+
+/**
+* Peeks at the next char in the stream, without modifying the cursor.
+* Returns the read char or EOF.
+*/
+char stream_peek(struct stream *stream)
+{
+    char c = fgetc(stream->in);
+    if (c != EOF)
     {
-        logger("EOF\n");
-        return -1;
+        ungetc(c, stream->in);
     }
 
-    return buffer[0];
+    return c;
 }

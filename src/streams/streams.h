@@ -17,5 +17,6 @@ struct stream *stream_from_stream(FILE *in);
 void stream_close(struct stream *stream);
 
 char stream_read(struct stream *stream);
+char stream_peek(struct stream *stream);
 
 #endif // !STREAMS_H
