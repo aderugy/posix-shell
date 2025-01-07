@@ -1,5 +1,6 @@
 #include "lexer.h"
 
+#include <ctype.h>
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,9 +11,13 @@
 struct lexer *lexer_new(const char *input)
 {
     struct lexer *res = calloc(1, sizeof(struct lexer));
-    res->input = input;
-    res->pos = 0;
+    if (!res)
+    {
+        return NULL;
+    }
+
     res->current_tok.type = TOKEN_ERROR;
+    res->input = input;
     return res;
 }
 
@@ -25,13 +30,18 @@ struct token lexer_next_token(struct lexer *lexer)
 {
     struct token res;
     res.type = TOKEN_ERROR;
-    while ((lexer->input)[lexer->pos] == ' ')
+
+    const char *input = lexer->input;
+    while (isspace(input[lexer->pos]))
+    {
         (lexer->pos)++;
-    const char *current_char = (lexer->input) + (lexer->pos);
+    }
+
+    const char *current_char = input + lexer->pos;
     if (strncmp("if", current_char, 2) == 0)
     {
-        lexer->pos += 2;
         res.type = TOKEN_IF;
+        lexer->pos += 2;
     }
     else if (strncmp("then", current_char, 4) == 0)
     {
@@ -76,27 +86,29 @@ struct token lexer_next_token(struct lexer *lexer)
     else
     {
         res.type = TOKEN_WORD;
+
         size_t len = 0;
-        while (*(current_char + len) != '\n' && *(current_char + len) != 0
-               && *(current_char + len) != ';' && *(current_char + len) != '\''
-               && *(current_char + len) != ' ')
-            len++;
-        res.value.c = malloc(len + 1);
-        for (size_t i = 0; i < len; i++)
+        while (current_char[len] && strchr("; \'\n", current_char[len]))
         {
-            (res.value.c)[i] = *(current_char + i);
+            len++;
         }
-        (res.value.c)[len] = 0;
+
+        res.value.c = calloc(len + 1, sizeof(char));
+        memcpy(res.value.c, current_char, len);
+
         lexer->pos += len;
     }
+
     return res;
 }
 
 struct token lexer_peek(struct lexer *lexer)
 {
     int pos = lexer->pos;
+
     struct token res = lexer_next_token(lexer);
     lexer->pos = pos;
+
     return res;
 }
 

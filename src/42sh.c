@@ -19,14 +19,12 @@ int main(int argc, char *argv[])
     char *input = calloc(1, sizeof(char));
     int c;
     int opt_idx = 0;
-    while ((c = getopt_long(argc, argv, "v::ct:", l_opts, &opt_idx)) != -1)
+    while ((c = getopt_long(argc, argv, "v:ct:", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
         case 'v':
-            logger("Test %s\n", "hello");
             logger(NULL, NULL);
-            logger("Test %s\n", "hello");
             break;
         case 'c':
             fill_input_with_argv(argv, argc, optind, input);
@@ -46,5 +44,6 @@ int main(int argc, char *argv[])
         }
     }
 
+    free(input);
     return 0;
 }
