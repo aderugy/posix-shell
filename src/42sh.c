@@ -5,22 +5,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "builtins/builtins.h"
-#include "utils/fill_input.h"
+#include "streams/streams.h"
 #include "utils/logger.h"
-#include "utils/test_lexer.h"
+
 static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
-                                  { "comput", no_argument, 0, 'c' },
+                                  { "comput", required_argument, 0, 'c' },
                                   { "test-token", no_argument, 0, 't' },
 
                                   { 0, 0, 0, 0 } };
 
 int main(int argc, char *argv[])
 {
-    char *input = calloc(1, sizeof(char));
     int c;
     int opt_idx = 0;
-    while ((c = getopt_long(argc, argv, "v:ct:", l_opts, &opt_idx)) != -1)
+    struct stream *stream = NULL;
+    while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
@@ -28,14 +27,9 @@ int main(int argc, char *argv[])
             logger(NULL, NULL);
             break;
         case 'c':
-            fill_input_with_argv(argv, argc, optind, input);
-            logger("%s", input);
+            stream = stream_from_str(optarg);
             break;
         case 't':
-            fill_input_with_argv(argv, argc, optind, input);
-            logger("%s\n", input);
-            test_lexer(input);
-            logger("start token debug");
             break;
         case '?':
             exit(1);
@@ -45,6 +39,24 @@ int main(int argc, char *argv[])
         }
     }
 
-    free(input);
+    if (!stream)
+    {
+        if (argc > 1)
+        {
+            char *path = argv[1];
+            stream = stream_from_file(path);
+        }
+        else
+        {
+            stream = stream_from_stream(stdin);
+        }
+    }
+
+    if (!stream)
+    {
+        errx(1, "stream error");
+    }
+
+    stream_close(stream);
     return 0;
 }

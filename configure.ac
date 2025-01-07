@@ -27,6 +27,7 @@ AC_CONFIG_FILES([
                     Makefile
                     src/Makefile
                     src/ast/Makefile
+                    src/mbtstr/Makefile
                     src/lexer/Makefile
                     src/streams/Makefile
                     src/parser/Makefile

@@ -12,5 +12,5 @@ clean:
 	rm -rf config.status Makefile src/42sh
 	rm -rf test-driver tests/atconfig
 	find \( -name *.log -o -name *.trs -o -name *.Po -o -name Makefile \) -delete
+	find \( -name *.dirstamp \) -delete
 	find \( -name *.deps -o -name *.[oa] -o -name *.in \) -delete
-	find \( -name *.log \) -delete

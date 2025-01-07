@@ -32,7 +32,7 @@ struct token lexer_next_token(struct lexer *lexer)
     res.type = TOKEN_ERROR;
 
     const char *input = lexer->input;
-    while ((input[lexer->pos]) == ' ')
+    while (isspace(input[lexer->pos]))
     {
         (lexer->pos)++;
     }
@@ -88,7 +88,7 @@ struct token lexer_next_token(struct lexer *lexer)
         res.type = TOKEN_WORD;
 
         size_t len = 0;
-        while (!(current_char[len] && strchr("; \'\n", current_char[len])))
+        while (current_char[len] && !strchr("; \'\n", current_char[len]))
         {
             len++;
         }

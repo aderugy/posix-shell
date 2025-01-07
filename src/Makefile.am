@@ -1,5 +1,6 @@
 SUBDIRS = ast \
 		  parser \
+		  mbtstr \
 		  streams \
 		  lexer \
 				utils \
@@ -16,6 +17,7 @@ bin_PROGRAMS = 42sh
 	utils/libutils.a \
 	ast/libast.a \
 	parser/libpar.a \
+	mbtstr/libstr.a \
 	streams/libstreams.a \
 	lexer/liblex.a  \
 	builtins/libbuiltins.a
