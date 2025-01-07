@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer/splitter.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -54,6 +55,10 @@ int main(int argc, char *argv[])
     if (!stream)
     {
         errx(1, "stream error");
+    }
+
+    while (splitter_next(stream))
+    {
     }
 
     stream_close(stream);
