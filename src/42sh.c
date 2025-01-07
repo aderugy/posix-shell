@@ -1,4 +1,5 @@
 #include "ast/ast.h"
+#include "utils/logger.h"
 
 int main(void)
 {
