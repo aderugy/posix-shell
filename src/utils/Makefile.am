@@ -2,7 +2,9 @@ lib_LIBRARIES = libutils.a
 
 libutils_a_SOURCES =  \
   logger.c \
-  logger.h
+  logger.h \
+  fill_input.h \
+  fill_input.c
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
