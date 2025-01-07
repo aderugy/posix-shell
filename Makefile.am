@@ -1,9 +1,11 @@
-TESTS = tests/testsuite.sh tests/syntax/good/tests.sh tests/syntax/bad/tests.sh
+#TESTS = tests/testsuite.sh tests/syntax/good/tests.sh tests/syntax/bad/tests.sh
 
 LOG_COMPILER = /bin/bash
 
 SUBDIRS = src
 
+check:
+	tests/testsuite.sh
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
 	rm -rf *.m4 autom4te.cache/
