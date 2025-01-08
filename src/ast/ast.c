@@ -39,6 +39,20 @@ struct ast_node *add_element(struct ast_node *ast, struct element_node *child)
     return ast;
 }
 
+struct ast_node *new_element_node(struct mbt_str *str)
+{
+    struct ast_node *new = calloc(1, sizeof(struct ast_node));
+    struct element_node *value = calloc(1, sizeof(struct element_node));
+    if (!value)
+    {
+        logger("FAILED : not enough memory to calloc a new ast");
+        free(new);
+        return NULL;
+    }
+    value->element = str;
+    return new;
+}
+
 struct ast_node *new_if_ast(struct ast_node *new)
 {
     struct if_node *value = calloc(1, sizeof(struct if_node));
