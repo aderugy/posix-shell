@@ -1,7 +1,8 @@
-#include "str.h"
-#include "view.h"
 #include <stdbool.h>
 #include <stddef.h>
+
+#include "str.h"
+#include "view.h"
 
 bool mbt_str_pushcv(struct mbt_str *str, struct mbt_cview view)
 {

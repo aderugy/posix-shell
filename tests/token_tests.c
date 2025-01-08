@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer/lexer.h"
 #include "lexer/splitter.h"
+#include "lexer/token.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -14,6 +16,37 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "test-token", no_argument, 0, 't' },
 
                                   { 0, 0, 0, 0 } };
+
+int test_lexer(struct stream *stream)
+{
+    char *tab[] = { [TOKEN_IF] = "IF",
+                    [TOKEN_THEN] = "THEN",
+                    [TOKEN_ELIF] = "ELIF",
+                    [TOKEN_ELSE] = "ELSE",
+                    [TOKEN_FI] = "FI",
+                    [TOKEN_SEMICOLON] = ";",
+                    [TOKEN_NEW_LINE] = "NEW_LINE",
+                    [TOKEN_QUOTE] = "QUOTE" };
+    struct lexer *lexer = lexer_new(stream);
+    struct token token = lexer_pop(lexer);
+
+    while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR)
+    {
+        if (token.type == TOKEN_WORD)
+            printf("word: %s\n", token.value.c);
+        else
+            printf("%s\n", tab[token.type]);
+
+        token = lexer_pop(lexer);
+    }
+
+    if (token.type == TOKEN_EOF)
+        printf("EOF\n");
+
+    lexer_free(lexer);
+
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -31,8 +64,6 @@ int main(int argc, char *argv[])
         case 'c':
             stream = stream_from_str(optarg);
             break;
-        case 't':
-            break;
         case '?':
             exit(1);
 
@@ -40,33 +71,6 @@ int main(int argc, char *argv[])
             errx(1, "main: unkown option %c", c);
         }
     }
-
-    if (!stream)
-    {
-        if (argc > 1)
-        {
-            char *path = argv[1];
-            stream = stream_from_file(path);
-        }
-        else
-        {
-            stream = stream_from_stream(stdin);
-        }
-    }
-
-    if (!stream)
-    {
-        errx(1, "stream error");
-    }
-
-    struct shard *shard;
-    while ((shard = splitter_next(stream)))
-    {
-        printf("%s (%d)\n", shard->data, shard->quoted);
-        free(shard->data);
-        free(shard);
-    }
-
-    stream_close(stream);
+    test_lexer(stream);
     return 0;
 }

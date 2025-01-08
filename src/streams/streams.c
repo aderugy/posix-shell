@@ -8,6 +8,7 @@
 
 static struct stream *stream_init(void)
 {
+    logger("stream_init: init\n");
     struct stream *stream = calloc(1, sizeof(struct stream));
     if (!stream)
     {
@@ -27,6 +28,7 @@ struct stream *stream_from_file(const char *path)
     }
 
     stream->in = fopen(path, "r");
+    logger("stream_from_file: %s\n", path);
     if (!stream->in)
     {
         logger("stream_from_file: failed to open stream\n");
@@ -47,6 +49,7 @@ struct stream *stream_from_str(char *str)
     }
 
     stream->in = fmemopen(str, strlen(str), "r");
+    logger("stream_from_str: %s\n", str);
     if (!stream->in)
     {
         logger("stream_from_str: failed to open stream\n");
@@ -68,8 +71,10 @@ struct stream *stream_from_stream(FILE *in)
     struct stream *stream = stream_init();
     if (!stream)
     {
+        logger("stream_from_stream: failed to init stream\n");
         return NULL;
     }
+    logger("stream_from_stream: %p\n", in);
 
     stream->in = in;
     return stream;
@@ -79,6 +84,7 @@ void stream_close(struct stream *stream)
 {
     if (stream)
     {
+        logger("stream_close: closing stream\n");
         fclose(stream->in);
         free(stream);
     }
@@ -90,6 +96,7 @@ void stream_close(struct stream *stream)
  */
 char stream_read(struct stream *stream)
 {
+    logger("stream_read: reading\n");
     return fgetc(stream->in);
 }
 
@@ -99,6 +106,7 @@ char stream_read(struct stream *stream)
  */
 char stream_peek(struct stream *stream)
 {
+    logger("stream_peek: peeking\n");
     char c = fgetc(stream->in);
     if (c != EOF)
     {

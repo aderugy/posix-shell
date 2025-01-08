@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "mbtstr/str.h"
+#include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";", "&&" };
 static const int OPERATORS_SIZE = 2;
@@ -128,8 +129,9 @@ struct shard *splitter_next(struct stream *stream)
             if (!str->size)
             {
                 mbt_str_pushc(str, c);
+                stream_read(stream);
             }
-
+            stream_read(stream);
             break;
         }
 
@@ -159,10 +161,14 @@ struct shard *splitter_next(struct stream *stream)
         // Case 10: comments
         if (c == '#')
         {
-            while ((c = stream_peek(stream)) != '\n')
+            logger("--Lexing # reading\n");
+            while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
             {
-                stream_read(stream); // Discard every char until \n
+                logger(" -- %i : %c\n", c, c);
+                stream_read(stream); // Discard every char until \n 0 and -1
+                                     // (check with numeric value)
             }
+            logger("\n");
 
             break;
         }

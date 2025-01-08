@@ -1,11 +1,14 @@
 #include "ast.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "parser/parser.h"
 
 void print_ast()
 {
     printf("ast !!!\n");
-    print_parser();
 }
+
+void ast_free(__attribute__((unused)) struct ast_node *node)
+{}
