@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "mbtstr/str.h"
 #include "parser/parser.h"
 #include "utils/logger.h"
@@ -94,10 +95,10 @@ void print_ast()
 void simple_command_node_free(struct simple_command_node *simple_command_node)
 {
     mbt_str_free(simple_command_node->command_name);
-    for(size_t i =0; i<simple_command_node->elements_len;i++)
+    for (size_t i = 0; i < simple_command_node->elements_len; i++)
     {
         mbt_str_free((simple_command_node->elements)[i]);
-    } 
+    }
     free(simple_command_node->elements);
 }
 
@@ -127,6 +128,7 @@ void list_node_free(struct list_node *list_node)
 
 void ast_free(struct ast_node *node)
 {
+<<<<<<< HEAD
     if(node->type == IF)
         if_node_free(node->value.if_node);
 
