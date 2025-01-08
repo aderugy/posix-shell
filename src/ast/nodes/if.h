@@ -11,5 +11,8 @@ struct if_node
     struct ast_node *else_clause; // unknown
 };
 
-struct ast_if_node *ast_parse_if(struct lexter *lexer);
+struct ast_if_node *ast_parse_if(struct lexer *lexer);
+int ast_eval_if(struct ast_if_node *node, void **cmd);
+void ast_free_if(struct ast_if_node *node);
+
 #endif // IF_H
