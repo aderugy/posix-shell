@@ -30,13 +30,6 @@ struct list_node
     size_t size;
 };
 
-struct if_node
-{
-    struct ast_node *condition; // unkwown
-    struct ast_node *body; // unkwown
-    struct ast_node *else_clause; // unknown
-};
-
 // has to be a leaf node !
 struct simple_command_node
 {

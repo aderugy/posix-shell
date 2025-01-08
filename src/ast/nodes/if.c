@@ -3,57 +3,36 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "lexer/lexer.h"
 #include "node.h"
 
-struct ast_node *parse_rule_if(struct lexer *lexer)
+struct ast_node *ast_parse_if(struct lexer *lexer)
 {
-    struct token tok = lexer_pop(lexer);
-    if (tok.type != TOKEN_IF)
+    struct token *token = lexer_peek(lexer);
+    if (token->type != TOKEN_IF)
     {
-        errx(1, "Unexpected token in rule_if. Expected IF");
         return NULL;
     }
 
-    struct ast_node *ast = new_ast(IF);
-    ast->value.if_node->condition = parse_compound_list(lexer);
+    lexer_pop(lexer);
 
-    // check for ast->condition being NULL
-    if (ast->value.if_node->condition == NULL)
+    struct ast_if_node *node = calloc(1, sizeof(struct ast_if_node));
+    if (!node)
     {
-        errx(1, "Unexpected token in rule_if. Expected compound_list");
+        errx(EXIT_FAILURE, "out of memory");
     }
 
-    tok = lexer_pop(lexer);
-    if (tok.type != TOKEN_THEN)
-    {
-        errx(1, "Unexpected token in rule_if. Expected");
-    }
+    // node->condition = ast_create(CLIST)
+    // check null -> error
+    // lexer_pop: expect then
+    // check then
+    // node->body = ast_create(clist)
+    // check null
+    // lexer_peek
+    //      1. else | elif -> ast_create(else | elif)
+    // lexer_pop: expect fi
+    // check
 
-    ast->value.if_node->body = parse_compound_list(lexer);
-
-    // check for ast->body being NULL
-    if (ast->value.if_node->body == NULL)
-    {
-        errx(1, "Unexpected token in rule_if. Expected compound_list");
-    }
-
-    tok = lexer_peek(lexer);
-    if (tok.type == TOKEN_ELSE || tok.type == TOKEN_ELIF)
-    {
-        ast->value.if_node->else_clause = parse_compound_list(lexer);
-
-        // !!! maybe check for ast->else_clause being NULL
-        if (ast->value.if_node->else_clause == NULL)
-        {
-            errx(1, "Unexpected token in rule_if. Expected compound_list");
-        }
-    }
-
-    tok = lexer_pop(lexer);
-    if (tok.type != TOKEN_FI)
-    {
-        errx(1, "Unexpected token in rule_if. Expected FI");
-    }
-
-    return ast;
+    errx(EXIT_FAILURE, "not implemented");
+    return NULL;
 }

@@ -1,6 +1,8 @@
 #ifndef AST_NODE_H
 #define AST_NODE_H
 
+#include "lexer/lexer.h"
+
 #define AST_EVAL_SUCCESS 0
 #define AST_EVAL_ERROR 1
 
@@ -24,5 +26,7 @@ struct ast_node
     enum ast_type type;
     void *value;
 };
+
+struct ast_node *ast_create(struct lexer *lexer, enum ast_type type);
 
 #endif // !AST_NODE_H
