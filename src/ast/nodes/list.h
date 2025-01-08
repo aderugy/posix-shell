@@ -1,17 +1,19 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stddef.h>
+
 #include "lexer/lexer.h"
 #include "node.h"
+#include "utils/linked_list.h"
 
-struct list_node
+struct ast_list
 {
-    struct ast_node **list; // and_or
-    size_t size;
+    struct linked_list *list;
 };
 
-struct ast_node *ast_parse_list(struct lexer *lexer);
-int ast_eval_list(struct ast_node *node, void **out);
-void ast_free_list(struct ast_node *node);
+struct ast_list *ast_parse_list(struct lexer *lexer);
+int ast_eval_list(struct ast_list *node, void **out);
+void ast_free_list(struct ast_list *node);
 
 #endif // LIST_H
