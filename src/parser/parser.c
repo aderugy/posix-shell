@@ -140,39 +140,48 @@ struct ast_node *parse_rule_if(struct lexer *lexer)
         perror("Unexpected token in rule_if. Expected IF");
         return NULL;
     }
+
     struct ast_node *ast = new_ast(IF);
     ast->value.if_node->condition = parse_compound_list(lexer);
+
     // check for ast->condition being NULL
     if (ast->value.if_node->condition == NULL)
     {
         return exit_shortcut("Internal error in compound_list", ast);
     }
+
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_THEN)
     {
         return exit_shortcut("Unexpected token in rule_if. Expected THEN", ast);
     }
+
     ast->value.if_node->body = parse_compound_list(lexer);
+
     // check for ast->body being NULL
     if (ast->value.if_node->body == NULL)
     {
         return exit_shortcut("Internal error in compound_list", ast);
     }
+
     tok = lexer_peek(lexer);
     if (tok.type == TOKEN_ELSE || tok.type == TOKEN_ELIF)
     {
         ast->value.if_node->else_clause = parse_compound_list(lexer);
+
         // !!! maybe check for ast->else_clause being NULL
         if (ast->value.if_node->else_clause == NULL)
         {
             return exit_shortcut("Internal error in compound_list", ast);
         }
     }
+
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_FI)
     {
         return exit_shortcut("Unexpected token in rule_if. Expected FI", ast);
     }
+
     return ast;
 }
 /* compound_list =
