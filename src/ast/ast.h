@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "lexer/token.h"
+#include "nodes/element.h"
 
 enum ast_type
 {
@@ -25,11 +26,6 @@ struct and_or_node
     struct ast_node *left; // unkwown
     struct ast_node *right; // unkwown
     enum and_or_type type;
-};
-
-struct element_node // can be produced with new_element_node
-{
-    struct mbt_str *element; // a word that will be an argument
 };
 
 struct list_node
