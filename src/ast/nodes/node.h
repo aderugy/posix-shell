@@ -28,5 +28,6 @@ struct ast_node
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type);
+void ast_free(struct ast_node *node);
 
 #endif // !AST_NODE_H

@@ -1,54 +1,57 @@
 #include "node.h"
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "element.h"
 #include "utils/logger.h"
 
-struct ast_node *new_ast(enum ast_type type)
+struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
-    struct ast_node *new = calloc(1, sizeof(struct ast_node));
-    if (!new)
+    struct ast_node *root = calloc(1, sizeof(struct ast_node));
+    if (!root)
     {
-        logger("FAILED : not enough memory to calloc a new ast");
-        return NULL;
+        errx(EXIT_FAILURE, "out of memory");
     }
-    new->type = type;
+
     switch (type)
     {
     case SIMPLE_COMMAND:
-        return new_simple_command_ast(new);
-
+        break;
     case IF:
-        return new_if_ast(new);
-
-    case AND_OR:
-        return new_and_or_ast(new);
-
+        break;
     case LIST:
-        return new_list_ast(new);
+        break;
+    case AND_OR:
+        break;
+    case ELEMENT:
+        root->value = ast_parse_element(lexer);
+        break;
 
     default:
-        logger("FAILURE : NOT KNOWN TYPE");
-        free(new);
-        return NULL;
+        errx(1, "type is not implemented");
     }
-    return NULL;
+    return root;
 }
 
 void ast_free(struct ast_node *node)
 {
-    if (node->type == IF)
-        if_node_free(node->value.if_node);
+    switch (node->type)
+    {
+    case SIMPLE_COMMAND:
+        break;
+    case IF:
+        break;
+    case LIST:
+        break;
+    case AND_OR:
+        break;
+    case ELEMENT:
+        break;
 
-    else if (node->type == SIMPLE_COMMAND)
-        simple_command_node_free(node->value.simple_command);
-
-    else if (node->type == LIST)
-        list_node_free(node->value.list_node);
-
-    else if (node->type == AND_OR)
-        and_or_node_free(node->value.and_or_node);
-
+    default:
+        errx(EXIT_FAILURE, "type is not implmented");
+    }
     free(node);
 }
