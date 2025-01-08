@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer/splitter.h"
 #include "lexer/lexer.h"
+#include "lexer/splitter.h"
 #include "lexer/token.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
@@ -28,19 +28,19 @@ int test_lexer(struct stream *stream)
                     [TOKEN_NEW_LINE] = "NEW_LINE",
                     [TOKEN_QUOTE] = "QUOTE" };
     struct lexer *lexer = lexer_new(stream);
-    struct token *token = lexer_pop(lexer);
+    struct token token = lexer_pop(lexer);
 
-    while (token->type != TOKEN_EOF && token->type != TOKEN_ERROR)
+    while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR)
     {
-        if (token->type == TOKEN_WORD)
-            printf("word: %s\n", token->value.c);
+        if (token.type == TOKEN_WORD)
+            printf("word: %s\n", token.value.c);
         else
-            printf("%s\n", tab[token->type]);
+            printf("%s\n", tab[token.type]);
 
         token = lexer_pop(lexer);
     }
 
-    if (token->type == TOKEN_EOF)
+    if (token.type == TOKEN_EOF)
         printf("EOF\n");
 
     lexer_free(lexer);

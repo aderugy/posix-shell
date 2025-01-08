@@ -102,21 +102,21 @@ struct token *lexer_all(struct stream *stream)
         curr = next;
     }
     curr->type = TOKEN_EOF;
-    
+
     return res;
 }
 
-struct token *lexer_peek(struct lexer *lexer)
+struct token lexer_peek(struct lexer *lexer)
 {
-    return lexer->current_tok;
+    return *(lexer->current_tok);
 }
 
-struct token *lexer_pop(struct lexer *lexer)
+struct token lexer_pop(struct lexer *lexer)
 {
     struct token *res = lexer->current_tok;
     if (res)
     {
         lexer->current_tok = res->next;
     }
-    return res;
+    return *res;
 }
