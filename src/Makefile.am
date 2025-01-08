@@ -14,10 +14,10 @@ bin_PROGRAMS = 42sh
 42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
 42sh_LDADD =  \
+	parser/libpar.a \
+	ast/libast.a \
 	lexer/liblex.a \
 	utils/libutils.a \
-	ast/libast.a \
-	parser/libpar.a \
 	streams/libstreams.a \
 	builtins/libbuiltins.a \
 	mbtstr/libmbtstr.a 
