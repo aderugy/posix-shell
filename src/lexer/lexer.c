@@ -1,6 +1,5 @@
 #include "lexer.h"
 
-#include <ctype.h>
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +7,14 @@
 
 #include "splitter.h"
 #include "token.h"
+
+static const struct keyword KEYWORDS[] = {
+    { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
+    { "else", TOKEN_ELSE },   { "then", TOKEN_THEN }, { ";", TOKEN_SEMICOLON },
+    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },   { NULL, TOKEN_EOF }
+};
+
+#define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
 struct lexer *lexer_new(struct stream *stream)
 {
@@ -36,66 +43,28 @@ void lexer_free(struct lexer *lexer)
 struct token *lexer_all(struct stream *stream)
 {
     struct token *res = calloc(1, sizeof(struct token));
-    struct token *curr = res;
     res->type = TOKEN_ERROR;
-    struct shard *shard = splitter_next(stream);
-    while (shard)
+
+    struct token *curr = res;
+
+    struct shard *shard;
+    while ((shard = splitter_next(stream)))
     {
-        char *input = shard->data;
-        while (isspace(*input))
+        for (size_t i = 0; i < KEYWORDS_LEN; i++)
         {
-            input++;
+            if (strcmp(shard->data, KEYWORDS[i].name) == 0)
+            {
+                curr->type = KEYWORDS[i].type;
+                break;
+            }
         }
-        const char *current_char = input;
-        if (strncmp("if", current_char, 2) == 0)
-        {
-            curr->type = TOKEN_IF;
-        }
-        else if (strncmp("then", current_char, 4) == 0)
-        {
-            curr->type = TOKEN_THEN;
-        }
-        else if (strncmp("elif", current_char, 4) == 0)
-        {
-            curr->type = TOKEN_ELIF;
-        }
-        else if (strncmp("else", current_char, 4) == 0)
-        {
-            curr->type = TOKEN_ELSE;
-        }
-        else if (strncmp("fi", current_char, 2) == 0)
-        {
-            curr->type = TOKEN_FI;
-        }
-        else if (current_char[0] == ';')
-        {
-            curr->type = TOKEN_SEMICOLON;
-        }
-        else if (current_char[0] == '\n')
-        {
-            curr->type = TOKEN_NEW_LINE;
-        }
-        else if (current_char[0] == '\'')
-        {
-            curr->type = TOKEN_QUOTE;
-        }
-        else if (current_char[0] == 0)
-        {
-            curr->type = TOKEN_EOF;
-        }
-        else
+
+        if (curr->type == TOKEN_ERROR)
         {
             curr->type = TOKEN_WORD;
-
-            size_t len = 0;
-            while (current_char[len] && !strchr("; \'\n", current_char[len]))
-            {
-                len++;
-            }
-
-            curr->value.c = calloc(len + 1, sizeof(char));
-            memcpy(curr->value.c, current_char, len);
+            curr->value.c = strdup(shard->data);
         }
+
         shard = splitter_next(stream);
         struct token *next = calloc(1, sizeof(struct token));
         curr->next = next;

@@ -19,6 +19,12 @@ struct lexer
     struct token *current_tok; // The next token, if processed
 };
 
+struct keyword
+{
+    const char *name;
+    enum token_type type;
+};
+
 /**
  * \brief Creates a new lexer given an input string.
  */
