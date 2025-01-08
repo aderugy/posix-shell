@@ -33,6 +33,32 @@ struct ast_node *new_if_ast(struct ast_node *new)
     return new;
 }
 
+struct ast_node *new_and_or_ast(struct ast_node *new)
+{
+    struct and_or_node *value = calloc(1, sizeof(struct and_or_node));
+    if (!value)
+    {
+        logger("FAILED : not enough memory to calloc a new ast");
+        free(new);
+        return NULL;
+    }
+    new->value.and_or_node = value;
+    return new;
+}
+
+struct ast_node *new_list_ast(struct ast_node *new)
+{
+    struct list_node *value = calloc(1, sizeof(struct list_node));
+    if (!value)
+    {
+        logger("FAILED : not enough memory to calloc a new ast");
+        free(new);
+        return NULL;
+    }
+    new->value.list_node = value;
+    return new;
+}
+
 struct ast_node *new_ast(enum ast_type type)
 {
     struct ast_node *new = calloc(1, sizeof(struct ast_node));
