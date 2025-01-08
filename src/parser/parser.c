@@ -62,9 +62,8 @@ struct ast_node *parse_input(struct lexer *lexer)
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_EOF && tok.type != TOKEN_NEW_LINE)
     {
-        perror("Unexpected token at the end of input parsing");
-        ast_free(root);
-        return NULL;
+        return exit_shortcut("Unexpected token at the end of input parsing",
+                             root);
     }
     return root;
 }
@@ -76,6 +75,18 @@ struct ast_node *parse_list(__attribute__((unused)) struct lexer *lexer)
 {
     logger(" -- parse list\n");
     // TODO implement how we build the ast with AND_OR nodes
+    /*
+       commented to pass compile step
+            ||
+            vv
+    struct ast_node *ast = parse_and_or(lexer);
+    if (ast == NULL)
+    {
+        perror("Internal error in and_or.");
+        return NULL;
+    }
+    struct token tok = lexer_peek(lexer);
+    */
     return NULL;
 }
 // and_or = pipeline
