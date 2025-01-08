@@ -10,6 +10,7 @@
 #include "mbtstr/str.h"
 
 static const char *OPERATORS[] = { "&&" };
+static const int OPERATORS_SIZE = 1;
 
 static struct shard *shard_init(char quoted, char *data)
 {
@@ -26,7 +27,7 @@ static struct shard *shard_init(char quoted, char *data)
 
 static int is_operator(struct mbt_str *str)
 {
-    for (size_t i = 0; i < sizeof(OPERATORS); i++)
+    for (size_t i = 0; i < OPERATORS_SIZE; i++)
     {
         if (strcmp(OPERATORS[i], str->data) == 0)
         {
@@ -94,7 +95,7 @@ struct shard *splitter_next(struct stream *stream)
 
         // Case 6: New operator
         bool is_op = false;
-        for (size_t i = 0; i < sizeof(OPERATORS); i++)
+        for (size_t i = 0; i < OPERATORS_SIZE; i++)
         {
             if (OPERATORS[i][0] == c)
             {
@@ -103,18 +104,31 @@ struct shard *splitter_next(struct stream *stream)
         }
         if (is_op) // Case 6: matched
         {
-            break;
+            mbt_str_pushc(str, c);
+            stream_read(stream);
+            continue;
         }
 
         // Case 7: delimiter
         if (isspace(c))
         {
-            break;
+            stream_read(stream);
+
+            if (str->size)
+            {
+                break;
+            }
+            else
+            {
+                continue;
+            }
         }
 
         // Case 8: existing word
         if (str->size)
         {
+            mbt_str_pushc(str, c);
+            stream_read(stream);
             continue;
         }
 
@@ -130,14 +144,21 @@ struct shard *splitter_next(struct stream *stream)
         }
 
         // Case 10: new word: keep looping
+        mbt_str_pushc(str, c);
+        stream_read(stream);
     }
 
     char *data = NULL;
     if (str->size)
     {
-        data = str->data;
+        data = strdup(str->data);
+    }
+    mbt_str_free(str);
+
+    if (data)
+    {
+        return shard_init(quoted, data);
     }
 
-    mbt_str_free(str);
-    return shard_init(quoted, data);
+    return NULL;
 }

@@ -57,8 +57,12 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
-    while (splitter_next(stream))
+    struct shard *shard;
+    while ((shard = splitter_next(stream)))
     {
+        printf("%s (%d)\n", shard->data, shard->quoted);
+        free(shard->data);
+        free(shard);
     }
 
     stream_close(stream);
