@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer/splitter.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -56,6 +57,14 @@ int main(int argc, char *argv[])
     if (!stream)
     {
         errx(1, "stream error");
+    }
+
+    struct shard *shard;
+    while ((shard = splitter_next(stream)))
+    {
+        printf("%s (%d)\n", shard->data, shard->quoted);
+        free(shard->data);
+        free(shard);
     }
 
     stream_close(stream);
