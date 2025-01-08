@@ -1,6 +1,7 @@
-#include "str.h"
 #include <stddef.h>
 #include <stdlib.h>
+
+#include "str.h"
 
 struct mbt_str *mbt_str_init(size_t capacity)
 {

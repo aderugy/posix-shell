@@ -1,5 +1,5 @@
-#include "str.h"
 #include "stdlib.h"
+#include "str.h"
 
 bool mbt_str_ctor(struct mbt_str *str, size_t capacity)
 {
