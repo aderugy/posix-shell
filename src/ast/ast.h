@@ -8,8 +8,7 @@ enum ast_type
 {
     SIMPLE_COMMAND,
     IF,
-    SHELL_COMMAND,
-    PIPELINE,
+    LIST,
     AND_OR,
 };
 
