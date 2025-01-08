@@ -1,8 +1,10 @@
+#include "and_or.h"
+
 #include <err.h>
 #include <stdlib.h>
 
-#include "ast/ast.h"
 #include "lexer/token.h"
+#include "node.h"
 #include "utils/logger.h"
 
 struct ast_node *new_and_or_ast(struct ast_node *new)
