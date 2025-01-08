@@ -1,5 +1,6 @@
 #ifndef AST_H
 #define AST_H
+#include <stddef.h>
 #include <unistd.h>
 
 #include "lexer/token.h"
@@ -11,6 +12,7 @@ enum ast_type
     SHELL_COMMAND,
     PIPELINE,
     AND_OR,
+    LIST,
 };
 
 enum and_or_type
@@ -27,6 +29,7 @@ struct and_or_node
 struct list_node
 {
     struct ast_node **list; // and_or
+    size_t size;
 };
 struct if_node
 {
@@ -55,6 +58,7 @@ struct ast_node
 };
 
 struct ast_node *new_ast(enum ast_type type);
+struct list_node *add_node(struct list_node *node, struct ast_node *child);
 void ast_free(struct ast_node *node);
 void print_ast();
 
