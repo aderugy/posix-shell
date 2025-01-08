@@ -132,7 +132,7 @@ struct shard *splitter_next(struct stream *stream)
                 mbt_str_pushc(str, c);
                 stream_read(stream);
             }
-
+            stream_read(stream);
             break;
         }
 

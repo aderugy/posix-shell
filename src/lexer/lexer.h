@@ -2,6 +2,7 @@
 #define LEXER_H
 
 #include "token.h"
+#include "streams/streams.h"
 
 /**
  * \page Lexer
@@ -15,15 +16,13 @@
 
 struct lexer
 {
-    const char *input; // The input data
-    size_t pos; // The current offset inside the input data
-    struct token current_tok; // The next token, if processed
+    struct token* current_tok; // The next token, if processed
 };
 
 /**
  * \brief Creates a new lexer given an input string.
  */
-struct lexer *lexer_new(const char *input);
+struct lexer *lexer_new(struct stream *stream);
 
 /**
  ** \brief Frees the given lexer, but not its input.
@@ -37,7 +36,7 @@ void lexer_free(struct lexer *lexer);
  * builds a token. lexer_peek and lexer_pop should call it. If the input is
  * invalid, you must print something on stderr and return the appropriate token.
  */
-struct token lexer_next_token(struct lexer *lexer);
+struct token *lexer_all(struct stream *stream);
 
 /**
  * \brief Returns the next token, but doesn't move forward: calling lexer_peek
@@ -45,12 +44,12 @@ struct token lexer_next_token(struct lexer *lexer);
  * This function is meant to help the parser check if the next token matches
  * some rule.
  */
-struct token lexer_peek(struct lexer *lexer);
+struct token *lexer_peek(struct lexer *lexer);
 
 /**
  * \brief Returns the next token, and removes it from the stream:
  *   calling lexer_pop in a loop will iterate over all tokens until EOF.
  */
-struct token lexer_pop(struct lexer *lexer);
+struct token *lexer_pop(struct lexer *lexer);
 
 #endif /* !LEXER_H */

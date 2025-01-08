@@ -27,5 +27,6 @@ struct token
         char *c;
         ssize_t s;
     } value; // value of the token if neccessary
+    struct token *next;
 };
 #endif /* !TOKEN_H */

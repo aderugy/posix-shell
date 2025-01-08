@@ -1,7 +1,8 @@
 #include <ctype.h>
+#include <stdio.h>
+
 #include "str.h"
 #include "view.h"
-#include <stdio.h>
 
 void mbt_cview_fprint(struct mbt_cview view, FILE *stream)
 {

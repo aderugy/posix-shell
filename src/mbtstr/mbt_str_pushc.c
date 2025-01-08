@@ -1,5 +1,5 @@
-#include "str.h"
 #include "stdlib.h"
+#include "str.h"
 
 bool mbt_str_pushc(struct mbt_str *str, char c)
 {
