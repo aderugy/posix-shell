@@ -8,19 +8,20 @@
 
 struct ast_element_node *ast_parse_element(struct lexer *lexer)
 {
-    struct token *token = lexer_pop(lexer);
+    struct token *token = lexer_peek(lexer); // We check if the token is valid
     if (!token || token->type != TOKEN_WORD)
     {
         return NULL;
     }
 
+    lexer_pop(lexer); // Valid token -> we consume it
     struct ast_element_node *el = calloc(1, sizeof(struct ast_element_node));
     if (!el)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
-    el->value = token->value.c;
 
+    el->value = token->value.c;
     return el;
 }
 
