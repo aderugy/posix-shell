@@ -17,3 +17,7 @@ clean:
 	find \( -name *.log -o -name *.trs -o -name *.Po -o -name Makefile \) -delete
 	find \( -name *.dirstamp \) -delete
 	find \( -name *.deps -o -name *.[oa] -o -name *.in \) -delete
+builtins:
+	make
+	./tests/builtt_tests
+
