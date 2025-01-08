@@ -33,5 +33,6 @@ AC_CONFIG_FILES([
                     src/parser/Makefile
                     src/utils/Makefile
                     src/builtins/Makefile
+                    tests/Makefile
                 ])
 AC_OUTPUT

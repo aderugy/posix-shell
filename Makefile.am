@@ -2,7 +2,8 @@
 
 LOG_COMPILER = /bin/bash
 
-SUBDIRS = src
+SUBDIRS = src \
+		  tests
 
 check:
 	tests/testsuite.sh
