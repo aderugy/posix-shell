@@ -17,8 +17,26 @@ struct ast_node *new_simple_command_ast(struct ast_node *new)
         free(new);
         return NULL;
     }
+    value->elements_len = 0;
+    value->elements = calloc(1, sizeof(struct element_node **));
+    value->elements[0] = 0;
+
     new->value.simple_command = value;
+
     return new;
+}
+
+struct ast_node *add_element(struct ast_node *ast, struct element_node *child)
+{
+    struct simple_command_node *node = ast->value.simple_command;
+    node->elements =
+        realloc(node->elements,
+                sizeof(struct element_node **) * (node->elements_len + 2));
+    // size + new node + NULL
+    node->elements[node->elements_len] = child;
+    node->elements_len++;
+    node->elements[node->elements_len] = NULL;
+    return ast;
 }
 
 struct ast_node *new_if_ast(struct ast_node *new)
@@ -112,7 +130,7 @@ void simple_command_node_free(struct simple_command_node *simple_command_node)
     mbt_str_free(simple_command_node->command_name);
     for (size_t i = 0; i < simple_command_node->elements_len; i++)
     {
-        free((simple_command_node->elements)[i]);
+        // free((simple_command_node->elements)[i]);
     }
     free(simple_command_node->elements);
 }

@@ -67,6 +67,7 @@ struct ast_node
 
 struct ast_node *new_ast(enum ast_type type);
 struct ast_node *add_node(struct ast_node *node, struct ast_node *new_elt);
+struct ast_node *add_element(struct ast_node *ast, struct element_node *child);
 void if_node_free(struct if_node *if_node);
 void and_or_node_free(struct and_or_node *and_or_node);
 void list_node_free(struct list_node *list_node);
