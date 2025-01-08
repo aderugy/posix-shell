@@ -6,7 +6,7 @@
 #include "lexer/lexer.h"
 #include "node.h"
 
-struct ast_node *ast_parse_if(struct lexer *lexer)
+struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *token = lexer_peek(lexer);
     if (token->type != TOKEN_IF)
