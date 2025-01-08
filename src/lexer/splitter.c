@@ -129,6 +129,7 @@ struct shard *splitter_next(struct stream *stream)
             if (!str->size)
             {
                 mbt_str_pushc(str, c);
+                stream_read(stream);
             }
 
             break;
