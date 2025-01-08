@@ -10,8 +10,7 @@
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";", "&&" };
-static const int OPERATORS_SIZE = 2;
+static const char *OPERATORS[] = { ";", "&&", "&", "|", "<", ">", "||", NULL };
 
 static struct shard *shard_init(char quoted, char *data)
 {
@@ -26,9 +25,15 @@ static struct shard *shard_init(char quoted, char *data)
     return shard;
 }
 
+void shard_free(struct shard *shard)
+{
+    free(shard->data);
+    free(shard);
+}
+
 static int is_operator(struct mbt_str *str)
 {
-    for (size_t i = 0; i < OPERATORS_SIZE; i++)
+    for (size_t i = 0; OPERATORS[i]; i++)
     {
         if (strcmp(OPERATORS[i], str->data) == 0)
         {
@@ -68,13 +73,18 @@ struct shard *splitter_next(struct stream *stream)
         // Case 4: Quoting
         if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
         {
+            if (str->size)
+            {
+                break;
+            }
+
             char quote = c;
 
-            do
+            stream_read(stream);
+            while ((c = stream_read(stream)) != EOF && c != quote)
             {
                 mbt_str_pushc(str, c);
-                stream_read(stream);
-            } while ((c = stream_peek(stream)) != quote && c != EOF);
+            }
 
             switch (c)
             {
@@ -92,7 +102,6 @@ struct shard *splitter_next(struct stream *stream)
                 errx(EXIT_FAILURE, "wtf");
             }
 
-            mbt_str_pushc(str, c);
             break;
         }
 
@@ -104,7 +113,7 @@ struct shard *splitter_next(struct stream *stream)
 
         // Case 6: New operator
         bool is_op = false;
-        for (size_t i = 0; i < OPERATORS_SIZE; i++)
+        for (size_t i = 0; OPERATORS[i]; i++)
         {
             if (OPERATORS[i][0] == c)
             {

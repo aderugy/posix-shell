@@ -15,4 +15,6 @@ struct shard
 
 struct shard *splitter_next(struct stream *stream);
 
+void shard_free(struct shard *shard);
+
 #endif // !SPLITTER_H
