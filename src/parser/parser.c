@@ -64,6 +64,7 @@ struct ast_node *parse_input(struct lexer *lexer)
 */
 struct ast_node *parse_list(__attribute__((unused)) struct lexer *lexer)
 {
+    logger(" -- parse list\n");
     // TODO implement how we build the ast with AND_OR nodes
     return NULL;
 }
