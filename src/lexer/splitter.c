@@ -166,7 +166,8 @@ struct shard *splitter_next(struct stream *stream)
             while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
             {
                 logger(" -- %i : %c\n", c, c);
-                stream_read(stream); // Discard every char until \n
+                stream_read(stream); // Discard every char until \n 0 and -1
+                                     // (check with numeric value)
             }
             logger("\n");
 
