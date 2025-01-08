@@ -62,9 +62,8 @@ struct ast_node *parse_input(struct lexer *lexer)
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_EOF && tok.type != TOKEN_NEW_LINE)
     {
-        perror("Unexpected token at the end of input parsing");
-        ast_free(root);
-        return NULL;
+        return exit_shortcut("Unexpected token at the end of input parsing",
+                             root);
     }
     return root;
 }
@@ -74,7 +73,20 @@ struct ast_node *parse_input(struct lexer *lexer)
 */
 struct ast_node *parse_list(__attribute__((unused)) struct lexer *lexer)
 {
+    logger(" -- parse list\n");
     // TODO implement how we build the ast with AND_OR nodes
+    /*
+       commented to pass compile step
+            ||
+            vv
+    struct ast_node *ast = parse_and_or(lexer);
+    if (ast == NULL)
+    {
+        perror("Internal error in and_or.");
+        return NULL;
+    }
+    struct token tok = lexer_peek(lexer);
+    */
     return NULL;
 }
 // and_or = pipeline
@@ -128,39 +140,48 @@ struct ast_node *parse_rule_if(struct lexer *lexer)
         perror("Unexpected token in rule_if. Expected IF");
         return NULL;
     }
+
     struct ast_node *ast = new_ast(IF);
-    ast->value.if_node.condition = parse_compound_list(lexer);
+    ast->value.if_node->condition = parse_compound_list(lexer);
+
     // check for ast->condition being NULL
-    if (ast->value.if_node.condition == NULL)
+    if (ast->value.if_node->condition == NULL)
     {
         return exit_shortcut("Internal error in compound_list", ast);
     }
+
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_THEN)
     {
         return exit_shortcut("Unexpected token in rule_if. Expected THEN", ast);
     }
-    ast->value.if_node.body = parse_compound_list(lexer);
+
+    ast->value.if_node->body = parse_compound_list(lexer);
+
     // check for ast->body being NULL
-    if (ast->value.if_node.body == NULL)
+    if (ast->value.if_node->body == NULL)
     {
         return exit_shortcut("Internal error in compound_list", ast);
     }
+
     tok = lexer_peek(lexer);
     if (tok.type == TOKEN_ELSE || tok.type == TOKEN_ELIF)
     {
-        ast->value.if_node.else_clause = parse_compound_list(lexer);
+        ast->value.if_node->else_clause = parse_compound_list(lexer);
+
         // !!! maybe check for ast->else_clause being NULL
-        if (ast->value.if_node.else_clause == NULL)
+        if (ast->value.if_node->else_clause == NULL)
         {
             return exit_shortcut("Internal error in compound_list", ast);
         }
     }
+
     tok = lexer_pop(lexer);
     if (tok.type != TOKEN_FI)
     {
         return exit_shortcut("Unexpected token in rule_if. Expected FI", ast);
     }
+
     return ast;
 }
 /* compound_list =

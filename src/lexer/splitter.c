@@ -74,12 +74,7 @@ struct shard *splitter_next(struct stream *stream)
             {
                 mbt_str_pushc(str, c);
                 stream_read(stream);
-
-                if (c == quote)
-                {
-                    break;
-                }
-            } while ((c = stream_peek(stream)) != EOF);
+            } while ((c = stream_peek(stream)) != quote && c != EOF);
 
             switch (c)
             {
@@ -91,11 +86,14 @@ struct shard *splitter_next(struct stream *stream)
                 break;
             case '\\':
                 errx(EXIT_FAILURE, "not implemented");
+            case EOF:
+                errx(EXIT_FAILURE, "unmatched quote");
             default:
                 errx(EXIT_FAILURE, "wtf");
             }
 
-            continue;
+            mbt_str_pushc(str, c);
+            break;
         }
 
         // Case 5: Expansions
@@ -125,6 +123,7 @@ struct shard *splitter_next(struct stream *stream)
             continue;
         }
 
+        // Case 7: Newlines
         if (c == '\n')
         {
             if (!str->size)
@@ -136,7 +135,7 @@ struct shard *splitter_next(struct stream *stream)
             break;
         }
 
-        // Case 7: delimiter
+        // Case 8: delimiter
         if (isspace(c))
         {
             stream_read(stream);
@@ -151,7 +150,7 @@ struct shard *splitter_next(struct stream *stream)
             }
         }
 
-        // Case 8: existing word
+        // Case 9: existing word
         if (str->size)
         {
             mbt_str_pushc(str, c);
@@ -159,7 +158,7 @@ struct shard *splitter_next(struct stream *stream)
             continue;
         }
 
-        // Case 9: comments
+        // Case 10: comments
         if (c == '#')
         {
             logger("--Lexing # reading\n");
@@ -174,7 +173,7 @@ struct shard *splitter_next(struct stream *stream)
             break;
         }
 
-        // Case 10: new word: keep looping
+        // Case 11: new word: keep looping
         mbt_str_pushc(str, c);
         stream_read(stream);
     }
