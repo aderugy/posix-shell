@@ -32,8 +32,8 @@ struct ast_node
     enum ast_type type;
     union
     {
-        struct simple_command_node simple_command;
-        struct if_node if_node;
+        struct simple_command_node *simple_command;
+        struct if_node *if_node;
     } value;
 };
 

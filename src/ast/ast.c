@@ -9,3 +9,8 @@ void print_ast()
 {
     printf("ast !!!\n");
 }
+
+void ast_free(struct ast_node *node)
+{
+    
+}
