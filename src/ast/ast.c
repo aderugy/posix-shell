@@ -66,19 +66,6 @@ struct ast_node *new_if_ast(struct ast_node *new)
     return new;
 }
 
-struct ast_node *new_and_or_ast(struct ast_node *new)
-{
-    struct and_or_node *value = calloc(1, sizeof(struct and_or_node));
-    if (!value)
-    {
-        logger("FAILED : not enough memory to calloc a new ast");
-        free(new);
-        return NULL;
-    }
-    new->value.and_or_node = value;
-    return new;
-}
-
 struct ast_node *new_list_ast(struct ast_node *new)
 {
     struct list_node *value = calloc(1, sizeof(struct list_node));
@@ -155,13 +142,6 @@ void if_node_free(struct if_node *if_node)
     ast_free(if_node->body);
     ast_free(if_node->else_clause);
     free(if_node);
-}
-
-void and_or_node_free(struct and_or_node *and_or_node)
-{
-    ast_free(and_or_node->left);
-    ast_free(and_or_node->right);
-    free(and_or_node);
 }
 
 void list_node_free(struct list_node *list_node)
