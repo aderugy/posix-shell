@@ -9,8 +9,8 @@
 
 #include "mbtstr/str.h"
 
-static const char *OPERATORS[] = { "&&" };
-static const int OPERATORS_SIZE = 1;
+static const char *OPERATORS[] = { ";", "&&" };
+static const int OPERATORS_SIZE = 2;
 
 static struct shard *shard_init(char quoted, char *data)
 {
@@ -67,8 +67,18 @@ struct shard *splitter_next(struct stream *stream)
         // Case 4: Quoting
         if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
         {
-            mbt_str_pushc(str, c);
-            stream_read(stream);
+            char quote = c;
+
+            do
+            {
+                mbt_str_pushc(str, c);
+                stream_read(stream);
+
+                if (c == quote)
+                {
+                    break;
+                }
+            } while ((c = stream_peek(stream)) != EOF);
 
             switch (c)
             {
@@ -104,9 +114,24 @@ struct shard *splitter_next(struct stream *stream)
         }
         if (is_op) // Case 6: matched
         {
+            if (str->size)
+            {
+                break;
+            }
+
             mbt_str_pushc(str, c);
             stream_read(stream);
             continue;
+        }
+
+        if (c == '\n')
+        {
+            if (!str->size)
+            {
+                mbt_str_pushc(str, c);
+            }
+
+            break;
         }
 
         // Case 7: delimiter
