@@ -73,20 +73,27 @@ struct ast_node *parse_input(struct lexer *lexer)
 */
 struct ast_node *parse_list(__attribute__((unused)) struct lexer *lexer)
 {
-    logger(" -- parse list\n");
     // TODO implement how we build the ast with AND_OR nodes
     /*
        commented to pass compile step
             ||
             vv
-    struct ast_node *ast = parse_and_or(lexer);
+    */
+    struct ast_node *ast = new_ast(LIST);
+    parse_and_or(lexer);
     if (ast == NULL)
     {
         perror("Internal error in and_or.");
         return NULL;
     }
+
     struct token tok = lexer_peek(lexer);
-    */
+    while (tok.type == TOKEN_SEMICOLON)
+    {
+        tok = lexer_pop(lexer);
+        tok = lexer_peek(lexer);
+    }
+
     return NULL;
 }
 // and_or = pipeline
@@ -110,6 +117,7 @@ struct ast_node *parse_command(struct lexer *lexer)
     {
         return parse_shell_command(lexer);
     }
+
     return ast;
 }
 // simple_command = WORD { element }
@@ -121,6 +129,7 @@ struct ast_node *parse_simple_command(struct lexer *lexer)
         perror("Unexpected token in simple_command. Expected WORD");
         return NULL;
     }
+
     // TODO build and return the simple_command node
     return NULL;
 }

@@ -9,10 +9,8 @@ enum ast_type
 {
     SIMPLE_COMMAND,
     IF,
-    SHELL_COMMAND,
-    PIPELINE,
-    AND_OR,
     LIST,
+    AND_OR,
 };
 
 enum and_or_type
@@ -59,6 +57,10 @@ struct ast_node
 
 struct ast_node *new_ast(enum ast_type type);
 struct list_node *add_node(struct list_node *node, struct ast_node *child);
+void if_node_free(struct if_node *if_node);
+void and_or_node_free(struct and_or_node *and_or_node);
+void list_node_free(struct list_node *list_node);
+void simple_command_node_free(struct simple_command_node *simple_command_node);
 void ast_free(struct ast_node *node);
 void print_ast();
 

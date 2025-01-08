@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "mbtstr/str.h"
 #include "parser/parser.h"
 #include "utils/logger.h"
 
@@ -110,5 +111,53 @@ void print_ast()
     printf("ast !!!\n");
 }
 
-void ast_free(__attribute__((unused)) struct ast_node *node)
-{}
+void simple_command_node_free(struct simple_command_node *simple_command_node)
+{
+    mbt_str_free(simple_command_node->command_name);
+    for (size_t i = 0; i < simple_command_node->elements_len; i++)
+    {
+        mbt_str_free((simple_command_node->elements)[i]);
+    }
+    free(simple_command_node->elements);
+}
+
+void if_node_free(struct if_node *if_node)
+{
+    ast_free(if_node->condition);
+    ast_free(if_node->body);
+    ast_free(if_node->else_clause);
+    free(if_node);
+}
+
+void and_or_node_free(struct and_or_node *and_or_node)
+{
+    ast_free(and_or_node->left);
+    ast_free(and_or_node->right);
+    free(and_or_node);
+}
+
+void list_node_free(struct list_node *list_node)
+{
+    for (size_t i = 0; (list_node->list)[i] != NULL; i++)
+    {
+        ast_free((list_node->list)[i]);
+    }
+    free(list_node);
+}
+
+void ast_free(struct ast_node *node)
+{
+    if (node->type == IF)
+        if_node_free(node->value.if_node);
+
+    else if (node->type == SIMPLE_COMMAND)
+        simple_command_node_free(node->value.simple_command);
+
+    else if (node->type == LIST)
+        list_node_free(node->value.list_node);
+
+    else if (node->type == AND_OR)
+        and_or_node_free(node->value.and_or_node);
+
+    free(node);
+}
