@@ -28,6 +28,16 @@ struct ast_node *parse(__attribute__((unused)) struct lexer *lexer)
 {
     return NULL;
 }
+/* just a way to reduce the number of lines per functions
+   limit code repetitions
+   @return: always returns NULL
+*/
+struct ast_node *exit_shortcut(char message[], struct ast_node *ast)
+{
+    perror(message);
+    ast_free(ast);
+    return NULL;
+}
 /*
     input = list '\n'
           | list EOF
@@ -118,11 +128,40 @@ struct ast_node *parse_rule_if(struct lexer *lexer)
         perror("Unexpected token in rule_if. Expected IF");
         return NULL;
     }
-    /* TODO implement the rest       ||
-       commented to avoid unused var vv
-    */
-    // struct ast_node *ast = parse_compound_list(lexer);
-    return NULL;
+    struct ast_node *ast = new_ast(IF);
+    ast->value.if_node.condition = parse_compound_list(lexer);
+    // check for ast->condition being NULL
+    if (ast->value.if_node.condition == NULL)
+    {
+        return exit_shortcut("Internal error in compound_list", ast);
+    }
+    tok = lexer_pop(lexer);
+    if (tok.type != TOKEN_THEN)
+    {
+        return exit_shortcut("Unexpected token in rule_if. Expected THEN", ast);
+    }
+    ast->value.if_node.body = parse_compound_list(lexer);
+    // check for ast->body being NULL
+    if (ast->value.if_node.body == NULL)
+    {
+        return exit_shortcut("Internal error in compound_list", ast);
+    }
+    tok = lexer_peek(lexer);
+    if (tok.type == TOKEN_ELSE || tok.type == TOKEN_ELIF)
+    {
+        ast->value.if_node.else_clause = parse_compound_list(lexer);
+        // !!! maybe check for ast->else_clause being NULL
+        if (ast->value.if_node.else_clause == NULL)
+        {
+            return exit_shortcut("Internal error in compound_list", ast);
+        }
+    }
+    tok = lexer_pop(lexer);
+    if (tok.type != TOKEN_FI)
+    {
+        return exit_shortcut("Unexpected token in rule_if. Expected FI", ast);
+    }
+    return ast;
 }
 /* compound_list =
     { '\n' } and_or { ( ';' | '\n' ) { '\n' } and_or } [';'] {'\n'}
