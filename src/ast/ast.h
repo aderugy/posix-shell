@@ -56,7 +56,7 @@ struct ast_node
 };
 
 struct ast_node *new_ast(enum ast_type type);
-struct list_node *add_node(struct list_node *node, struct ast_node *child);
+struct ast_node *add_node(struct ast_node *node, struct ast_node *new_elt);
 void if_node_free(struct if_node *if_node);
 void and_or_node_free(struct and_or_node *and_or_node);
 void list_node_free(struct list_node *list_node);

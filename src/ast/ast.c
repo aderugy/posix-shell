@@ -62,17 +62,18 @@ struct ast_node *new_list_ast(struct ast_node *new)
     return new;
 }
 
-struct list_node *add_node(struct list_node *node, struct ast_node *child)
+struct ast_node *add_node(struct ast_node *ast, struct ast_node *child)
 {
-    if (!node->list)
-        logger("FAILURE : node's list is not defined");
+    struct list_node *node = ast->value.list_node;
     node->list =
-        realloc(node->list, node->size + 2); // size + new node + NULL BYTE
+        realloc(node->list, sizeof(struct ast_node *) * (node->size + 2));
+    // size + new node + NULL
 
     node->list[node->size] = child;
     node->size++;
-    node->list[node->size] = 0;
-    return node;
+    node->list[node->size] = NULL;
+
+    return ast;
 }
 
 struct ast_node *new_ast(enum ast_type type)

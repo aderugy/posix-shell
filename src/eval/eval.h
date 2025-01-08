@@ -5,7 +5,7 @@
 
 int eval(struct ast_node *ast_node)
 {
-    switch()
+    switch ()
 }
 
 #endif /* ! EVAL_H */
