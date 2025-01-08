@@ -3,22 +3,15 @@
 #include <err.h>
 #include <stdlib.h>
 
-#include "ast/ast.h"
 #include "lexer/token.h"
+#include "node.h"
 
-struct ast_node *ast_element_parse(struct lexer *lexer)
+struct ast_element_node *ast_parse_element(struct lexer *lexer)
 {
     struct token *token = lexer_pop(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
-        warnx("Syntax error");
         return NULL;
-    }
-
-    struct ast_node *node = calloc(1, sizeof(struct ast_node));
-    if (!node)
-    {
-        errx(EXIT_FAILURE, "out of memory");
     }
 
     struct ast_element_node *el = calloc(1, sizeof(struct ast_element_node));
@@ -26,8 +19,18 @@ struct ast_node *ast_element_parse(struct lexer *lexer)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
-
     el->value = token->value.c;
+
+    return el;
 }
 
-void ast_element_free(struct element_node *node);
+int ast_eval_element(struct ast_element_node *node)
+{
+    return AST_EVAL_SUCCESS;
+}
+
+void ast_free_element(struct ast_element_node *node)
+{
+    free(node->value);
+    free(node);
+}

@@ -1,6 +1,9 @@
 #ifndef AST_NODE_H
 #define AST_NODE_H
 
+#define AST_EVAL_SUCCESS 0
+#define AST_EVAL_ERROR 1
+
 enum ast_type
 {
     SIMPLE_COMMAND,
