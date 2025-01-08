@@ -3,9 +3,12 @@
 
 #include "lexer/lexer.h"
 #include "node.h"
+#include "simple_command.h"
 
 struct ast_cmd
-{};
+{
+    struct ast_simple_cmd *simple_cmd;
+};
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer);
 int ast_eval_cmd(struct ast_cmd *node, void **out);

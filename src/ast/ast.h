@@ -24,12 +24,6 @@ enum and_or_type
     OR
 };
 
-struct list_node
-{
-    struct ast_node **list; // and_or
-    size_t size;
-};
-
 // has to be a leaf node !
 struct simple_command_node
 {
