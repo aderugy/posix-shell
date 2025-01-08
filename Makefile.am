@@ -20,4 +20,10 @@ clean:
 builtins:
 	make
 	./tests/builtt_tests
+splitter:
+	make
+	./tests/splitter_tests
+token:
+	make
+	./tests/token_tests
 
