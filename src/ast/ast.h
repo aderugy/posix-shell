@@ -38,6 +38,8 @@ struct ast_node
 };
 
 struct ast_node *new_ast(enum ast_type type);
+void if_node__free(struct if_node *if_node);
+void simple_command_node_free(struct simple_command_node *simple_command_node);
 void ast_free(struct ast_node *node);
 void print_ast();
 
