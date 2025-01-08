@@ -9,6 +9,6 @@ struct element_node // can be produced with new_element_node
 };
 
 struct element_node *ast_element_parse(struct lexer *lexer);
-void ast_element_free(struct element_node *node);
+int ast_element_eval() void ast_element_free(struct element_node *node);
 
 #endif // !AST_ELEMENT_H

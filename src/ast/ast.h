@@ -6,6 +6,9 @@
 #include "lexer/token.h"
 #include "nodes/element.h"
 
+#define AST_PARSE_SUCCESS 0
+#define AST_PARSE_ERROR 1
+
 enum ast_type
 {
     SIMPLE_COMMAND,
