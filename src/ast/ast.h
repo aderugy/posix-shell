@@ -27,9 +27,9 @@ struct and_or_node
     enum and_or_type type;
 };
 
-struct element_node
+struct element_node // can be produced with new_element_node
 {
-    struct mbt_str *element;
+    struct mbt_str *element; // a word that will be an argument
 };
 
 struct list_node
@@ -48,8 +48,9 @@ struct if_node
 // has to be a leaf node !
 struct simple_command_node
 {
-    struct mbt_str *command_name;
-    struct element_node **elements;
+    struct mbt_str *command_name; // word : name of the command
+    struct element_node **elements; // element : list of arguments need to be
+                                    // joined during the call of the command
     size_t elements_len;
 };
 
@@ -67,6 +68,7 @@ struct ast_node
 
 struct ast_node *new_ast(enum ast_type type);
 struct ast_node *add_node(struct ast_node *node, struct ast_node *new_elt);
+struct ast_node *add_element(struct ast_node *ast, struct element_node *child);
 void if_node_free(struct if_node *if_node);
 void and_or_node_free(struct and_or_node *and_or_node);
 void list_node_free(struct list_node *list_node);
