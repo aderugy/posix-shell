@@ -16,6 +16,7 @@ clean:
 	rm -rf test-driver tests/atconfig tests/token_tests
 	find \( -name *.log -o -name *.trs -o -name *.Po -o -name Makefile \) -delete
 	find \( -name *.dirstamp \) -delete
+	rm -rf src/ast/.deps
 	find \( -name *.deps -o -name *.[oa] -o -name *.in \) -delete
 builtins:
 	make
