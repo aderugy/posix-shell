@@ -24,13 +24,6 @@ enum and_or_type
     OR
 };
 
-struct and_or_node
-{
-    struct ast_node *left; // unkwown
-    struct ast_node *right; // unkwown
-    enum and_or_type type;
-};
-
 struct list_node
 {
     struct ast_node **list; // and_or
