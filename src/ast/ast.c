@@ -64,3 +64,6 @@ void print_ast()
 {
     printf("ast !!!\n");
 }
+
+void ast_free(__attribute__((unused)) struct ast_node *node)
+{}

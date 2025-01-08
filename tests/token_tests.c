@@ -64,9 +64,6 @@ int main(int argc, char *argv[])
         case 'c':
             stream = stream_from_str(optarg);
             break;
-        case 't':
-            test_lexer(stream);
-            break;
         case '?':
             exit(1);
 
@@ -74,5 +71,6 @@ int main(int argc, char *argv[])
             errx(1, "main: unkown option %c", c);
         }
     }
+    test_lexer(stream);
     return 0;
 }
