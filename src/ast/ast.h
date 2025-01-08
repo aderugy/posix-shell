@@ -11,6 +11,7 @@ enum ast_type
     IF,
     LIST,
     AND_OR,
+    ELEMENT
 };
 
 enum and_or_type
@@ -18,28 +19,37 @@ enum and_or_type
     AND,
     OR
 };
+
 struct and_or_node
 {
     struct ast_node *left; // unkwown
     struct ast_node *right; // unkwown
     enum and_or_type type;
 };
+
+struct element_node
+{
+    struct mbt_str *element;
+};
+
 struct list_node
 {
     struct ast_node **list; // and_or
     size_t size;
 };
+
 struct if_node
 {
     struct ast_node *condition; // unkwown
     struct ast_node *body; // unkwown
     struct ast_node *else_clause; // unknown
 };
+
 // has to be a leaf node !
 struct simple_command_node
 {
     struct mbt_str *command_name;
-    struct mbt_str **elements;
+    struct element_node **elements;
     size_t elements_len;
 };
 
