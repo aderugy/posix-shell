@@ -62,6 +62,5 @@ void and_or_node_free(struct and_or_node *and_or_node);
 void list_node_free(struct list_node *list_node);
 void simple_command_node_free(struct simple_command_node *simple_command_node);
 void ast_free(struct ast_node *node);
-void print_ast();
 
 #endif /* ! AST_H */

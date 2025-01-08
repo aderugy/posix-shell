@@ -106,11 +106,6 @@ struct ast_node *new_ast(enum ast_type type)
     return NULL;
 }
 
-void print_ast()
-{
-    printf("ast !!!\n");
-}
-
 void simple_command_node_free(struct simple_command_node *simple_command_node)
 {
     mbt_str_free(simple_command_node->command_name);

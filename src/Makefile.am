@@ -20,4 +20,5 @@ bin_PROGRAMS = 42sh
 	utils/libutils.a \
 	streams/libstreams.a \
 	builtins/libbuiltins.a \
-	mbtstr/libmbtstr.a 
+	mbtstr/libmbtstr.a \
+    eval/libeval.a 
