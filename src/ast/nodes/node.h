@@ -8,11 +8,16 @@
 
 enum ast_type
 {
-    SIMPLE_COMMAND,
-    IF,
-    LIST,
-    AND_OR,
-    ELEMENT
+    AST_SIMPLE_COMMAND,
+    AST_SHELL_COMMAND,
+    AST_PIPELINE,
+    AST_COMMAND,
+    AST_ELEMENT,
+    AST_AND_OR,
+    AST_CLIST,
+    AST_INPUT,
+    AST_LIST,
+    AST_IF
 };
 
 enum and_or_type
