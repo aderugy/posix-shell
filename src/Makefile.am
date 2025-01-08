@@ -19,5 +19,5 @@ bin_PROGRAMS = 42sh
 	ast/libast.a \
 	parser/libpar.a \
 	streams/libstreams.a \
-	builtins/libbuiltins.a
+	builtins/libbuiltins.a \
 	mbtstr/libmbtstr.a 
