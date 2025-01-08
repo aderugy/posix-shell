@@ -7,26 +7,28 @@
 #include "node.h"
 #include "utils/logger.h"
 
-struct ast_node *new_and_or_ast(struct ast_node *new)
+struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {
-    struct and_or_node *value = calloc(1, sizeof(struct and_or_node));
-    if (!value)
+    struct ast_node *pipeline = ast_create(lexer, AST_PIPELINE);
+    if (!pipeline)
     {
-        logger("FAILED : not enough memory to calloc a new ast");
-        free(new);
         return NULL;
     }
-    new->value.and_or_node = value;
-    return new;
-}
-void and_or_node_free(struct and_or_node *and_or_node)
-{
-    ast_free(and_or_node->left);
-    ast_free(and_or_node->right);
-    free(and_or_node);
+
+    struct ast_and_or_node *node = calloc(1, sizeof(struct ast_and_or_node));
+    if (!node)
+    {
+        errx(EXIT_FAILURE, "out of memory");
+    }
+
+    node->left = pipeline;
+    return node;
 }
 
-struct ast_node *parse_and_or(struct lexer *lexer)
+int ast_eval_and_or(struct ast_and_or_node *node, void **out);
+
+void ast_free_and_or(struct and_or_node *node)
 {
-    return parse_pipeline(lexer);
+    ast_free(node->left);
+    free(node);
 }

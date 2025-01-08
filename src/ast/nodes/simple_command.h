@@ -14,4 +14,6 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer);
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd, void **out);
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd);
 
+void ast_print_simple_cmd(struct ast_simple_cmd *cmd);
+
 #endif // !AST_SIMPLE_COMMAND_H
