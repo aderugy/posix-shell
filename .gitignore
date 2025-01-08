@@ -57,3 +57,4 @@ Makefile
 atconfig
 token_tests
 tests/splitter_tests
+builtt_tests
