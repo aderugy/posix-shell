@@ -73,30 +73,41 @@ struct ast_node *parse_input(struct lexer *lexer)
 */
 struct ast_node *parse_list(__attribute__((unused)) struct lexer *lexer)
 {
-    // TODO implement how we build the ast with AND_OR nodes
-    /*
-       commented to pass compile step
-            ||
-            vv
-    */
-    struct ast_node *ast = new_ast(LIST);
-    parse_and_or(lexer);
-    if (ast == NULL)
+    struct ast_node *and_or = parse_and_or(lexer);
+
+    if (and_or == NULL)
     {
-        perror("Internal error in and_or.");
+        perror("Internal error in and_or");
         return NULL;
     }
+
+    struct ast_node *ast = new_ast(LIST);
+    ast = add_node(ast, and_or);
 
     struct token tok = lexer_peek(lexer);
     while (tok.type == TOKEN_SEMICOLON)
     {
         tok = lexer_pop(lexer);
         tok = lexer_peek(lexer);
+
+        if (tok.type != TOKEN_EOF || tok.type != TOKEN_NEW_LINE)
+        {
+            and_or = parse_and_or(lexer);
+
+            if (and_or == NULL)
+            {
+                return exit_shortcut("Internal error in and_or", ast);
+            }
+
+            ast = add_node(ast, and_or);
+            tok = lexer_pop(lexer);
+        }
     }
 
-    return NULL;
+    return ast;
 }
 // and_or = pipeline
+
 struct ast_node *parse_and_or(struct lexer *lexer)
 {
     return parse_pipeline(lexer);
@@ -196,11 +207,32 @@ struct ast_node *parse_rule_if(struct lexer *lexer)
 /* compound_list =
     { '\n' } and_or { ( ';' | '\n' ) { '\n' } and_or } [';'] {'\n'}
 */
-struct ast_node *
-parse_compound_list(__attribute__((unused)) struct lexer *lexer)
+struct ast_node *parse_compound_list(struct lexer *lexer)
 {
-    // TODO
-    return NULL;
+    struct token tok = lexer_peek(lexer);
+    while (tok.type == TOKEN_NEW_LINE)
+    {
+        tok = lexer_pop(lexer);
+    }
+
+    struct ast_node *and_or = parse_and_or(lexer);
+
+    if (and_or == NULL)
+    {
+        perror("Internal error in and_or");
+        return NULL;
+    }
+
+    struct ast_node *ast = new_ast(LIST);
+    ast = add_node(ast, and_or);
+
+    tok = lexer_peek(lexer);
+    while (tok.type == TOKEN_SEMICOLON || tok.type == TOKEN_NEW_LINE)
+    {
+        // TODO
+    }
+
+    return ast;
 }
 /*
 else_clause =
