@@ -55,39 +55,7 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-<<<<<<< HEAD
     root->value = AST_FN[type].parse(lexer);
-=======
-    switch (type)
-    {
-    case AST_SIMPLE_COMMAND:
-        root->value = ast_parse_simple_cmd(lexer);
-        break;
-    case AST_IF:
-        break;
-    case AST_LIST:
-        break;
-    case AST_AND_OR:
-        break;
-    case AST_ELEMENT:
-        root->value = ast_parse_element(lexer);
-        break;
-    case AST_CLIST:
-        break;
-    case AST_INPUT:
-        break;
-    case AST_PIPELINE:
-        break;
-    case AST_COMMAND:
-        root->value = ast_parse_cmd(lexer);
-        break;
-    case AST_SHELL_COMMAND:
-        break;
-
-    default:
-        errx(1, "type is not implemented");
-    }
->>>>>>> 60a5b140db4654755f1b7df95665c7f857c92f2e
     return root;
 }
 
