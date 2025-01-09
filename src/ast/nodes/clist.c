@@ -18,6 +18,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
     if (!node)
     {
+        free(node);
         errx(EXIT_FAILURE, "out of memory");
     }
 
@@ -33,6 +34,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
+        free(node);
         logger("clist : not and or\n");
         return NULL;
     }

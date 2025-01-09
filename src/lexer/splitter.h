@@ -7,6 +7,8 @@
 #define SHARD_SINGLE_QUOTED 1
 #define SHARD_DOUBLE_QUOTED 2
 
+#define SPLIT_ERROR 2
+
 struct shard
 {
     char quoted;

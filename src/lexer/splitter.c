@@ -97,7 +97,7 @@ struct shard *splitter_next(struct stream *stream)
             case '\\':
                 errx(EXIT_FAILURE, "not implemented");
             case EOF:
-                errx(EXIT_FAILURE, "unmatched quote");
+                errx(SPLIT_ERROR, "unmatched quote");
             default:
                 errx(EXIT_FAILURE, "wtf");
             }

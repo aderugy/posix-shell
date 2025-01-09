@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "ast/ast.h"
 #include "builtins/builtins.h"
 #include "builtins/commands.h"
 #include "builtins/run_command.h"
@@ -25,7 +26,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         calloc(1, sizeof(struct ast_simple_cmd));
     if (!simple_cmd)
     {
-        errx(2, "out of memory");
+        errx(AST_PARSE_ERROR, "out of memory");
     }
 
     struct linked_list *list = list_init();
