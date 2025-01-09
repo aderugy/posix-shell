@@ -59,3 +59,4 @@ token_tests
 tests/splitter_tests
 tests/builtt_tests
 tests/token_tests
+*.swp
