@@ -17,7 +17,7 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 
                                   { 0, 0, 0, 0 } };
 
-int test_lexer(struct stream *stream)
+/*int test_lexer(struct stream *stream)
 {
     char *tab[] = { [TOKEN_IF] = "IF",
                     [TOKEN_THEN] = "THEN",
@@ -27,7 +27,7 @@ int test_lexer(struct stream *stream)
                     [TOKEN_SEMICOLON] = ";",
                     [TOKEN_NEW_LINE] = "NEW_LINE",
                     [TOKEN_QUOTE] = "QUOTE" };
-    struct lexer *lexer = lexer_new(stream);
+    struct lexer *lexer = lexer_create(stream);
     struct token token = lexer_pop(lexer);
 
     while (token.type != TOKEN_EOF && token.type != TOKEN_ERROR)
@@ -46,7 +46,7 @@ int test_lexer(struct stream *stream)
     lexer_free(lexer);
 
     return 0;
-}
+}*/
 
 int main(int argc, char *argv[])
 {
@@ -71,6 +71,6 @@ int main(int argc, char *argv[])
             errx(1, "main: unkown option %c", c);
         }
     }
-    test_lexer(stream);
+    struct lexer *lexer = lexer_create(stream);
     return 0;
 }

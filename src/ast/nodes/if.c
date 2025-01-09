@@ -12,7 +12,6 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     struct token *tok = lexer_peek(lexer);
     if (tok->type != TOKEN_IF)
     {
-        free(tok);
         return NULL;
     }
     lexer_pop(lexer);
