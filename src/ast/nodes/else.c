@@ -5,6 +5,7 @@
 
 #include "lexer/lexer.h"
 #include "node.h"
+#include "utils/logger.h"
 
 /*
   else_clause =
@@ -14,40 +15,39 @@
 
 struct ast_else_node *ast_parse_else(struct lexer *lexer)
 {
-    ast_else_node node =
-        calloc(1, sizeof(struct ast_else_node)) struct token *token =
-            lexer_peek(lexer);
+    struct ast_else_node *node = calloc(1, sizeof(struct ast_else_node));
+    struct token *token = lexer_peek(lexer);
 
-    if (token == TOKEN_ELSE)
+    if (token->type == TOKEN_ELSE)
     {
         lexer_pop(lexer);
         free(token);
-        struct ast_node body = ast_create(lexer, AST_CLIST);
+        struct ast_node *body = ast_create(lexer, AST_CLIST);
         if (!body)
             return NULL;
         node->body = body;
     }
 
-    else if (token == TOKEN_ELIF)
+    else if (token->type == TOKEN_ELIF)
     {
         lexer_pop(lexer);
         free(token);
 
-        struct ast_node condition = ast_create(lexer, AST_CLIST);
+        struct ast_node *condition = ast_create(lexer, AST_CLIST);
         if (!condition)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (token != TOKEN_THEN)
+        if (token->type != TOKEN_THEN)
             return NULL;
         lexer_pop(lexer);
         free(token);
 
-        struct ast_node body = ast_create(lexer, AST_CLIST);
+        struct ast_node *body = ast_create(lexer, AST_CLIST);
         if (!body)
             return NULL;
 
-        struct ast_node else_clause = ast_create(lexer, AST_ELSE);
+        struct ast_node *else_clause = ast_create(lexer, AST_ELSE);
 
         node->condition = condition;
         node->body = body;
@@ -60,7 +60,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_else(struct ast_else_node *node, out)
+int ast_eval_else(struct ast_else_node *node, void **out)
 {
     if (node->condition == NULL) // else
     {

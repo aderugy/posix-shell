@@ -7,6 +7,7 @@
 #include "clist.h"
 #include "command.h"
 #include "element.h"
+#include "else.h"
 #include "if.h"
 #include "input.h"
 #include "list.h"
@@ -57,7 +58,11 @@ static const struct ast_node_operations AST_FN[] = {
 
     { (void *(*)(struct lexer *))ast_parse_if,
       (int (*)(void *, void **))ast_eval_if, (void (*)(void *))ast_free_if,
-      (void (*)(void *))ast_print_if }
+      (void (*)(void *))ast_print_if },
+
+    { (void *(*)(struct lexer *))ast_parse_else,
+      (int (*)(void *, void **))ast_eval_else, (void (*)(void *))ast_free_else,
+      (void (*)(void *))ast_print_else }
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
