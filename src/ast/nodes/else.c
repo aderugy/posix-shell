@@ -12,7 +12,7 @@
     | 'elif' compound_list 'then' compound_list [else_clause]
  */
 
-struct ast_else_node *ast_parse_else(__attribute((unused)) struct lexer *lexer)
+struct ast_else_node *ast_parse_else(struct lexer *lexer)
 {
     ast_else_node node =
         calloc(1, sizeof(struct ast_else_node)) struct token *token =
@@ -86,5 +86,5 @@ void ast_free_else(struct ast_else_node *node)
 
 void ast_print_else(__attribute((unused)) struct ast_else_node *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    logger("ELSE CLAUSE");
 }
