@@ -68,7 +68,7 @@ static struct token *lex(struct lexer *lexer)
         return token;
     }
 
-    for (size_t i = 0; i < KEYWORDS_LEN; i++)
+    for (size_t i = 0; i < KEYWORDS_LEN && shard->quoted == SHARD_UNQUOTED; i++)
     {
         if (strcmp(shard->data, KEYWORDS[i].name) == 0)
         {

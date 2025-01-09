@@ -24,6 +24,10 @@ libast_a_SOURCES =  \
   nodes/shell_command.h \
   nodes/simple_command.c \
   nodes/simple_command.h \
+  nodes/ionumber.c \
+  nodes/ionumber.h \
+  nodes/redirection.c \
+  nodes/redirection.h \
   nodes/else.c \
   nodes/else.h
   
