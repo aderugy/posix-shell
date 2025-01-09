@@ -3,6 +3,9 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "node.h"
+#include "utils/logger.h"
+
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
@@ -31,16 +34,18 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     }
     return root;
 }
-int ast_eval_input(__attribute((unused)) struct ast_input *node,
-                   __attribute((unused)) void **out)
+
+int ast_eval_input(struct ast_input *node, void **out)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    return ast_eval(node->list, out);
 }
-void ast_free_input(__attribute((unused)) struct ast_input *node)
+
+void ast_free_input(struct ast_input *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    ast_free(node->list);
 }
+
 void ast_print_input(__attribute((unused)) struct ast_input *input)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    logger("input\n");
 }

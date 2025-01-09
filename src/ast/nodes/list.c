@@ -44,7 +44,12 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
 int ast_eval_list(__attribute((unused)) struct ast_list *node,
                   __attribute((unused)) void **out)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    int return_val = 0;
+    for (size_t i = 0; i < node->list->size; i++)
+    {
+        return_val = ast_eval(list_get(node->list, i), out);
+    }
+    return return_val;
 }
 
 void ast_free_list(struct ast_list *node)
