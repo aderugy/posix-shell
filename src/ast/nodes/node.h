@@ -17,7 +17,8 @@ enum ast_type
     AST_CLIST,
     AST_INPUT,
     AST_LIST,
-    AST_IF
+    AST_IF,
+    AST_ELSE
 };
 
 struct ast_node

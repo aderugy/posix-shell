@@ -4,7 +4,7 @@
 #include "lexer/lexer.h"
 #include "node.h"
 
-struct if_node
+struct ast_if_node
 {
     struct ast_node *condition; // clist
     struct ast_node *body; // clist
