@@ -10,7 +10,7 @@ check:
 	tests/testsuite.sh
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
-	rm -rf *.m4 autom4te.cache/
+	rm -rf *.m4 autom4te.cache/ ~configure
 	rm -rf config.status Makefile src/42sh
 	rm -rf test-driver tests/atconfig tests/token_tests
 	find \( -name *.log -o -name *.trs -o -name *.Po -o -name Makefile \) -delete
