@@ -34,7 +34,6 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         list_append(list, cmd);
     } while ((cmd = ast_create(lexer, AST_ELEMENT)));
-    logger("nbr simple_cmd: %i\n", list->size);
 
     simple_cmd->args = list;
     return simple_cmd;
@@ -50,11 +49,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     {
         struct ast_node *children = list_get(cmd->args, i);
         ast_eval(children, (void **)argv + i);
-        logger("%s\n", argv[i]);
     }
 
     int ret_value = run_command(argc, argv);
-    logger("result of simple command : %i\n", ret_value);
     if (ret_value == 127)
     {
         ret_value = execvp(argv[0], argv);
@@ -71,7 +68,7 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    logger("command\n");
+    logger("command");
 
     struct linked_list_element *head = cmd->args->head;
     while (head)
@@ -81,6 +78,4 @@ void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
         ast_print(node);
         head = head->next;
     }
-
-    logger("end_command\n");
 }

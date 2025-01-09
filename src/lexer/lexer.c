@@ -29,9 +29,26 @@ struct lexer *lexer_create(struct stream *stream)
     return res;
 }
 
+void token_free(struct token *token)
+{
+    if (token)
+    {
+        if (token->value.c)
+        {
+            free(token->value.c);
+        }
+
+        free(token);
+    }
+}
+
 void lexer_free(struct lexer *lexer)
 {
-    stream_close(lexer->stream);
+    token_free(lexer->next);
+    if (lexer->stream)
+    {
+        stream_close(lexer->stream);
+    }
     free(lexer);
 }
 
@@ -67,12 +84,16 @@ static struct token *lex(struct lexer *lexer)
     }
 
     shard_free(shard);
-
     return token;
 }
 
 struct token *lexer_peek(struct lexer *lexer)
 {
+    if (!lexer->stream)
+    {
+        return NULL;
+    }
+
     if (!lexer->next)
     {
         lexer->next = lex(lexer);
@@ -83,12 +104,19 @@ struct token *lexer_peek(struct lexer *lexer)
 
 struct token *lexer_pop(struct lexer *lexer)
 {
-    struct token *token = lexer->next ? lexer->next : lex(lexer);
-    if (!token)
+    if (!lexer->stream)
     {
         return NULL;
     }
+
+    struct token *token = lexer->next ? lexer->next : lex(lexer);
     lexer->next = token->type != TOKEN_EOF ? lex(lexer) : NULL;
+
+    if (token->type == TOKEN_EOF)
+    {
+        stream_close(lexer->stream);
+        lexer->stream = NULL;
+    }
 
     return token;
 }

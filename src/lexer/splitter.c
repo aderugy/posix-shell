@@ -110,7 +110,7 @@ struct shard *splitter_next(struct stream *stream)
                 quoted = SHARD_SINGLE_QUOTED;
                 break;
             case '\\':
-
+                errx(EXIT_FAILURE, "not implemented");
             case EOF:
                 errx(SPLIT_ERROR, "unmatched quote");
             default:
@@ -155,7 +155,6 @@ struct shard *splitter_next(struct stream *stream)
                 mbt_str_pushc(str, c);
                 stream_read(stream);
             }
-            stream_read(stream);
             break;
         }
 
@@ -185,10 +184,8 @@ struct shard *splitter_next(struct stream *stream)
         // Case 10: comments
         if (c == '#')
         {
-            logger("--Lexing # reading\n");
             while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
             {
-                logger(" -- %i : %c\n", c, c);
                 stream_read(stream); // Discard every char until \n 0 and -1
                                      // (check with numeric value)
             }

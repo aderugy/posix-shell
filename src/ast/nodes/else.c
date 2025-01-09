@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "if.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
@@ -57,7 +58,6 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     }
     else
     {
-        logger("else NULL\n");
         free(node);
         return NULL;
     }
@@ -90,5 +90,20 @@ void ast_free_else(struct ast_else_node *node)
 
 void ast_print_else(__attribute((unused)) struct ast_else_node *node)
 {
-    logger("ELSE CLAUSE");
+    if (node->condition)
+    {
+        logger("elif ");
+        ast_print(node->condition);
+        logger(" then ");
+        if (node->else_clause)
+        {
+            logger(" ");
+            ast_print(node->else_clause);
+        }
+    }
+    else
+    {
+        logger("else ");
+        ast_print(node->body);
+    }
 }
