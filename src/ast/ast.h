@@ -7,5 +7,5 @@
 #include "nodes/element.h"
 
 #define AST_PARSE_SUCCESS 0
-#define AST_PARSE_ERROR 1
+#define AST_PARSE_ERROR 2
 #endif /* ! AST_H */
