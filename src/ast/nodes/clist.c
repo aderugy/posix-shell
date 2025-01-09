@@ -74,6 +74,7 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out)
 
 void ast_free_clist(struct ast_clist *node)
 {
+    list_free(node->list, (void (*)(void *))ast_free);
     free(node);
 }
 

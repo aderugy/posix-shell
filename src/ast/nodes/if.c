@@ -55,18 +55,33 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     return ast;
 }
 
-int ast_eval_if(__attribute((unused)) struct ast_if_node *node,
-                __attribute((unused)) void **out)
+int ast_eval_if(struct ast_if_node *node, void **out)
 {
     errx(EXIT_FAILURE, "not implemented");
+    if (ast_eval(node->condition, out) == 0)
+    {
+        return ast_eval(node->body, out);
+    }
+    return ast_eval(node->else_clause, out);
 }
 
-void ast_free_if(__attribute((unused)) struct ast_if_node *node)
+void ast_free_if(struct ast_if_node *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    if (node)
+    {
+        ast_free(node->condition);
+        ast_free(node->body);
+        ast_free(node->else_clause);
+        free(node);
+    }
 }
 
-void ast_print_if(__attribute((unused)) struct ast_if_node *node)
+void ast_print_if(struct ast_if_node *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    if (node)
+    {
+        ast_print(node->condition);
+        ast_print(node->body);
+        ast_print(node->else_clause);
+    }
 }
