@@ -24,23 +24,23 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     node->list = list_init();
     list_append(node->list, and_or);
 
-    /*struct token *tok = lexer_peek(lexer);
-        while (tok && tok->type == TOKEN_SEMICOLON)
+    struct token *tok = lexer_peek(lexer);
+    while (tok && tok->type == TOKEN_SEMICOLON)
+    {
+        tok = lexer_peek(lexer);
+        if (tok->type == TOKEN_SEMICOLON)
         {
-            tok = lexer_peek(lexer);
-            if (tok->type == TOKEN_SEMICOLON)
-            {
-                struct token *t = lexer_pop(lexer);
-            }
-            and_or = ast_create(lexer, AST_AND_OR);
+            struct token *t = lexer_pop(lexer);
+        }
+        and_or = ast_create(lexer, AST_AND_OR);
 
-            if (and_or == NULL)
-            {
-                return node;
-            }
+        if (and_or == NULL)
+        {
+            return node;
+        }
 
-            list_append(node->list, and_or);
-        } */
+        list_append(node->list, and_or);
+    }
 
     return node;
 }

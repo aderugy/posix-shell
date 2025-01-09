@@ -24,6 +24,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         node->cmd = simple_cmd;
         return node;
     }
+    logger("SHELL_CMD\n");
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
 
     if (!shell_cmd)
