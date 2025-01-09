@@ -29,6 +29,7 @@ int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr)
 void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 {
     ast_free(cmd->ast_node);
+    free(cmd);
 }
 void ast_print_shell_cmd(__attribute((unused)) struct ast_shell_cmd *cmd)
 {
