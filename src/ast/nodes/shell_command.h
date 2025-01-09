@@ -5,7 +5,7 @@
 
 struct ast_shell_cmd
 {
-    int cum;
+    struct ast_node *ast_node;
 };
 
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer);
