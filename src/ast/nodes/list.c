@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "utils/linked_list.h"
+#include "utils/logger.h"
 
 struct ast_list *ast_parse_list(struct lexer *lexer)
 {
@@ -31,4 +33,17 @@ void ast_free_list(struct ast_list *node)
 {
     list_free(node->list, ast_free);
     free(node);
+}
+
+void ast_print_list(struct ast_list *node)
+{
+    logger("list ");
+    struct linked_list_element *el = node->head;
+    while (el)
+    {
+        ast_print(el->data);
+        el = el->next;
+        logger(" ");
+    }
+    logger("endlist");
 }

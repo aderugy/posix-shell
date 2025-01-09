@@ -30,3 +30,8 @@ void ast_free_pipeline(struct ast_pipeline *pipeline)
     ast_free(pipeline->command);
     free(pipeline);
 }
+
+void ast_print_pipeline(struct ast_pipeline *pipeline)
+{
+    ast_print(pipeline->command);
+}

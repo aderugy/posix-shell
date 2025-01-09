@@ -33,3 +33,8 @@ int ast_eval_cmd(struct ast_cmd *node, void **out)
 {
     return ast_eval(node->simple_cmd, out);
 }
+
+void ast_print_cmd(struct ast_cmd *node)
+{
+    ast_print(node->simple_cmd);
+}
