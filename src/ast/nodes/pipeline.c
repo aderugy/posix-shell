@@ -23,10 +23,9 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_pipeline(__attribute((unused)) struct ast_pipeline *node,
-                      __attribute((unused)) void **out)
+int ast_eval_pipeline(struct ast_pipeline *node, void **out)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    return ast_eval(node->command, out);
 }
 
 void ast_free_pipeline(struct ast_pipeline *pipeline)

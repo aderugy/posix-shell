@@ -25,10 +25,18 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_and_or(__attribute((unused)) struct ast_and_or_node *node,
-                    __attribute((unused)) void **out)
+int ast_eval_and_or(struct ast_and_or_node *node, void **out)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    int val = ast_eval(node->left, out);
+    if (val == 0 && node->is_and)
+    {
+        return val && ast_eval(node->right, out);
+    }
+    else if (val != 0 && !node->is_and)
+    {
+        return ast_eval(node->right, out);
+    }
+    return val;
 }
 
 void ast_free_and_or(struct ast_and_or_node *node)
@@ -39,5 +47,5 @@ void ast_free_and_or(struct ast_and_or_node *node)
 
 void ast_print_and_or(__attribute((unused)) struct ast_and_or_node *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    logger("AND OR");
 }

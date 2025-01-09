@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "linked_list.h"
 #include "node.h"
+#include "utils/linked_list.h"
 
 /* compound_list =
  *  {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} ;
@@ -60,6 +60,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
 
     return NULL;
 }
+
 int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out)
 {
     for (size_t i = 0; i < node->list->size - 1; i++)
@@ -70,11 +71,13 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out)
     struct ast_node *children = list_get(node->list, node->list->size - 1);
     return ast_eval(children, NULL);
 }
+
 void ast_free_clist(struct ast_clist *node)
 {
     list_free(node->list);
     free(node);
 }
+
 void ast_print_clist(__attribute((unused)) struct ast_clist *node)
 {
     errx(EXIT_FAILURE, "not implemented");

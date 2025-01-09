@@ -57,4 +57,6 @@ Makefile
 atconfig
 token_tests
 tests/splitter_tests
-builtt_tests
+tests/builtt_tests
+tests/token_tests
+*.swp
