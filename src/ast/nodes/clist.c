@@ -87,5 +87,5 @@ void ast_free_clist(struct ast_clist *node)
 
 void ast_print_clist(__attribute((unused)) struct ast_clist *node)
 {
-    errx(EXIT_FAILURE, "clist : not implemented");
+    logger("CLIST");
 }

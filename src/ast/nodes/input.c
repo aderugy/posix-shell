@@ -32,7 +32,7 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     if (!tok || (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE))
     {
         free(tok);
-        errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
+        errx(AST_EVAL_ERROR, "Unexpected token at the end of input parsing");
     }
     logger("eof\n");
     free(tok);
