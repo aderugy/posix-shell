@@ -90,6 +90,11 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 
 int ast_eval(struct ast_node *node, void **out)
 {
+    if (!node)
+    {
+        errx(EXIT_FAILURE, "eval NULL");
+    }
+    logger("eval : %i\n", node->type);
     return AST_FN[node->type].eval(node->value, out);
 }
 

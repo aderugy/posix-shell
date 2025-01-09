@@ -28,14 +28,14 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 int ast_eval_and_or(struct ast_and_or_node *node, void **out)
 {
     int val = ast_eval(node->left, out);
-    if (val == 0 && node->is_and)
-    {
-        return val && ast_eval(node->right, out);
-    }
-    else if (val != 0 && !node->is_and)
-    {
-        return ast_eval(node->right, out);
-    }
+    /*    if (val == 0 && node->is_and)
+        {
+            return val && ast_eval(node->right, out);
+        }
+        else if (val != 0 && !node->is_and)
+        {
+            return ast_eval(node->right, out);
+        }*/
     return val;
 }
 

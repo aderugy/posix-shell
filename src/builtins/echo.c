@@ -39,7 +39,10 @@ void print_echo(struct echo_options *opts, int argc)
             }
             i++;
         }
-        putchar(' ');
+        if (j != argc - 1)
+        {
+            putchar(' ');
+        }
     }
     if (!opts->not_newline)
         printf("\n");

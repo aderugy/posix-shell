@@ -56,7 +56,9 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
 int ast_eval_if(struct ast_if_node *node, void **out)
 {
-    if (ast_eval(node->condition, out) == 0)
+    int value = ast_eval(node->condition, out);
+
+    if (value == 0)
     {
         return ast_eval(node->body, out);
     }

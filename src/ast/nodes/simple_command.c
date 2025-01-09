@@ -52,6 +52,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
 
     int ret_value = run_command(argc, argv);
+    logger("result of simple command : %i\n", ret_value);
     if (ret_value == 127)
     {
         ret_value = execvp(argv[0], argv);

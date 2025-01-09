@@ -50,7 +50,10 @@ void ast_free_cmd(struct ast_cmd *node)
 
 int ast_eval_cmd(struct ast_cmd *node, void **out)
 {
-    return ast_eval(node->cmd, out);
+    int ret_value = ast_eval(node->cmd, out);
+
+    logger("result of command : %i\n", ret_value);
+    return ret_value;
 }
 
 void ast_print_cmd(struct ast_cmd *node)
