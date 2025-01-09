@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "node.h"
 #include "utils/linked_list.h"
 
 /* compound_list =
