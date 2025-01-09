@@ -100,6 +100,11 @@ int ast_eval(struct ast_node *node, void **out)
 
 void ast_free(struct ast_node *node)
 {
+    if (!node)
+    {
+        return;
+    }
+
     logger("%i\n", node->type);
     AST_FN[node->type].free(node->value);
     free(node);

@@ -20,33 +20,33 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
     if (!ast)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        errx(2, "out of memory");
     }
 
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if.");
+        errx(2, "Internal error in rule if.");
     }
 
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_THEN)
     {
-        errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected THEN");
+        errx(2, "Unexpected token in rule_if. Expected THEN");
     }
     free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if.");
+        errx(2, "Internal error in rule if.");
     }
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_FI)
     {
-        errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected FI");
+        errx(2, "Unexpected token in rule_if. Expected FI");
     }
     free(tok);
 
