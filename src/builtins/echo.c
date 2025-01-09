@@ -49,7 +49,6 @@ int echo(int argc, char *argv[])
 {
     int c;
     int opt_idx = 0;
-    printf("calling echo %s\n", argv[1]);
 
     struct echo_options *echo_opts = malloc(sizeof(struct echo_options));
     if (!echo_opts)
@@ -78,6 +77,8 @@ int echo(int argc, char *argv[])
     }
     echo_opts->str = argv + optind;
     print_echo(echo_opts, argc - optind);
+
+    free(echo_opts);
 
     printf("\n");
     return 0;

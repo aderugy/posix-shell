@@ -50,7 +50,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         logger("%s\n", argv[i]);
     }
 
-    return run_command(argc, argv);
+    int ret_value = run_command(argc, argv);
+    free(argv);
+    return ret_value;
 }
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
@@ -61,7 +63,7 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    logger("command");
+    logger("command\n");
 
     struct linked_list_element *head = cmd->args->head;
     while (head)
@@ -72,5 +74,5 @@ void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
         head = head->next;
     }
 
-    logger(" end_command");
+    logger("end_command\n");
 }

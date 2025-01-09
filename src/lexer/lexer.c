@@ -7,6 +7,7 @@
 
 #include "splitter.h"
 #include "token.h"
+#include "utils/logger.h"
 
 static const struct keyword KEYWORDS[] = {
     { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
@@ -36,6 +37,7 @@ void lexer_free(struct lexer *lexer)
 
 static struct token *lex(struct lexer *lexer)
 {
+    logger("lex\n");
     struct token *token = calloc(1, sizeof(struct token));
     if (!token)
     {
@@ -46,6 +48,7 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
+        free(token);
         return NULL;
     }
 
@@ -63,6 +66,8 @@ static struct token *lex(struct lexer *lexer)
         token->type = TOKEN_WORD;
         token->value.c = strdup(shard->data);
     }
+
+    shard_free(shard);
 
     return token;
 }
