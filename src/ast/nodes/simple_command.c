@@ -14,7 +14,6 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    logger("parse simple_command\n");
     struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
     if (!cmd)
     {
@@ -64,7 +63,7 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    logger("command");
+    logger("command\n");
 
     struct linked_list_element *head = cmd->args->head;
     while (head)
@@ -75,5 +74,5 @@ void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
         head = head->next;
     }
 
-    logger(" end_command");
+    logger("end_command\n");
 }

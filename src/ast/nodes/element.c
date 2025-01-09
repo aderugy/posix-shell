@@ -43,5 +43,5 @@ void ast_free_element(struct ast_element *node)
 
 void ast_print_element(__attribute((unused)) struct ast_element *node)
 {
-    logger(" %s ", node->value);
+    logger("-- %s\n", node->value);
 }

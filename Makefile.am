@@ -3,7 +3,8 @@
 
 LOG_COMPILER = /bin/bash
 
-SUBDIRS = src
+SUBDIRS = src \
+		  tests
 #uncommenting the line above creates an infinite loop before the testsuite runs
 
 check:
