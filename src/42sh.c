@@ -73,6 +73,11 @@ int main(int argc, char *argv[])
         ast_free(node);
     }
 
+    if (!node && lexer->stream)
+    {
+        return_value = 2;
+    }
+
     lexer_free(lexer);
     unregister_commands();
     return return_value;
