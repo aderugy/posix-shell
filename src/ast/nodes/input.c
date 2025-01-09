@@ -34,6 +34,7 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
         errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
     }
     logger("eof\n");
+    free(tok);
     return root;
 }
 
