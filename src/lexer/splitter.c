@@ -91,6 +91,11 @@ struct shard *splitter_next(struct stream *stream)
                     {
                         break;
                     }
+
+                    if (c != quote)
+                    {
+                        mbt_str_pushc(str, '\\');
+                    }
                 }
 
                 mbt_str_pushc(str, c);
