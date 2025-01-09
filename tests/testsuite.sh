@@ -54,6 +54,21 @@ test_from_direct_input() {
     output_test "./$BIN -c" "$@"
 }
 
+# @params: err code and then a list of strings
+test_pars_lex_error()
+{
+    ERR="$1"
+    shift
+    "$F" -c "$@"
+    ACTUAL_ERR="$?"
+    if [ $ACTUAL_ERR -eq $ERR ]; then
+        echo "$G[OK]$D"
+    else
+        echo "COMMAND RUN : $R$F -c \""$@"\"$D"
+        echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
+    fi
+}
+
 # @brief output the results
 # @details compares stdouts and stderrs and prints the differences
 # @params the command that was run
@@ -83,7 +98,6 @@ output_test() {
             echo "$R$A$D"
     fi
 }
-
 test_echo_basic()
 {
     echo "========== ECHO BEGIN =========="
@@ -157,6 +171,26 @@ test_mix()
     #commented"; fi'
     echo "========== MIX END =========="
 }
+test_errs()
+{
+    echo "========== ERROR_CODE BEGIN =========="
+    # PARSER ERRS
+    test_pars_lex_error 2 "fi fi"
+    test_pars_lex_error 2 "then fi"
+    test_pars_lex_error 2 "if fi"
+    test_pars_lex_error 2 "else fi"
+    test_pars_lex_error 2 "if true; then if fi"
+    test_pars_lex_error 2 "if true; then if fi"
+    test_pars_lex_error 2 "elif true; then if fi"
+    test_pars_lex_error 2 "if true; then if fi"
+    test_pars_lex_error 2 "if if; then if fi"
+    test_pars_lex_error 2 "then true; then if fi"
+    test_pars_lex_error 2 "true; then if fi"
+    # LEXER ERRS
+    test_pars_lex_error 2 "if true; then echo a; \"fi"
+    test_pars_lex_error 2 "\""
+    echo "========== ERROR_CODE END =========="
+}
 testsuite()
 {
     test_echo_basic
@@ -166,6 +200,7 @@ testsuite()
     test_else
     test_comment
     test_mix
+    test_errs
 }
 
 testsuite
