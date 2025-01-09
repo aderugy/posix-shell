@@ -7,7 +7,7 @@
 
 struct ast_cmd
 {
-    struct ast_simple_cmd *simple_cmd;
+    struct ast_node *simple_cmd;
 };
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer);
