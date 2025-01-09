@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "and_or.h"
+#include "ast/ast.h"
 #include "clist.h"
 #include "command.h"
 #include "element.h"
@@ -69,7 +70,8 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
     if (!lexer)
     {
-        errx(EXIT_FAILURE, "lexer is NULL");
+        // lexer_parse_error actually
+        errx(AST_PARSE_ERROR, "lexer is NULL");
     }
     void *value = AST_FN[type].parse(lexer);
     if (!value)
@@ -92,14 +94,20 @@ int ast_eval(struct ast_node *node, void **out)
 {
     if (!node)
     {
-        errx(EXIT_FAILURE, "eval NULL");
+        errx(AST_PARSE_ERROR, "eval NULL");
     }
+
     logger("eval : %i\n", node->type);
     return AST_FN[node->type].eval(node->value, out);
 }
 
 void ast_free(struct ast_node *node)
 {
+    if (!node)
+    {
+        return;
+    }
+
     logger("%i\n", node->type);
     AST_FN[node->type].free(node->value);
     free(node);
@@ -107,5 +115,11 @@ void ast_free(struct ast_node *node)
 
 void ast_print(struct ast_node *node)
 {
+    if (!node)
+    {
+        logger("(nil)");
+        return;
+    }
+
     AST_FN[node->type].print(node->value);
 }

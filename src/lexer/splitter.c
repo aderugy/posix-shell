@@ -83,6 +83,16 @@ struct shard *splitter_next(struct stream *stream)
             stream_read(stream);
             while ((c = stream_read(stream)) != EOF && c != quote)
             {
+                if (c == '\\')
+                {
+                    c = stream_read(stream);
+
+                    if (c == EOF)
+                    {
+                        break;
+                    }
+                }
+
                 mbt_str_pushc(str, c);
             }
 
@@ -95,9 +105,9 @@ struct shard *splitter_next(struct stream *stream)
                 quoted = SHARD_SINGLE_QUOTED;
                 break;
             case '\\':
-                errx(EXIT_FAILURE, "not implemented");
+
             case EOF:
-                errx(EXIT_FAILURE, "unmatched quote");
+                errx(SPLIT_ERROR, "unmatched quote");
             default:
                 errx(EXIT_FAILURE, "wtf");
             }
@@ -179,7 +189,7 @@ struct shard *splitter_next(struct stream *stream)
             }
             logger("\n");
 
-            break;
+            continue;
         }
 
         // Case 11: new word: keep looping

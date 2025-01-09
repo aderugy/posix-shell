@@ -4,6 +4,8 @@
 #include "streams/streams.h"
 #include "token.h"
 
+#define LEX_ERROR 2
+
 /**
  * \page Lexer
  *

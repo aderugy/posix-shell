@@ -18,54 +18,59 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
     if (!node)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        errx(2, "out of memory");
     }
 
-    struct token *token = lexer_peek(lexer);
-    while (token->type == TOKEN_NEW_LINE)
+    struct token *token;
+    while ((token = lexer_peek(lexer))->type == TOKEN_NEW_LINE)
     {
         lexer_pop(lexer);
-        if (token)
-            free(token);
-        token = lexer_peek(lexer);
+        free(token);
     }
 
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
         logger("clist : not and or\n");
+        free(node);
         return NULL;
     }
 
     node->list = list_init();
     list_append(node->list, and_or);
+
     token = lexer_peek(lexer);
     while (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON)
     {
         lexer_pop(lexer);
-        if (token)
-            free(token);
+        free(token);
+
         token = lexer_peek(lexer);
         while (token->type == TOKEN_NEW_LINE)
         {
             lexer_pop(lexer);
-            if (token)
-                free(token);
+            free(token);
+
             token = lexer_peek(lexer);
         }
+
         struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
         if (!and_or)
         {
             return node;
         }
+
         logger("clist : SUCCESSFULLY create and_or\n");
         list_append(node->list, and_or);
+
         token = lexer_peek(lexer);
         if (!token)
-            errx(EXIT_FAILURE, "clist : not token\n");
+        {
+            errx(2, "clist : not token\n");
+        }
     }
 
-    return NULL;
+    return node;
 }
 
 int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out)
@@ -87,5 +92,5 @@ void ast_free_clist(struct ast_clist *node)
 
 void ast_print_clist(__attribute((unused)) struct ast_clist *node)
 {
-    errx(EXIT_FAILURE, "clist : not implemented");
+    logger("CLIST");
 }

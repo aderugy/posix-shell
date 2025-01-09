@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "ast/ast.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
@@ -22,19 +23,19 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
     if (!ast)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        errx(2, "out of memory");
     }
 
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if : condition is NULL.");
+        errx(AST_PARSE_ERROR, "Internal error in rule if.");
     }
 
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_THEN)
     {
-        errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected THEN");
+        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected THEN");
     }
 
     logger("SUCCESSFULLY found THEN\n");
@@ -43,7 +44,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     struct ast_node *body = ast_create(lexer, AST_CLIST);
     if (body == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if : body is NULL.");
+        errx(AST_PARSE_ERROR, "Internal error in rule if.");
     }
     ast->body = body;
     logger("SUCCESSFULLY create body\n");
@@ -60,7 +61,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_FI)
     {
-        errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected FI");
+        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected FI");
     }
     logger("SUCCESSFULLY found FI\n");
     free(tok);

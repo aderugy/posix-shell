@@ -1,9 +1,11 @@
 #include "logger.h"
 
+#include <execinfo.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 void logger(const char *s, ...)
 {
@@ -32,4 +34,17 @@ void logger_buffer(const char *name, void *buf, size_t len)
         printf("%02X.", c_buf[i]);
     }
     printf("\n");
+}
+
+void print_stack_trace(void)
+{
+    void *buffer[100]; // Buffer to store backtrace
+    int size;
+
+    // Capture the backtrace
+    size = backtrace(buffer, 100);
+
+    // Print stack trace to stderr
+    fprintf(stderr, "Stack trace (most recent call first):\n");
+    backtrace_symbols_fd(buffer, size, STDERR_FILENO);
 }
