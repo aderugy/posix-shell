@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "utils/logger.h"
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
@@ -12,6 +13,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 
     if (simple_cmd)
     {
+        logger("simple cmd was returned\n");
         node = calloc(1, sizeof(struct ast_cmd));
         if (!node)
         {

@@ -16,10 +16,10 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *if = ast_create(lexer, AST_IF);
-    if (!if)
+    struct ast_node *if_rule = ast_create(lexer, AST_IF);
+    if (!if_rule)
         return NULL;
-    node->ast_node = if;
+    node->ast_node = if_rule;
     return node;
 }
 int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr)

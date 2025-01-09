@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "node.h"
 #include "utils/logger.h"
@@ -14,10 +15,10 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     switch (tok->type)
     {
     case TOKEN_EOF:
+        return NULL;
     case TOKEN_NEW_LINE:
         return NULL;
     default:
-        tok = lexer_pop(lexer);
         root = calloc(1, sizeof(struct ast_input));
 
         if (!root)
@@ -28,7 +29,7 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
         root->list = ast_create(lexer, AST_LIST);
     }
     tok = lexer_pop(lexer);
-    if (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE)
+    if (tok && (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE))
     {
         errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
     }

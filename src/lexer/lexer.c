@@ -85,6 +85,10 @@ struct token *lexer_peek(struct lexer *lexer)
 struct token *lexer_pop(struct lexer *lexer)
 {
     struct token *token = lexer->next ? lexer->next : lex(lexer);
+    if (!token)
+    {
+        return NULL;
+    }
     lexer->next = token->type != TOKEN_EOF ? lex(lexer) : NULL;
 
     return token;
