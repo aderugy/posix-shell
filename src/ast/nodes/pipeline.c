@@ -25,7 +25,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 
 int ast_eval_pipeline(struct ast_pipeline *node, void **out)
 {
-    ast_eval(node->command, NULL);
+    return ast_eval(node->command, out);
 }
 
 void ast_free_pipeline(struct ast_pipeline *pipeline)

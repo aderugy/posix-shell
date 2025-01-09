@@ -3,7 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
-#include "linked_list.h"
+#include "utils/linked_list.h"
 
 /* compound_list =
  *  {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} ;
@@ -52,7 +52,8 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     }
     return NULL;
 }
-int ast_eval_clist(struct ast_clist *node, void **out)
+int ast_eval_clist(__attribute((unused)) struct ast_clist *node,
+                   __attribute((unused)) void **out)
 {
     errx(EXIT_FAILURE, "not implemented");
 }

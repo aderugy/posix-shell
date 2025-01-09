@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "builtins/builtins.h"
 #include "builtins/commands.h"
@@ -51,6 +52,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
 
     int ret_value = run_command(argc, argv);
+    if (ret_value == 127)
+    {
+        ret_value = execvp(argv[0], argv);
+    }
     free(argv);
     return ret_value;
 }
