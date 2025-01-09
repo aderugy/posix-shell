@@ -47,5 +47,24 @@ void ast_free_and_or(struct ast_and_or_node *node)
 
 void ast_print_and_or(__attribute((unused)) struct ast_and_or_node *node)
 {
-    logger("AND OR");
+    if (!node->left)
+    {
+        return;
+    }
+
+    ast_print(node->left);
+
+    if (node->right)
+    {
+        if (node->is_and)
+        {
+            logger(" && ");
+        }
+        else
+        {
+            logger(" || ");
+        }
+
+        ast_print(node->right);
+    }
 }

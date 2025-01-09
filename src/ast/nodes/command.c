@@ -21,7 +21,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         node->cmd = simple_cmd;
         return node;
     }
-    logger("SHELL_CMD\n");
+
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (!shell_cmd)
     {
@@ -42,10 +42,7 @@ void ast_free_cmd(struct ast_cmd *node)
 
 int ast_eval_cmd(struct ast_cmd *node, void **out)
 {
-    int ret_value = ast_eval(node->cmd, out);
-
-    logger("result of command : %i\n", ret_value);
-    return ret_value;
+    return ast_eval(node->cmd, out);
 }
 
 void ast_print_cmd(struct ast_cmd *node)

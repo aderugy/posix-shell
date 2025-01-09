@@ -19,7 +19,7 @@ void print_echo(struct echo_options *opts, int argc)
         size_t i = 0;
         while (*(opts->str[j] + i) != 0)
         {
-            if (opts->interpret_backslash && *(opts->str[j]) == '\\')
+            if (opts->interpret_backslash && *(opts->str[j] + i) == '\\')
             {
                 i++;
                 if (*(opts->str[j] + i) == 'n')

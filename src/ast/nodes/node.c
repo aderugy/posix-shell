@@ -97,7 +97,6 @@ int ast_eval(struct ast_node *node, void **out)
         errx(AST_PARSE_ERROR, "eval NULL");
     }
 
-    logger("eval : %i\n", node->type);
     return AST_FN[node->type].eval(node->value, out);
 }
 
@@ -108,7 +107,6 @@ void ast_free(struct ast_node *node)
         return;
     }
 
-    logger("%i\n", node->type);
     AST_FN[node->type].free(node->value);
     free(node);
 }

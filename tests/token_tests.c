@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
 {
     int c;
     int opt_idx = 0;
-    struct stream *stream = NULL;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -62,7 +61,6 @@ int main(int argc, char *argv[])
             logger("--verbose is activated\n");
             break;
         case 'c':
-            stream = stream_from_str(optarg);
             break;
         case '?':
             exit(1);
@@ -71,6 +69,6 @@ int main(int argc, char *argv[])
             errx(1, "main: unkown option %c", c);
         }
     }
-    struct lexer *lexer = lexer_create(stream);
+    // struct lexer *lexer = lexer_create(stream);
     return 0;
 }

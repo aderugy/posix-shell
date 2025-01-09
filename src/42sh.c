@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     {
         if (argc > 1)
         {
-            char *path = argv[1];
+            char *path = argv[optind];
             stream = stream_from_file(path);
         }
         else
@@ -62,14 +62,21 @@ int main(int argc, char *argv[])
     }
     register_commands();
     struct lexer *lexer = lexer_create(stream);
-    struct ast_node *node = ast_create(lexer, AST_INPUT);
 
-    ast_print(node);
-    logger("\n");
+    struct ast_node *node;
+    int return_value = 0;
+    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    {
+        ast_print(node);
+        return_value = ast_eval(node, NULL);
 
-    int return_value = ast_eval(node, NULL);
+        ast_free(node);
+    }
 
-    ast_free(node);
+    if (!node && lexer->stream)
+    {
+        return_value = 2;
+    }
 
     lexer_free(lexer);
     unregister_commands();

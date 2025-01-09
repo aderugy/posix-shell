@@ -60,4 +60,4 @@ tests/splitter_tests
 tests/builtt_tests
 tests/token_tests
 *.swp
-~configure
+configure\~

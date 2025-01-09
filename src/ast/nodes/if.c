@@ -13,7 +13,7 @@
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (tok->type != TOKEN_IF)
+    if (!tok || tok->type != TOKEN_IF)
     {
         return NULL;
     }
@@ -29,13 +29,13 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(AST_PARSE_ERROR, "Internal error in rule if.");
+        errx(2, "missing if condition");
     }
 
     tok = lexer_pop(lexer);
-    if (tok->type != TOKEN_THEN)
+    if (!tok || tok->type != TOKEN_THEN)
     {
-        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected THEN");
+        errx(2, "missing then token");
     }
 
     logger("SUCCESSFULLY found THEN\n");
@@ -44,7 +44,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     struct ast_node *body = ast_create(lexer, AST_CLIST);
     if (body == NULL)
     {
-        errx(AST_PARSE_ERROR, "Internal error in rule if.");
+        errx(2, "missing if body");
     }
     ast->body = body;
     logger("SUCCESSFULLY create body\n");
@@ -59,9 +59,9 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         logger("SUCCESSFULLY NOT create else clause\n");
     }
     tok = lexer_pop(lexer);
-    if (tok->type != TOKEN_FI)
+    if (!tok || tok->type != TOKEN_FI)
     {
-        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected FI");
+        errx(2, "missing fi");
     }
     logger("SUCCESSFULLY found FI\n");
     free(tok);
@@ -98,10 +98,14 @@ void ast_free_if(struct ast_if_node *node)
 
 void ast_print_if(struct ast_if_node *node)
 {
-    if (node)
+    logger("if ");
+    ast_print(node->condition);
+    logger(" then ");
+    ast_print(node->body);
+
+    if (node->else_clause)
     {
-        ast_print(node->condition);
-        ast_print(node->body);
+        logger(" ");
         ast_print(node->else_clause);
     }
 }

@@ -14,7 +14,6 @@
 
 struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
-    logger("clist : create\n");
     struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
     if (!node)
     {
@@ -31,7 +30,6 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
-        logger("clist : not and or\n");
         free(node);
         return NULL;
     }
@@ -60,7 +58,6 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
             return node;
         }
 
-        logger("clist : SUCCESSFULLY create and_or\n");
         list_append(node->list, and_or);
 
         token = lexer_peek(lexer);
@@ -92,5 +89,21 @@ void ast_free_clist(struct ast_clist *node)
 
 void ast_print_clist(__attribute((unused)) struct ast_clist *node)
 {
-    logger("CLIST");
+    if (!node->list)
+    {
+        logger(";");
+        return;
+    }
+
+    struct linked_list *list = node->list;
+    struct linked_list_element *el = list->head;
+    while (el)
+    {
+        ast_print(el->data);
+        logger(" ");
+
+        el = el->next;
+    }
+
+    logger(";");
 }
