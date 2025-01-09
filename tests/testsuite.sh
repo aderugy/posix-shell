@@ -62,7 +62,7 @@ test_pars_lex_error()
     "$F" -c "$@"
     ACTUAL_ERR="$?"
     if [ $ACTUAL_ERR -eq $ERR ]; then
-        echo "$G[OK]$D"
+        echo "$G[OK]$D $F -c \""$@"\"$D"
     else
         echo "COMMAND RUN : $R$F -c \""$@"\"$D"
         echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
@@ -112,6 +112,14 @@ test_echo_basic()
     tes "echo foo; echo 'a'"
     echo "========== ECHO END =========="
 }
+test_non_builtin()
+{
+    echo "========== NON_BUILTIN BEGIN =========="
+    tes "ls -a"
+    tes "tree -L 2"
+    tes "find -name *.c"
+    echo "========== NON_BUILTIN END =========="
+}
 test_echo_options()
 {
     echo "========== ECHO OPTIONS BEGINING =========="
@@ -152,6 +160,8 @@ test_else()
     echo "========== ELSE BEGIN =========="
     tes "if false; then echo a; else echo b; fi"
     tes "if true; then echo a; else echo b; fi"
+    tes "if false; then echo a; elif false; then echo b; else echo c; fi"
+    tes "if false; then echo a; elif false; then echo b; else echo c; fi"
     echo "========== ELSE END =========="
 }
 test_comment()
@@ -189,12 +199,14 @@ test_errs()
     # LEXER ERRS
     test_pars_lex_error 2 "if true; then echo a; \"fi"
     test_pars_lex_error 2 "\""
+    test_pars_lex_error 2 "\"\"\""
     echo "========== ERROR_CODE END =========="
 }
 testsuite()
 {
     test_echo_basic
     test_echo_options
+    test_non_builtin
     test_if
     test_elif
     test_else
