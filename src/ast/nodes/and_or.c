@@ -27,7 +27,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 
 int ast_eval_and_or(struct ast_and_or_node *node, void **out);
 
-void ast_free_and_or(struct and_or_node *node)
+void ast_free_and_or(struct ast_and_or_node *node)
 {
     ast_free(node->left);
     free(node);
