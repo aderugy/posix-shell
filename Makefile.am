@@ -3,7 +3,7 @@
 
 LOG_COMPILER = /bin/bash
 
-SUBDIRS = src 
+SUBDIRS = src
 #uncommenting the line above creates an infinite loop before the testsuite runs
 
 check:
@@ -17,6 +17,7 @@ clean:
 	find \( -name *.dirstamp \) -delete
 	rm -rf src/ast/.deps
 	find \( -name *.deps -o -name *.[oa] -o -name *.in \) -delete
+	rm 42sh-1.0.tar.gz
 builtins:
 	make
 	./tests/builtt_tests

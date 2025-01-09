@@ -4,8 +4,6 @@ AC_INIT([42sh], [1.0], [42sh@assistants.epita.fr])
 # Setup Automake
 AM_INIT_AUTOMAKE([subdir-objects] [foreign])
 
-# Setup the test dir
-AC_CONFIG_TESTDIR([tests])
 
 # Pretty display of Makefile rules
 AM_SILENT_RULES([yes])
