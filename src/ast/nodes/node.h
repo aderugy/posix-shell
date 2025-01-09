@@ -20,20 +20,23 @@ enum ast_type
     AST_IF
 };
 
-enum and_or_type
-{
-    AND,
-    OR
-};
-
 struct ast_node
 {
     enum ast_type type;
     void *value;
 };
 
+struct ast_node_operations
+{
+    void *(*parse)(struct lexer *lexer);
+    int (*eval)(void *node, void **out);
+    void (*free)(void *node);
+    void (*print)(void *node);
+};
+
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type);
 int ast_eval(struct ast_node *node, void **out);
 void ast_free(struct ast_node *node);
+void ast_print(struct ast_node *node);
 
 #endif // !AST_NODE_H

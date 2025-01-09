@@ -14,4 +14,6 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer);
 int ast_eval_cmd(struct ast_cmd *node, void **out);
 void ast_free_cmd(struct ast_cmd *node);
 
+void ast_print_cmd(struct ast_cmd *node);
+
 #endif // !COMMAND_H
