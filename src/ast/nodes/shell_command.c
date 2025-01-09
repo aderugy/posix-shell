@@ -33,5 +33,5 @@ void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 }
 void ast_print_shell_cmd(__attribute((unused)) struct ast_shell_cmd *cmd)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    errx(EXIT_FAILURE, " shell_command : not implemented");
 }

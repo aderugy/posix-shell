@@ -56,7 +56,6 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
 int ast_eval_if(struct ast_if_node *node, void **out)
 {
-    errx(EXIT_FAILURE, "not implemented");
     if (ast_eval(node->condition, out) == 0)
     {
         return ast_eval(node->body, out);
@@ -70,7 +69,10 @@ void ast_free_if(struct ast_if_node *node)
     {
         ast_free(node->condition);
         ast_free(node->body);
-        ast_free(node->else_clause);
+        if (node->else_clause)
+        {
+            ast_free(node->else_clause);
+        }
         free(node);
     }
 }
