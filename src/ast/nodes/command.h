@@ -5,9 +5,16 @@
 #include "node.h"
 #include "simple_command.h"
 
+enum command_type
+{
+    SHELL_CMD,
+    SIMPLE_CMD
+};
+
 struct ast_cmd
 {
-    struct ast_node *simple_cmd;
+    enum command_type type;
+    struct ast_node *cmd;
 };
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer);
