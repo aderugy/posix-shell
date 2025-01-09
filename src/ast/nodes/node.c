@@ -19,6 +19,7 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
     switch (type)
     {
     case AST_SIMPLE_COMMAND:
+        root->value = ast_parse_simple_cmd(lexer);
         break;
     case AST_IF:
         break;

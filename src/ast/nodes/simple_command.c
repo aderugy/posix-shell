@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "builtins/builtins.h"
 #include "lexer/token.h"
 #include "node.h"
 #include "utils/linked_list.h"
@@ -32,7 +33,8 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     return cmd;
 }
 
-int ast_eval_simple_cmd(struct ast_simple_cmd *cmd, void **out);
+int ast_eval_simple_cmd(struct ast_simple_cmd *cmd, void **out)
+{}
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 {
