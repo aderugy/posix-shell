@@ -46,8 +46,7 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
-        token->type = TOKEN_EOF;
-        return token;
+        return NULL;
     }
 
     for (size_t i = 0; i < KEYWORDS_LEN; i++)
@@ -70,6 +69,11 @@ static struct token *lex(struct lexer *lexer)
 
 struct token *lexer_peek(struct lexer *lexer)
 {
+    if (!lexer->next)
+    {
+        lexer->next = lex(lexer);
+    }
+
     return lexer->next;
 }
 

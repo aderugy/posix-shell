@@ -62,13 +62,20 @@ static const struct ast_node_operations AST_FN[] = {
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
+    void *value = AST_FN[type].parse(lexer);
+    if (!value)
+    {
+        return NULL;
+    }
+
     struct ast_node *root = calloc(1, sizeof(struct ast_node));
     if (!root)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    root->value = AST_FN[type].parse(lexer);
+    root->type = type;
+    root->value = value;
     return root;
 }
 

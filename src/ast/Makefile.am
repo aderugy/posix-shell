@@ -28,6 +28,6 @@ libast_a_SOURCES =  \
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libast_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+libast_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
 
 noinst_LIBRARIES = libast.a

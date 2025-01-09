@@ -42,10 +42,14 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 {
     size_t argc = cmd->args->size;
     char **argv = calloc(argc, sizeof(char *));
+
     for (size_t i = 0; i < argc; i++)
     {
-        argv[i] = list_get(cmd->args, i);
+        struct ast_node *children = list_get(cmd->args, i);
+        ast_eval(children, (void **)argv + i);
+        logger("%s\n", argv[i]);
     }
+
     return run_command(argc, argv);
 }
 
@@ -65,6 +69,7 @@ void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
         struct ast_node *node = head->data;
         logger(" ");
         ast_print(node);
+        head = head->next;
     }
 
     logger(" end_command");

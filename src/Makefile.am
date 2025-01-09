@@ -11,7 +11,7 @@ bin_PROGRAMS = 42sh
 
 42sh_CPPFLAGS = -I%D%
 
-42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
 
 42sh_LDADD =  \
     eval/libeval.a \

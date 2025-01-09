@@ -5,6 +5,7 @@
 
 #include "lexer/token.h"
 #include "node.h"
+#include "utils/logger.h"
 
 struct ast_element *ast_parse_element(struct lexer *lexer)
 {
@@ -28,6 +29,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 int ast_eval_element(__attribute((unused)) struct ast_element *node,
                      __attribute((unused)) void **out)
 {
+    *out = node->value;
     return AST_EVAL_SUCCESS;
 }
 
@@ -39,5 +41,5 @@ void ast_free_element(struct ast_element *node)
 
 void ast_print_element(__attribute((unused)) struct ast_element *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    logger(" %s ", node->value);
 }
