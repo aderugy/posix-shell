@@ -3,11 +3,10 @@
 
 LOG_COMPILER = /bin/bash
 
-SUBDIRS = src
+SUBDIRS = src \
+		  tests
 #uncommenting the line above creates an infinite loop before the testsuite runs
 
-check:
-	tests/testsuite.sh
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
 	rm -rf *.m4 autom4te.cache/ ~configure

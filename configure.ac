@@ -4,7 +4,7 @@ AC_INIT([42sh], [1.0], [42sh@assistants.epita.fr])
 # Setup Automake
 AM_INIT_AUTOMAKE([subdir-objects] [foreign])
 
-
+#
 # Pretty display of Makefile rules
 AM_SILENT_RULES([yes])
 
@@ -31,5 +31,6 @@ AC_CONFIG_FILES([
                     src/utils/Makefile
                     src/builtins/Makefile
                     src/eval/Makefile
+                    tests/Makefile
                 ])
 AC_OUTPUT
