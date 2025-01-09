@@ -6,7 +6,7 @@
 
 struct ast_input
 {
-    int ignored;
+    struct ast_node *list;
 };
 
 struct ast_input *ast_parse_input(struct lexer *lexer);

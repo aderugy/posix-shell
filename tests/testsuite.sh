@@ -59,19 +59,21 @@ test_from_direct_input() {
 # @params the command that was run
 # @remark change the options of diff as u like eg. try -y (column), -u, -q
 output_test() {
+    FA=$1
+    shift
     diff -y --color="always" "$EXPECTED_OUT" "$ACTUAL_OUT" > "$DIFF_OUT" 2>&1
     if [ $? -eq 0 ]; then
         diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" > "$DIFF_ERR" 2>&1
         if [ $? -eq 0 ]; then
-            echo "$G[OK]$D $1"
+            echo "$G[OK]$D $FA $@"
         else
             echo "$R[KO]$D"
-            echo "$1"
+            echo "$FA $@"
             cat "$DIFF_ERR"
         fi
     else
             echo "$R[KO]$D"
-            echo "$1"
+            echo "$FA $@"
             cat "$DIFF_OUT"
     fi
 }
