@@ -5,7 +5,7 @@ libbuiltins_a_SOURCES =  \
   builtins.h \
 true_and_false_builtin.c \
 run_command.c \
-run_builtin.h \
+run_command.h \
 commands.c \
 commands.h
 
