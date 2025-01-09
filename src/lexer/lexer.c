@@ -7,6 +7,7 @@
 
 #include "splitter.h"
 #include "token.h"
+#include "utils/logger.h"
 
 static const struct keyword KEYWORDS[] = {
     { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
@@ -16,7 +17,7 @@ static const struct keyword KEYWORDS[] = {
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
-struct lexer *lexer_new(struct stream *stream)
+struct lexer *lexer_create(struct stream *stream)
 {
     struct lexer *res = calloc(1, sizeof(struct lexer));
     if (!res)
@@ -24,68 +25,67 @@ struct lexer *lexer_new(struct stream *stream)
         return NULL;
     }
 
-    res->current_tok = lexer_all(stream);
+    res->stream = stream;
     return res;
 }
 
 void lexer_free(struct lexer *lexer)
 {
-    struct token *curr = lexer->current_tok;
-    while (curr)
-    {
-        struct token *next = curr->next;
-        free(curr);
-        curr = next;
-    }
+    stream_close(lexer->stream);
     free(lexer);
 }
 
-struct token *lexer_all(struct stream *stream)
+static struct token *lex(struct lexer *lexer)
 {
-    struct token *res = calloc(1, sizeof(struct token));
-    res->type = TOKEN_ERROR;
-
-    struct token *curr = res;
-
-    struct shard *shard;
-    while ((shard = splitter_next(stream)))
+    logger("lex\n");
+    struct token *token = calloc(1, sizeof(struct token));
+    if (!token)
     {
-        for (size_t i = 0; i < KEYWORDS_LEN; i++)
-        {
-            if (strcmp(shard->data, KEYWORDS[i].name) == 0)
-            {
-                curr->type = KEYWORDS[i].type;
-                break;
-            }
-        }
-
-        if (curr->type == TOKEN_ERROR)
-        {
-            curr->type = TOKEN_WORD;
-            curr->value.c = strdup(shard->data);
-        }
-
-        shard = splitter_next(stream);
-        struct token *next = calloc(1, sizeof(struct token));
-        curr->next = next;
-        curr = next;
+        errx(EXIT_FAILURE, "lex: memory error");
     }
-    curr->type = TOKEN_EOF;
+    token->type = TOKEN_ERROR;
 
-    return res;
+    struct shard *shard = splitter_next(lexer->stream);
+    if (!shard)
+    {
+        free(token);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < KEYWORDS_LEN; i++)
+    {
+        if (strcmp(shard->data, KEYWORDS[i].name) == 0)
+        {
+            token->type = KEYWORDS[i].type;
+            break;
+        }
+    }
+
+    if (token->type == TOKEN_ERROR)
+    {
+        token->type = TOKEN_WORD;
+        token->value.c = strdup(shard->data);
+    }
+
+    shard_free(shard);
+
+    return token;
 }
 
-struct token lexer_peek(struct lexer *lexer)
+struct token *lexer_peek(struct lexer *lexer)
 {
-    return *(lexer->current_tok);
+    if (!lexer->next)
+    {
+        lexer->next = lex(lexer);
+    }
+
+    return lexer->next;
 }
 
-struct token lexer_pop(struct lexer *lexer)
+struct token *lexer_pop(struct lexer *lexer)
 {
-    struct token *res = lexer->current_tok;
-    if (res)
-    {
-        lexer->current_tok = res->next;
-    }
-    return *res;
+    struct token *token = lexer->next ? lexer->next : lex(lexer);
+    lexer->next = token->type != TOKEN_EOF ? lex(lexer) : NULL;
+
+    return token;
 }

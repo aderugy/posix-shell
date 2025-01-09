@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer/splitter.h"
+#include "ast/nodes/node.h"
+#include "builtins/commands.h"
+#include "lexer/lexer.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -58,15 +60,18 @@ int main(int argc, char *argv[])
     {
         errx(1, "stream error");
     }
+    register_commands();
+    struct lexer *lexer = lexer_create(stream);
+    struct ast_node *node = ast_create(lexer, AST_SIMPLE_COMMAND);
 
-    struct shard *shard;
-    while ((shard = splitter_next(stream)))
-    {
-        printf("%s (%d)\n", shard->data, shard->quoted);
-        free(shard->data);
-        free(shard);
-    }
+    ast_print(node);
+    logger("\n");
 
-    stream_close(stream);
-    return 0;
+    int return_value = ast_eval(node, NULL);
+
+    ast_free(node);
+
+    lexer_free(lexer);
+    unregister_commands();
+    return return_value;
 }

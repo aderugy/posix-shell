@@ -4,7 +4,9 @@ libutils_a_SOURCES =  \
   logger.c \
   logger.h \
   fill_input.h \
-  fill_input.c 
+  fill_input.c  \
+  linked_list.c \
+  linked_list.h
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 

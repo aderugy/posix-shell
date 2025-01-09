@@ -50,6 +50,12 @@ m4/lt~obsolete.m4
 # can automatically generate from config.status script
 # (which is called by configure script))
 Makefile
+
+*.o
+*.a
+42sh
+atconfig
+token_tests
 tests/splitter_tests
 tests/builtt_tests
 tests/token_tests

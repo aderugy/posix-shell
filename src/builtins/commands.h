@@ -1,8 +1,9 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
+
 #define ECHO "echo"
-#define TRUE_BUILTIN "true_builtin"
-#define FALSE_BUILTIN "false_builtin"
+#define TRUE "true"
+#define FALSE "false"
 
 int register_commands(void);
 int unregister_commands(void);

@@ -49,24 +49,25 @@ int echo(int argc, char *argv[])
 {
     int c;
     int opt_idx = 0;
-    printf("echo %s\n", argv[1]);
 
-    struct echo_options *opts = malloc(sizeof(struct echo_options));
-    if (!opts)
+    struct echo_options *echo_opts = malloc(sizeof(struct echo_options));
+    if (!echo_opts)
     {
         perror("malloc");
         return 1;
     }
-    opts->interpret_backslash = false;
-    opts->not_newline = true;
-    opts->str = NULL;
+    echo_opts->interpret_backslash = false;
+    echo_opts->not_newline = true;
+    echo_opts->str = NULL;
+
+    optind = 1;
     while ((c = getopt_long(argc, argv, "e", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
         case 'e':
-            opts->interpret_backslash = true;
-            opts->not_interpret_backslash_default = false;
+            echo_opts->interpret_backslash = true;
+            echo_opts->not_interpret_backslash_default = false;
             break;
         case '?':
             return 1;
@@ -74,8 +75,10 @@ int echo(int argc, char *argv[])
             errx(1, "echo: unkown option %c", c);
         }
     }
-    opts->str = argv + optind - 1;
-    print_echo(opts, argc - optind);
+    echo_opts->str = argv + optind;
+    print_echo(echo_opts, argc - optind);
+
+    free(echo_opts);
 
     printf("\n");
     return 0;

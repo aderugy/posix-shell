@@ -84,7 +84,6 @@ void stream_close(struct stream *stream)
 {
     if (stream)
     {
-        logger("stream_close: closing stream\n");
         fclose(stream->in);
         free(stream);
     }
@@ -96,7 +95,6 @@ void stream_close(struct stream *stream)
  */
 char stream_read(struct stream *stream)
 {
-    logger("stream_read: reading\n");
     return fgetc(stream->in);
 }
 
@@ -106,7 +104,6 @@ char stream_read(struct stream *stream)
  */
 char stream_peek(struct stream *stream)
 {
-    logger("stream_peek: peeking\n");
     char c = fgetc(stream->in);
     if (c != EOF)
     {
