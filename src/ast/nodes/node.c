@@ -114,5 +114,11 @@ void ast_free(struct ast_node *node)
 
 void ast_print(struct ast_node *node)
 {
+    if (!node)
+    {
+        logger("(nil)");
+        return;
+    }
+
     AST_FN[node->type].print(node->value);
 }
