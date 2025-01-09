@@ -6,6 +6,7 @@
 
 #include "node.h"
 #include "utils/linked_list.h"
+#include "utils/logger.h"
 
 /* compound_list =
  *  {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} ;
@@ -13,6 +14,7 @@
 
 struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
+    logger("clist : create\n");
     struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
     if (!node)
     {
@@ -31,6 +33,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
+        logger("clist : not and or\n");
         return NULL;
     }
 
@@ -55,7 +58,11 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         {
             return node;
         }
+        logger("clist : SUCCESSFULLY create and_or\n");
         list_append(node->list, and_or);
+        token = lexer_peek(lexer);
+        if (!token)
+            errx(EXIT_FAILURE, "clist : not token\n");
     }
 
     return NULL;

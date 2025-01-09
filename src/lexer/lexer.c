@@ -37,7 +37,6 @@ void lexer_free(struct lexer *lexer)
 
 static struct token *lex(struct lexer *lexer)
 {
-    logger("lex\n");
     struct token *token = calloc(1, sizeof(struct token));
     if (!token)
     {
@@ -51,7 +50,6 @@ static struct token *lex(struct lexer *lexer)
         token->type = TOKEN_EOF;
         return token;
     }
-    logger("%s (%d)\n", shard->data, shard->quoted);
 
     for (size_t i = 0; i < KEYWORDS_LEN; i++)
     {
