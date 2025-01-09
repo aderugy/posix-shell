@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "ast/ast.h"
 #include "lexer/lexer.h"
 /*
    rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
@@ -26,27 +27,27 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(2, "Internal error in rule if.");
+        errx(AST_PARSE_ERROR, "Internal error in rule if.");
     }
 
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_THEN)
     {
-        errx(2, "Unexpected token in rule_if. Expected THEN");
+        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected THEN");
     }
     free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
     {
-        errx(2, "Internal error in rule if.");
+        errx(AST_PARSE_ERROR, "Internal error in rule if.");
     }
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_FI)
     {
-        errx(2, "Unexpected token in rule_if. Expected FI");
+        errx(AST_PARSE_ERROR, "Unexpected token in rule_if. Expected FI");
     }
     free(tok);
 
