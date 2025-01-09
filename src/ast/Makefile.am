@@ -23,7 +23,9 @@ libast_a_SOURCES =  \
   nodes/shell_command.c \
   nodes/shell_command.h \
   nodes/simple_command.c \
-  nodes/simple_command.h
+  nodes/simple_command.h \
+  nodes/else.c \
+  nodes/else.h
   
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
