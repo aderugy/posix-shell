@@ -1,6 +1,7 @@
 #include "run_command.h"
 
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

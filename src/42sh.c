@@ -67,11 +67,11 @@ int main(int argc, char *argv[])
     ast_print(node);
     logger("\n");
 
-    ast_eval(node, NULL);
+    int return_value = ast_eval(node, NULL);
 
     ast_free(node);
 
     lexer_free(lexer);
     unregister_commands();
-    return 0;
+    return return_value;
 }

@@ -10,13 +10,13 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", ECHO);
     }
-    if (add_command(TRUE_BUILTIN, true_builtin))
+    if (add_command(TRUE, true_builtin))
     {
-        errx(1, "%s: Couldn't register command", TRUE_BUILTIN);
+        errx(1, "%s: Couldn't register command", TRUE);
     }
-    if (add_command(FALSE_BUILTIN, false_builtin))
+    if (add_command(FALSE, false_builtin))
     {
-        errx(1, "%s: Couldn't register command", FALSE_BUILTIN);
+        errx(1, "%s: Couldn't register command", FALSE);
     }
 
     return 0;
@@ -28,13 +28,13 @@ int unregister_commands(void)
     {
         errx(1, "%s: Couldn't delete command", ECHO);
     }
-    if (del_command(TRUE_BUILTIN))
+    if (del_command(TRUE))
     {
-        errx(1, "%s: Couldn't delete command", TRUE_BUILTIN);
+        errx(1, "%s: Couldn't delete command", TRUE);
     }
-    if (del_command(FALSE_BUILTIN))
+    if (del_command(FALSE))
     {
-        errx(1, "%s: Couldn't delete command", FALSE_BUILTIN);
+        errx(1, "%s: Couldn't delete command", FALSE);
     }
 
     return 0;
