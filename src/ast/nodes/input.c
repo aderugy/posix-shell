@@ -5,24 +5,29 @@
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    struct token tok = lexer_peek(lexer);
-    struct ast_list *root = NULL;
-    switch (tok.type)
+    struct token *tok = lexer_peek(lexer);
+    struct ast_input *root = NULL;
+
+    switch (tok->type)
     {
     case TOKEN_EOF:
     case TOKEN_NEW_LINE:
         return NULL;
     default:
         tok = lexer_pop(lexer);
-        root = parse_list(lexer);
-        // if root == NULL then program has already exited
-        // no need to exit
-        break;
+        root = calloc(1, sizeof(struct ast_input));
+
+        if (!root)
+        {
+            errx(EXIT_FAILURE, "out of memory");
+        }
+
+        root->list = ast_create(lexer, AST_LIST);
     }
     tok = lexer_pop(lexer);
-    if (tok.type != TOKEN_EOF && tok.type != TOKEN_NEW_LINE)
+    if (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE)
     {
-        return errx("Unexpected token at the end of input parsing");
+        errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
     }
     return root;
 }
