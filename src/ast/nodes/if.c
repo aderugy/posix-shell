@@ -43,7 +43,6 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     }
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
-
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_FI)
     {
@@ -62,7 +61,9 @@ int ast_eval_if(struct ast_if_node *node, void **out)
     {
         return ast_eval(node->body, out);
     }
-    return ast_eval(node->else_clause, out);
+    if (node->else_clause)
+        return ast_eval(node->else_clause, out);
+    return 0;
 }
 
 void ast_free_if(struct ast_if_node *node)

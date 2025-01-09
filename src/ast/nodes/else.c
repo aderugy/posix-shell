@@ -26,6 +26,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
         if (!body)
             return NULL;
         node->body = body;
+        return node;
     }
 
     else if (token->type == TOKEN_ELIF)
@@ -52,12 +53,14 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
         node->condition = condition;
         node->body = body;
         node->else_clause = else_clause;
+        return node;
     }
     else
     {
+        logger("else NULL\n");
+        free(node);
         return NULL;
     }
-    return node;
 }
 
 int ast_eval_else(struct ast_else_node *node, void **out)
@@ -82,6 +85,7 @@ void ast_free_else(struct ast_else_node *node)
     if (node->else_clause)
         ast_free(node->else_clause);
     ast_free(node->body);
+    free(node);
 }
 
 void ast_print_else(__attribute((unused)) struct ast_else_node *node)

@@ -18,7 +18,10 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 
     struct ast_node *if_rule = ast_create(lexer, AST_IF);
     if (!if_rule)
+    {
+        free(node);
         return NULL;
+    }
     node->ast_node = if_rule;
     return node;
 }
