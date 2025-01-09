@@ -30,10 +30,8 @@ AC_CONFIG_FILES([
                     src/streams/Makefile
                     src/mbtstr/Makefile
                     src/lexer/Makefile
-                    src/parser/Makefile
                     src/utils/Makefile
                     src/builtins/Makefile
                     src/eval/Makefile
-                    tests/Makefile
                 ])
 AC_OUTPUT

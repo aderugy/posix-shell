@@ -5,7 +5,9 @@
 #include "node.h"
 
 struct ast_input
-{};
+{
+    int ignored;
+};
 
 struct ast_input *ast_parse_input(struct lexer *lexer);
 int ast_eval_input(struct ast_input *node, void **out);

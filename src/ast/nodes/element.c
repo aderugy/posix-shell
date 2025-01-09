@@ -6,7 +6,7 @@
 #include "lexer/token.h"
 #include "node.h"
 
-struct ast_element_node *ast_parse_element(struct lexer *lexer)
+struct ast_element *ast_parse_element(struct lexer *lexer)
 {
     struct token *token = lexer_peek(lexer); // We check if the token is valid
     if (!token || token->type != TOKEN_WORD)
@@ -15,7 +15,7 @@ struct ast_element_node *ast_parse_element(struct lexer *lexer)
     }
 
     lexer_pop(lexer); // Valid token -> we consume it
-    struct ast_element_node *el = calloc(1, sizeof(struct ast_element_node));
+    struct ast_element *el = calloc(1, sizeof(struct ast_element));
     if (!el)
     {
         errx(EXIT_FAILURE, "out of memory");
@@ -25,13 +25,19 @@ struct ast_element_node *ast_parse_element(struct lexer *lexer)
     return el;
 }
 
-int ast_eval_element(struct ast_element_node *node)
+int ast_eval_element(__attribute((unused)) struct ast_element *node,
+                     __attribute((unused)) void **out)
 {
     return AST_EVAL_SUCCESS;
 }
 
-void ast_free_element(struct ast_element_node *node)
+void ast_free_element(struct ast_element *node)
 {
     free(node->value);
     free(node);
+}
+
+void ast_print_element(__attribute((unused)) struct ast_element *node)
+{
+    errx(EXIT_FAILURE, "not implemented");
 }

@@ -18,6 +18,8 @@ libast_a_SOURCES =  \
   nodes/node.h \
   nodes/pipeline.c \
   nodes/pipeline.h \
+  nodes/clist.c \
+  nodes/clist.h \
   nodes/shell_command.c \
   nodes/shell_command.h \
   nodes/simple_command.c \

@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ast/ast.h"
+#include "ast/nodes/node.h"
 #include "lexer/lexer.h"
-#include "lexer/splitter.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -60,6 +61,10 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
     struct lexer *lexer = lexer_create(stream);
+    struct ast_node *node = ast_create(lexer, AST_SIMPLE_COMMAND);
+
+    ast_print(node);
+    ast_free(node);
 
     stream_close(stream);
     return 0;

@@ -1,7 +1,7 @@
 #ifndef AST_SIMPLE_COMMAND_H
 #define AST_SIMPLE_COMMAND_H
 
-#include "lexer/lexer.h";
+#include "lexer/lexer.h"
 #include "node.h"
 #include "utils/linked_list.h"
 

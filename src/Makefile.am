@@ -1,5 +1,4 @@
 SUBDIRS = ast \
-		  parser \
 		  streams \
 		  mbtstr \
 		  lexer \
@@ -16,7 +15,6 @@ bin_PROGRAMS = 42sh
 
 42sh_LDADD =  \
     eval/libeval.a \
-	parser/libpar.a \
 	ast/libast.a \
 	lexer/liblex.a \
 	utils/libutils.a \

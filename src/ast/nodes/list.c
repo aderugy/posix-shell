@@ -27,18 +27,22 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_list(struct ast_list *node, void **out);
+int ast_eval_list(__attribute((unused)) struct ast_list *node,
+                  __attribute((unused)) void **out)
+{
+    errx(EXIT_FAILURE, "not implemented");
+}
 
 void ast_free_list(struct ast_list *node)
 {
-    list_free(node->list, ast_free);
+    list_free(node->list, (void (*)())ast_free);
     free(node);
 }
 
 void ast_print_list(struct ast_list *node)
 {
     logger("list ");
-    struct linked_list_element *el = node->head;
+    struct linked_list_element *el = node->list->head;
     while (el)
     {
         ast_print(el->data);

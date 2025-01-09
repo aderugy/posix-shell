@@ -1,13 +1,12 @@
 #include "simple_command.h"
 
-#include <cstdlib>
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
 
 #include "builtins/builtins.h"
-#include "builtins/commands"
-#include "builtins/run_command"
+#include "builtins/commands.h"
+#include "builtins/run_command.h"
 #include "lexer/token.h"
 #include "node.h"
 #include "utils/linked_list.h"
@@ -38,9 +37,10 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     return simple_cmd;
 }
 
-int ast_eval_simple_cmd(struct ast_simple_cmd *cmd, void **out)
+int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
+                        __attribute((unused)) void **out)
 {
-    int argc = cmd->args->size;
+    size_t argc = cmd->args->size;
     char **argv = calloc(argc, sizeof(char *));
     for (size_t i = 0; i < argc; i++)
     {
@@ -51,7 +51,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd, void **out)
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    list_free(cmd->args, ast_free);
+    list_free(cmd->args, (void (*)(void *))ast_free);
     free(cmd);
 }
 
