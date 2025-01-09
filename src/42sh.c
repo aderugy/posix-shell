@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     ast_free(node);
 
-    stream_close(stream);
+    lexer_free(lexer);
     unregister_commands();
     return 0;
 }

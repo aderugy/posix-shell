@@ -14,6 +14,7 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
+    logger("parse simple_command\n");
     struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
     if (!cmd)
     {
@@ -50,7 +51,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         logger("%s\n", argv[i]);
     }
 
-    return run_command(argc, argv);
+    int ret_value = run_command(argc, argv);
+    free(argv);
+    return ret_value;
 }
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)

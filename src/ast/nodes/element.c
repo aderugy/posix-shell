@@ -23,6 +23,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     }
 
     el->value = token->value.c;
+    free(token);
     return el;
 }
 
@@ -35,6 +36,7 @@ int ast_eval_element(__attribute((unused)) struct ast_element *node,
 
 void ast_free_element(struct ast_element *node)
 {
+    logger("free element\n");
     free(node->value);
     free(node);
 }
