@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "utils/logger.h"
 
 /*
  * shell_command = rule_if ;
@@ -36,5 +37,5 @@ void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 }
 void ast_print_shell_cmd(__attribute((unused)) struct ast_shell_cmd *cmd)
 {
-    errx(EXIT_FAILURE, " shell_command : not implemented");
+    logger("SHELL COMMAND");
 }
