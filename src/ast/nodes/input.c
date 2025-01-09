@@ -29,10 +29,11 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
         root->list = ast_create(lexer, AST_LIST);
     }
     tok = lexer_pop(lexer);
-    if (tok && (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE))
+    if (!tok || (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE))
     {
         errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
     }
+    logger("eof\n");
     return root;
 }
 

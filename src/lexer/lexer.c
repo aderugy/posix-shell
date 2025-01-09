@@ -48,9 +48,10 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
-        free(token);
-        return NULL;
+        token->type = TOKEN_EOF;
+        return token;
     }
+    logger("%s (%d)\n", shard->data, shard->quoted);
 
     for (size_t i = 0; i < KEYWORDS_LEN; i++)
     {
