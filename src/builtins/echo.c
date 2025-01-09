@@ -8,6 +8,8 @@
 #include "commands.h"
 
 static struct option l_opts[] = { { "e", no_argument, 0, 'e' },
+                                  { "n", no_argument, 0, 'n' },
+                                  { "E", no_argument, 0, 'E' },
                                   { 0, 0, 0, 0 } };
 
 void print_echo(struct echo_options *opts, int argc)
@@ -60,17 +62,24 @@ int echo(int argc, char *argv[])
         return 1;
     }
     echo_opts->interpret_backslash = false;
-    echo_opts->not_newline = true;
+    echo_opts->not_newline = false;
     echo_opts->str = NULL;
 
     optind = 1;
-    while ((c = getopt_long(argc, argv, "e", l_opts, &opt_idx)) != -1)
+    while ((c = getopt_long(argc, argv, "enE", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
         case 'e':
             echo_opts->interpret_backslash = true;
             echo_opts->not_interpret_backslash_default = false;
+            break;
+        case 'n':
+            echo_opts->not_newline = true;
+            break;
+        case 'E':
+            echo_opts->interpret_backslash = false;
+            echo_opts->not_interpret_backslash_default = true;
             break;
         case '?':
             return 1;
@@ -83,6 +92,5 @@ int echo(int argc, char *argv[])
 
     free(echo_opts);
 
-    printf("\n");
     return 0;
 }
