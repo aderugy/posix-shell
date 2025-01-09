@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "lexer/token.h"
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
@@ -18,29 +19,32 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     struct ast_list *node = calloc(1, sizeof(struct ast_list));
     if (!node)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        errx(2, "out of memory");
     }
 
     node->list = list_init();
     list_append(node->list, and_or);
 
-    /*struct token *tok = lexer_peek(lexer);
-        while (tok && tok->type == TOKEN_SEMICOLON)
+    struct token *token;
+    while ((token = lexer_peek(lexer)))
+    {
+        if (!token || token->type != TOKEN_SEMICOLON)
         {
-            tok = lexer_peek(lexer);
-            if (tok->type == TOKEN_SEMICOLON)
-            {
-                struct token *t = lexer_pop(lexer);
-            }
-            and_or = ast_create(lexer, AST_AND_OR);
+            break;
+        }
+        else
+        {
+            lexer_pop(lexer);
 
-            if (and_or == NULL)
+            and_or = ast_create(lexer, AST_AND_OR);
+            if (!and_or)
             {
-                return node;
+                break;
             }
 
             list_append(node->list, and_or);
-        } */
+        }
+    }
 
     return node;
 }

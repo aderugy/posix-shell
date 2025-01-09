@@ -9,34 +9,37 @@
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    struct token *tok = lexer_peek(lexer);
-    struct ast_input *root = NULL;
-
-    switch (tok->type)
+    struct ast_input *input = calloc(1, sizeof(struct ast_input));
+    if (!input)
     {
-    case TOKEN_EOF:
-        return NULL;
-    case TOKEN_NEW_LINE:
-        return NULL;
-    default:
-        root = calloc(1, sizeof(struct ast_input));
+        errx(EXIT_FAILURE, "out of memory");
+    }
 
-        if (!root)
+    struct ast_node *list = ast_create(lexer, AST_LIST);
+    input->list = list;
+
+    struct token *token;
+    while ((token = lexer_peek(lexer)))
+    {
+        if (token && token->type == TOKEN_NEW_LINE)
         {
-            errx(EXIT_FAILURE, "out of memory");
+            free(lexer_pop(lexer));
         }
+        else
+        {
+            break;
+        }
+    }
 
-        root->list = ast_create(lexer, AST_LIST);
-    }
-    tok = lexer_pop(lexer);
-    if (!tok || (tok->type != TOKEN_EOF && tok->type != TOKEN_NEW_LINE))
+    token = lexer_peek(lexer);
+    if (!token || token->type != TOKEN_EOF)
     {
-        free(tok);
-        errx(EXIT_FAILURE, "Unexpected token at the end of input parsing");
+        ast_free_input(input);
+        return NULL;
     }
-    logger("eof\n");
-    free(tok);
-    return root;
+
+    free(lexer_pop(lexer));
+    return input;
 }
 
 int ast_eval_input(struct ast_input *node, void **out)
@@ -52,5 +55,7 @@ void ast_free_input(struct ast_input *node)
 
 void ast_print_input(__attribute((unused)) struct ast_input *input)
 {
-    logger("input\n");
+    logger("input ");
+    ast_print(input->list);
+    logger(" endinput");
 }
