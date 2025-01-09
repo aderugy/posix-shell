@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "utils/logger.h"
 
 /*
  * shell_command = rule_if ;
@@ -19,6 +20,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     struct ast_node *if_rule = ast_create(lexer, AST_IF);
     if (!if_rule)
     {
+        logger("shell_command : not if_rule\n");
         free(node);
         return NULL;
     }

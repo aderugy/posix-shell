@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 #include "lexer/lexer.h"
+#include "node.h"
+#include "utils/logger.h"
 /*
    rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 */
@@ -26,7 +28,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if.");
+        errx(EXIT_FAILURE, "Internal error in rule if : condition is NULL.");
     }
 
     tok = lexer_pop(lexer);
@@ -34,20 +36,33 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     {
         errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected THEN");
     }
+
+    logger("SUCCESSFULLY found THEN\n");
     free(tok);
 
-    ast->body = ast_create(lexer, AST_CLIST);
-    if (ast->body == NULL)
+    struct ast_node *body = ast_create(lexer, AST_CLIST);
+    if (body == NULL)
     {
-        errx(EXIT_FAILURE, "Internal error in rule if.");
+        errx(EXIT_FAILURE, "Internal error in rule if : body is NULL.");
     }
+    ast->body = body;
+    logger("SUCCESSFULLY create body\n");
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
+    if (ast->else_clause)
+    {
+        logger("SUCCESSFULLY create else clause\n");
+    }
+    else
+    {
+        logger("SUCCESSFULLY NOT create else clause\n");
+    }
     tok = lexer_pop(lexer);
     if (tok->type != TOKEN_FI)
     {
         errx(EXIT_FAILURE, "Unexpected token in rule_if. Expected FI");
     }
+    logger("SUCCESSFULLY found FI\n");
     free(tok);
 
     return ast;
