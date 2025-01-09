@@ -8,7 +8,7 @@
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
-    struct ast_cmd *node = calloc(1, sizeof(struct cmd));
+    struct ast_cmd *node = calloc(1, sizeof(struct ast_cmd));
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
@@ -22,8 +22,6 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         return node;
     }
     logger("SHELL_CMD\n");
-    struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (!shell_cmd)
     {

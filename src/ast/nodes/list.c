@@ -35,7 +35,7 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         else
         {
             lexer_pop(lexer);
-
+            free(token);
             and_or = ast_create(lexer, AST_AND_OR);
             if (!and_or)
             {
