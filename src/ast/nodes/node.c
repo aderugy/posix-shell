@@ -96,6 +96,7 @@ int ast_eval(struct ast_node *node, void **out)
     {
         errx(AST_PARSE_ERROR, "eval NULL");
     }
+
     logger("eval : %i\n", node->type);
     return AST_FN[node->type].eval(node->value, out);
 }
