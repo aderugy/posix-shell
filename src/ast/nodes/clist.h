@@ -5,7 +5,7 @@
 
 struct ast_clist
 {
-    char *zizi;
+    struct linked_list *list;
 };
 
 struct ast_clist *ast_parse_clist(struct lexer *lexer);
