@@ -27,8 +27,8 @@ D="\033[00m"
 # @brief runs a test on all possible input ways
 # @params: a list of strings
 tes() {
-    test_from_direct_input "$@"
     echo "$@" > "$SCRIPT"
+    test_from_direct_input "$@"
     test_from_file "$SCRIPT"
     test_from_stdin "$SCRIPT"
 }
@@ -44,14 +44,14 @@ test_from_stdin() {
 test_from_file() {
     bash --posix "$@" > "$EXPECTED_OUT" 2> "$EXPECTED_ERR_OUT"
     "$F" "$@" > "$ACTUAL_OUT" 2> "$ACTUAL_ERR_OUT"
-    output_test "./$BIN $@"
+    output_test "./$BIN" "$@"
 }
 
 # @params: a list of strings
 test_from_direct_input() {
     bash --posix -c "$@" > "$EXPECTED_OUT" 2> "$EXPECTED_ERR_OUT"
     "$F" -c "$@" > "$ACTUAL_OUT" 2> "$ACTUAL_ERR_OUT"
-    output_test "./$BIN -c $@"
+    output_test "./$BIN -c" "$@"
 }
 
 # @brief output the results
@@ -65,16 +65,22 @@ output_test() {
     if [ $? -eq 0 ]; then
         diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" > "$DIFF_ERR" 2>&1
         if [ $? -eq 0 ]; then
-            echo "$G[OK]$D $FA $@"
+            echo "$G[OK]$D $FA \""$@"\""
         else
             echo "$R[KO]$D"
-            echo "$FA $@"
-            cat "$DIFF_ERR"
+            echo "$FA \""$@"\""
+            E=$(cat -e "$EXPECTED_ERR")
+            A=$(cat -e "$ACTUAL_ERR")
+            echo "$G$E$D"
+            echo "$R$A$D"
         fi
     else
             echo "$R[KO]$D"
-            echo "$FA $@"
-            cat "$DIFF_OUT"
+            echo "$FA \""$@"\""
+            E=$(cat -e "$EXPECTED_OUT")
+            A=$(cat -e "$ACTUAL_OUT")
+            echo "$G$E$D"
+            echo "$R$A$D"
     fi
 }
 
@@ -82,7 +88,7 @@ test_echo_basic()
 {
     echo "========== ECHO BEGIN =========="
     tes "echo     "
-    tes "echo     a"
+    tes 'echo     a'
     tes echo 'a'
     tes 'echo "a"'
     tes echo aaa bbb ccc
