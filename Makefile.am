@@ -6,8 +6,8 @@ LOG_COMPILER = /bin/bash
 SUBDIRS = src \
 		  tests
 #uncommenting the line above creates an infinite loop before the testsuite runs
-check: tests/testsuite.sh
-	tests/testsuite.sh
+#check: tests/testsuite.sh
+#	tests/testsuite.sh
 
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
