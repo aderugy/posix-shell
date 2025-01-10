@@ -28,21 +28,28 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(2, "missing until condition");
+        errx(AST_PARSE_ERROR, "until: missing 1st clist");
     }
 
     tok = lexer_pop(lexer);
     if (!tok || tok->type != TOKEN_DO)
     {
-        errx(2, "missing then token");
+        errx(2, "until: missing do token");
     }
     free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
     {
-        errx(2, "missing done in until");
+        errx(AST_PARSE_ERROR, "until: missing 2nd clist");
     }
+
+    tok = lexer_pop(lexer);
+    if (!tok || tok->type != TOKEN_DONE)
+    {
+        errx(AST_PARSE_ERROR, "until: missing done token");
+    }
+    free(tok);
 
     return ast;
 }

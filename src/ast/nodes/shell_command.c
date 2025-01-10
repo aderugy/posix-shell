@@ -24,6 +24,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         node->ast_node = rule;
         return node;
     }
+    logger("shell_command : if did not match\n");
 
     // CASE 2 WHILE
     rule = ast_create(lexer, AST_WHILE);
@@ -32,6 +33,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         node->ast_node = rule;
         return node;
     }
+    logger("shell_command : while did not match\n");
 
     // CASE 3 UNTIL
     rule = ast_create(lexer, AST_UNTIL);
@@ -40,6 +42,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         node->ast_node = rule;
         return node;
     }
+    logger("shell_command : until did not match\n");
 
     // CASE 4 FOR
     rule = ast_create(lexer, AST_FOR);
