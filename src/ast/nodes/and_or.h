@@ -7,7 +7,7 @@
 
 #define AND 0
 #define OR 1
-#define NONE 1
+#define NONE 2
 
 struct ast_and_or_node
 {

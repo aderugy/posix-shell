@@ -63,6 +63,11 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 
 int ast_eval_and_or(struct ast_and_or_node *node, void **out)
 {
+    if (!node)
+    {
+        return EXIT_SUCCESS;
+    }
+
     int ret_val = ast_eval(node->left, out);
     if (node->type == AND && ret_val == EXIT_SUCCESS)
     {
@@ -88,12 +93,12 @@ void ast_free_and_or(struct ast_and_or_node *node)
 
 void ast_print_and_or(struct ast_and_or_node *node)
 {
+    ast_print(node->left);
+
     if (!node->right)
     {
         return;
     }
-
-    ast_print(node->left);
 
     if (node->right)
     {
