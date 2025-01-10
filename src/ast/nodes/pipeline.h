@@ -8,6 +8,7 @@
 struct ast_pipeline
 {
     struct linked_list *commands;
+    char not;
 };
 
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer);

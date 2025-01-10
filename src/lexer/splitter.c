@@ -13,7 +13,7 @@
 #include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
-                                   ">>", ">&", "<&", ">,", "<>", NULL };
+                                   ">>", ">&", "<&", ">,", "<>", "!", NULL };
 
 static struct shard *shard_init(char quoted, char *data)
 {

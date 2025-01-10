@@ -15,9 +15,10 @@ enum token_type
     TOKEN_QUOTE, // ' [7]
     TOKEN_WORD, // word [8]
     TOKEN_PIPE, // | [9]
-    TOKEN_EOF, // end of input marker [10]
+    TOKEN_NOT, // ! [10]
+    TOKEN_EOF, // end of input marker [11]
     TOKEN_ERROR // it is not a real token, it is returned in case of invalid
-                // input [11]
+                // input [12]
 };
 
 struct token

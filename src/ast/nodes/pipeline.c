@@ -1,6 +1,7 @@
 #include "pipeline.h"
 
 #include <err.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,26 +10,40 @@
 #include "utils/mypipe.h"
 
 /*
- * pipeline = command { '|' {'\n'} command } ;
+ * pipeline = ['!'] command { '|' {'\n'} command } ;
  */
 
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 {
-    struct ast_node *command = ast_create(lexer, AST_COMMAND);
-    if (!command)
-    {
-        return NULL;
-    }
-
     struct ast_pipeline *node = calloc(1, sizeof(struct ast_pipeline));
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
+    struct token *token = lexer_peek(lexer);
+    if (!token)
+    {
+        free(node);
+        return NULL;
+    }
+    if (token->type == TOKEN_NOT)
+    {
+        node->not = 1;
+        lexer_pop(lexer);
+        free(token);
+    }
+    struct ast_node *command = ast_create(lexer, AST_COMMAND);
+    if (!command)
+    {
+        free(node);
+        return NULL;
+    }
+
+    token = lexer_peek(lexer);
+
     node->commands = list_init();
     list_append(node->commands, command);
 
-    struct token *token = lexer_peek(lexer);
     while (token->type == TOKEN_PIPE)
     {
         lexer_pop(lexer);
@@ -57,9 +72,14 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 
 int ast_eval_pipeline(struct ast_pipeline *node, void **out)
 {
+    int result;
     if (node->commands->size == 1)
-        return ast_eval(list_get(node->commands, 0), out);
-    return exec_pipeline(node->commands);
+        result = ast_eval(list_get(node->commands, 0), out);
+    else
+        result = exec_pipeline(node->commands);
+    if (node->not== 1)
+        return !result;
+    return result;
 }
 
 void ast_free_pipeline(struct ast_pipeline *pipeline)
