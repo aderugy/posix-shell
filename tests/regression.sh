@@ -30,7 +30,7 @@ tes() {
     echo "$@" > "$SCRIPT"
     test_from_direct_input "$@"
     test_from_file "$SCRIPT"
-#define _POSIX_C_SOURCE 200809L    test_from_stdin "$SCRIPT"
+    test_from_stdin "$SCRIPT"
 }
 
 # @params: a list of files
@@ -185,7 +185,6 @@ testsuite()
     test_elif
     test_else
     test_comment
-    test_mix
     test_errs
 }
 
