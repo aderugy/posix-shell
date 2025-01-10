@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "splitter.h"
 
 #include <ctype.h>
@@ -7,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mbtstr/str.h"
 #include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
