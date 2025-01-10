@@ -25,31 +25,31 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
     root->type = NONE;
     root->left = pipeline;
 
-    struct ast_and_or_node *node = root;
+    struct ast_and_or_node *node = NULL;
 
     struct token *tok = lexer_peek(lexer);
     while (tok->type == TOKEN_AND || tok->type == TOKEN_OR)
     {
+        node = root;
+        root = calloc(1, sizeof(struct ast_and_or_node));
+        root->right = node;
+
         if (tok->type == TOKEN_AND)
         {
-            node->type = AND;
+            root->type = AND;
         }
         else
         {
-            node->type = OR;
+            root->type = OR;
         }
         free(lexer_pop(lexer));
-
-        node->right = calloc(1, sizeof(struct ast_and_or_node));
-        node = node->right;
-        node->type = NONE;
 
         while (lexer_peek(lexer)->type == TOKEN_NEW_LINE)
         {
             free(lexer_pop(lexer));
         }
 
-        node->left = ast_create(lexer, AST_PIPELINE);
+        root->left = ast_create(lexer, AST_PIPELINE);
         if (node->left == NULL)
         {
             errx(AST_PARSE_ERROR, "and_or: 2nd pipeline did not match");
@@ -68,14 +68,19 @@ int ast_eval_and_or(struct ast_and_or_node *node, void **out)
         return EXIT_SUCCESS;
     }
 
-    int ret_val = ast_eval(node->left, out);
+    if (!node->right)
+    {
+        return ast_eval(node->left, out);
+    }
+
+    int ret_val = ast_eval_and_or(node->right, out);
     if (node->type == AND && ret_val == EXIT_SUCCESS)
     {
-        return ast_eval_and_or(node->right, out);
+        return ast_eval(node->left, out);
     }
     if (node->type == OR && ret_val != EXIT_SUCCESS)
     {
-        return ast_eval_and_or(node->right, out);
+        return ast_eval(node->left, out);
     }
 
     return ret_val;
