@@ -23,8 +23,9 @@ enum token_type
     // TODO implement in lexer
     TOKEN_WHILE, // while [13]
     TOKEN_UNTIL, // until [14]
-    TOKEN_DO, // do [15]
-    TOKEN_DONE // done [16]
+    TOKEN_FOR, // until [15]
+    TOKEN_DO, // do [16]
+    TOKEN_DONE // done [17]
 };
 
 struct token

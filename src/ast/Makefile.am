@@ -35,7 +35,9 @@ libast_a_SOURCES =  \
   nodes/while.c \
   nodes/while.h \
   nodes/until.c \
-  nodes/until.h
+  nodes/until.h \
+  nodes/for.c \
+  nodes/for.h
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 
