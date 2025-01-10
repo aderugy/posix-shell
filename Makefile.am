@@ -20,7 +20,6 @@ checkall:
 	tests/step1.sh
 	tests/step2/step2.sh
 
-#>>>>>>> main
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
 	rm -rf *.m4 autom4te.cache/ ~configure

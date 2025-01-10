@@ -55,6 +55,11 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     if (ret_value == 127)
     {
         ret_value = execvp(argv[0], argv);
+        logger("return simple command : %i\n", ret_value);
+        if (ret_value == -1)
+        {
+            ret_value = 127;
+        }
     }
     free(argv);
     return ret_value;
