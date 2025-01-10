@@ -9,6 +9,11 @@
 #include "node.h"
 #include "utils/logger.h"
 
+/*
+ * redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
+ * WORD ;
+ */
+
 static const char *REDIRECTIONS[] = { ">",  "<",  ">>", ">&",
                                       "<&", ">,", "<>", NULL };
 

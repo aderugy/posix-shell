@@ -5,6 +5,10 @@
 
 #include "node.h"
 
+/*
+ * pipeline = command { '|' {'\n'} command } ;
+ */
+
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 {
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
