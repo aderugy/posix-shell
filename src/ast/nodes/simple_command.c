@@ -68,7 +68,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             wait(&stat);
 
-    free(argv);
+            free(argv);
             return WEXITSTATUS(stat);
         }
     }
