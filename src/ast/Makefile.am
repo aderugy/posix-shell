@@ -30,9 +30,14 @@ libast_a_SOURCES =  \
   nodes/redirection.h \
   nodes/else.c \
   nodes/else.h \
-	nodes/pipeline.c \
-	nodes/pipeline.h
-  
+  nodes/pipeline.c \
+  nodes/pipeline.h \
+  nodes/while.c \
+  nodes/while.h \
+  nodes/until.c \
+  nodes/until.h \
+  nodes/for.c \
+  nodes/for.h
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 

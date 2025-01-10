@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "node.h"
+#include "utils/logger.h"
 #include "utils/mypipe.h"
 
 /*
@@ -23,13 +24,16 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     if (!token)
     {
         free(node);
+        logger("token NULL\n");
         return NULL;
     }
-    if (token->type == TOKEN_NOT)
+    if (token->type == TOKEN_WORD && token->value.c[0] == '!')
     {
         node->not = 1;
         lexer_pop(lexer);
+        free(token->value.c);
         free(token);
+        token = lexer_peek(lexer);
     }
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
     if (!command)

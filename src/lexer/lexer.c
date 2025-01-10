@@ -13,7 +13,7 @@ static const struct keyword KEYWORDS[] = {
     { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
     { "else", TOKEN_ELSE },   { "then", TOKEN_THEN }, { ";", TOKEN_SEMICOLON },
     { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },   { "|", TOKEN_PIPE },
-    { "!", TOKEN_NOT },       { NULL, TOKEN_EOF }
+    { NULL, TOKEN_EOF }
 };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
