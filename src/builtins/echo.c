@@ -6,6 +6,7 @@
 
 #include "builtins.h"
 #include "commands.h"
+#include "unistd.h"
 
 static struct option l_opts[] = { { "e", no_argument, 0, 'e' },
                                   { "n", no_argument, 0, 'n' },
@@ -37,7 +38,7 @@ void print_echo(struct echo_options *opts, int argc)
             }
             else
             {
-                putchar(*(opts->str[j] + i));
+                fprintf(stdout, "%c", *(opts->str[j] + i));
             }
             i++;
         }
@@ -47,7 +48,8 @@ void print_echo(struct echo_options *opts, int argc)
         }
     }
     if (!opts->not_newline)
-        printf("\n");
+        fprintf(stdout,"\n");
+    fflush(stdout);
 }
 
 int echo(int argc, char *argv[])

@@ -98,9 +98,9 @@ void ast_free_if(struct ast_if_node *node)
 
 void ast_print_if(struct ast_if_node *node)
 {
-    logger("if ");
+    logger("if { ");
     ast_print(node->condition);
-    logger(" then ");
+    logger(" } then { ");
     ast_print(node->body);
 
     if (node->else_clause)
@@ -108,4 +108,5 @@ void ast_print_if(struct ast_if_node *node)
         logger(" ");
         ast_print(node->else_clause);
     }
+    logger(" }");
 }
