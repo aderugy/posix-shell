@@ -8,19 +8,21 @@
 
 enum ast_type
 {
-    AST_SIMPLE_COMMAND,
-    AST_SHELL_COMMAND,
-    AST_PIPELINE,
-    AST_COMMAND,
-    AST_ELEMENT,
-    AST_AND_OR,
-    AST_CLIST,
-    AST_INPUT,
-    AST_LIST,
-    AST_IF,
-    AST_ELSE,
-    AST_IONUMBER,
-    AST_WHILE
+    AST_SIMPLE_COMMAND = 0,
+    AST_SHELL_COMMAND, // 1
+    AST_PIPELINE, // 2
+    AST_COMMAND, // 3
+    AST_ELEMENT, // 4
+    AST_AND_OR, // 5
+    AST_CLIST, // 6
+    AST_INPUT, // 7
+    AST_LIST, // 8
+    AST_IF, // 9
+    AST_ELSE, // 10
+    AST_IONUMBER, // 11
+    AST_WHILE, // 12
+    AST_UNTIL, // 13
+    AST_FOR // 14
 };
 
 struct ast_node

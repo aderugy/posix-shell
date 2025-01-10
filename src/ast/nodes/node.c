@@ -9,6 +9,7 @@
 #include "command.h"
 #include "element.h"
 #include "else.h"
+#include "for.h"
 #include "if.h"
 #include "input.h"
 #include "ionumber.h"
@@ -16,7 +17,9 @@
 #include "pipeline.h"
 #include "shell_command.h"
 #include "simple_command.h"
+#include "until.h"
 #include "utils/logger.h"
+#include "while.h"
 
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
@@ -70,6 +73,19 @@ static const struct ast_node_operations AST_FN[] = {
       (int (*)(void *, void **))ast_eval_ionumber,
       (void (*)(void *))ast_free_ionumber,
       (void (*)(void *))ast_print_ionumber },
+
+    { (void *(*)(struct lexer *))ast_parse_while,
+      (int (*)(void *, void **))ast_eval_while,
+      (void (*)(void *))ast_free_while, (void (*)(void *))ast_print_while },
+
+    { (void *(*)(struct lexer *))ast_parse_until,
+      (int (*)(void *, void **))ast_eval_until,
+      (void (*)(void *))ast_free_until, (void (*)(void *))ast_print_until },
+
+    { (void *(*)(struct lexer *))ast_parse_for,
+      (int (*)(void *, void **))ast_eval_for, (void (*)(void *))ast_free_for,
+      (void (*)(void *))ast_print_for },
+
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)

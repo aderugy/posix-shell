@@ -34,7 +34,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     tok = lexer_pop(lexer);
     if (!tok || tok->type != TOKEN_DO)
     {
-        errx(2, "missing then token");
+        errx(2, "missing do token");
     }
     free(tok);
 

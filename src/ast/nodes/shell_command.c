@@ -17,14 +17,40 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *if_rule = ast_create(lexer, AST_IF);
-    if (!if_rule)
+    // CASE 1 IF
+    struct ast_node *rule = ast_create(lexer, AST_IF);
+    if (rule)
     {
-        logger("shell_command : not if_rule\n");
+        node->ast_node = rule;
+        return node;
+    }
+
+    // CASE 2 WHILE
+    rule = ast_create(lexer, AST_WHILE);
+    if (rule)
+    {
+        node->ast_node = rule;
+        return node;
+    }
+
+    // CASE 3 UNTIL
+    rule = ast_create(lexer, AST_UNTIL);
+    if (rule)
+    {
+        node->ast_node = rule;
+        return node;
+    }
+
+    // CASE 4 FOR
+    rule = ast_create(lexer, AST_FOR);
+    if (!rule)
+    {
+        logger("shell_command : no rule matched\n");
         free(node);
         return NULL;
     }
-    node->ast_node = if_rule;
+
+    node->ast_node = rule;
     return node;
 }
 int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr)

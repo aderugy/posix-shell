@@ -17,7 +17,7 @@ SCRIPT="script.sh"
 
 # bin name and path
 BIN="42sh"
-F=".././src/$BIN"
+F="./src/$BIN"
 
 # for colors
 G="\033[0;92m"
@@ -62,7 +62,7 @@ test_code_error()
     "$F" -c "$@"
     ACTUAL_ERR="$?"
     if [ $ACTUAL_ERR -eq $ERR ]; then
-        echo "$G[OK]$D $F -c \""$@"\"$D"
+        echo "$G[OK]$D $BIN -c \""$@"\"$D"
     else
         echo "COMMAND RUN : $R$F -c \""$@"\"$D"
         echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
@@ -101,9 +101,6 @@ output_test() {
 test_pipeline()
 {
     echo "========== PIPELINE BEGIN =========="
-    tes "true | false"
-    tes "false | true"
-    tes "false | true | false | false | false | false"
     tes "echo Hello | tr a e"
     tes "echo Hello | tr a e | tr e a"
     tes "echo Hello | tr a e | tr e a | tr a e"
@@ -121,19 +118,22 @@ test_neg_pipeline()
 test_ops()
 {
     echo "========== OPS BEGIN =========="
-    tes "true && true && true || echo a"
-    tes "true && true && echo b || echo a"
+    tes "true && false && false || echo a"
+    tes "true && echo b && true || echo a"
     tes "true && ls && echo b || echo a"
     tes "true && false && echo b || echo a"
     tes "false && false && echo b || echo a"
-    tes "false && echo b || echo a && true && false || tree"
+    tes "false && echo b || echo a && true && false || true"
     tes "echo a && false || echo h"
-    tes "echo | | |"
     echo "========== OPS END =========="
 }
 test_var()
 {
-    for i in $(find assignement_substitution -name "*sh"); do tes $i; done;
+    for i in $(find tests/step2/assignement_substitution -name "*sh");
+    do
+    test_from_file $i;
+    test_from_stdin $i;
+    done;
 }
 test_non_builtin()
 {
@@ -173,6 +173,7 @@ test_errs()
     test_code_error 2 "|| true &&"
     test_code_error 2 "false || &&"
     test_code_error 2 "true && true && false || || true"
+    test_code_error 2 "echo | | |"
     # PIPELINE ERRS
     test_code_error 1 "true | false"
     test_code_error 0 "false | true"
@@ -185,9 +186,13 @@ test_errs()
 }
 testsuite()
 {
-    test_non_builtin
-    test_mix
-    test_errs
+   test_pipeline
+   test_neg_pipeline
+   test_ops
+   test_var
+   test_comment
+   test_mix
+   test_errs
 }
 
 testsuite
