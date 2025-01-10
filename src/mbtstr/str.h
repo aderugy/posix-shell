@@ -1,5 +1,5 @@
-#ifndef MBTSTR_STR_H
-#define MBTSTR_STR_H
+#ifndef STR_H
+#define STR_H
 
 ////////////////////////////////////////////////////////////////////////////////
 /// THIS FILE WILL BE OVERWRITTEN                                            ///
@@ -30,4 +30,4 @@ bool mbt_str_pushcv(struct mbt_str *str, struct mbt_cview view) MBT_NONNULL(1);
 
 char mbt_str_pop(struct mbt_str *str);
 
-#endif /* !MBTSTR_STR_H */
+#endif /* !STR_H */

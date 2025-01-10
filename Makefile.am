@@ -9,6 +9,18 @@ SUBDIRS = src \
 #check: tests/testsuite.sh
 #	tests/testsuite.sh
 
+#check:
+#	tests/regression.sh
+s1:
+	tests/step1.sh
+s2:
+	tests/step2/step2.sh
+checkall:
+	tests/regression.sh
+	tests/step1.sh
+	tests/step2/step2.sh
+
+#>>>>>>> main
 clean:
 	rm -rf compile configure config.log ar-lib depcomp install-sh missing 
 	rm -rf *.m4 autom4te.cache/ ~configure

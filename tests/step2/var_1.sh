@@ -1,0 +1,2 @@
+A=aaaa
+echo $A

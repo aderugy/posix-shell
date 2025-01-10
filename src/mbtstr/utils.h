@@ -1,5 +1,5 @@
-#ifndef MBTSTR_UTILS_H
-#define MBTSTR_UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 ////////////////////////////////////////////////////////////////////////////////
 /// THIS FILE WILL BE OVERWRITTEN                                            ///
@@ -14,4 +14,4 @@
 
 #define MBT_UNREACHABLE() __builtin_unreachable()
 
-#endif /* !MBTSTR_UTILS_H */
+#endif /* !UTILS_H */

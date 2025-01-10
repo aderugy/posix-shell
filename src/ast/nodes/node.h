@@ -1,5 +1,5 @@
-#ifndef AST_NODE_H
-#define AST_NODE_H
+#ifndef NODE_H
+#define NODE_H
 
 #include "lexer/lexer.h"
 
@@ -41,4 +41,4 @@ int ast_eval(struct ast_node *node, void **out);
 void ast_free(struct ast_node *node);
 void ast_print(struct ast_node *node);
 
-#endif // !AST_NODE_H
+#endif // !NODE_H

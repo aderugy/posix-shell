@@ -1,5 +1,5 @@
-#ifndef AST_SHELL_COMMAND_H
-#define AST_SHELL_COMMAND_H
+#ifndef SHELL_COMMAND_H
+#define SHELL_COMMAND_H
 
 #include "lexer/lexer.h"
 
@@ -13,4 +13,4 @@ int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr);
 void ast_free_shell_cmd(struct ast_shell_cmd *cmd);
 void ast_print_shell_cmd(struct ast_shell_cmd *cmd);
 
-#endif // !AST_SHELL_COMMAND_H
+#endif // !SHELL_COMMAND_H

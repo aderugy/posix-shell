@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "splitter.h"
 
 #include <ctype.h>
@@ -11,7 +13,7 @@
 #include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
-                                   ">>", ">&", "<&", ">,", "<>", NULL };
+                                   ">>", ">&", "<&", ">,", "<>", "!", NULL };
 
 static struct shard *shard_init(char quoted, char *data)
 {
@@ -88,142 +90,22 @@ struct shard *splitter_next(struct stream *stream)
         // Case 4: Quoting
         if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
         {
-            if (str->size)
+            if (handle_quoting(stream, str, &quoted, c) == BREAK)
             {
                 break;
             }
+        }
 
-            char quote = c;
-            stream_read(stream);
-            while ((c = stream_read(stream)) != EOF && c != quote)
-            {
-                if (c == '\\')
-                {
-                    c = stream_read(stream);
-
-                    if (c == EOF)
-                    {
-                        break;
-                    }
-
-                    if (c != quote)
-                    {
-                        mbt_str_pushc(str, '\\');
-                    }
-                }
-
-                mbt_str_pushc(str, c);
-            }
-
-            switch (c)
-            {
-            case '\"':
-                quoted = SHARD_DOUBLE_QUOTED;
-                break;
-            case '\'':
-                quoted = SHARD_SINGLE_QUOTED;
-                break;
-            case '\\':
-                stream_read(stream);
-                c = stream_peek(stream);
-
-                if (c == EOF)
-                {
-                    break;
-                }
-
-                stream_read(stream);
-                if (c != '\n')
-                {
-                    mbt_str_pushc(str, c);
-                }
-                break;
-            case EOF:
-                errx(SPLIT_ERROR, "unmatched quote");
-            default:
-                errx(EXIT_FAILURE, "wtf");
-            }
-
+        // Case 5 to 11 included
+        int ret_val = handle_5_to_11(stream, str, c);
+        if (ret_val == BREAK)
+        {
             break;
         }
-
-        // Case 5: Expansions
-        if (strchr("$`", c))
+        else if (ret_val == CONTINUE)
         {
-            errx(EXIT_FAILURE, "not implemented");
-        }
-
-        // Case 6: New operator
-        bool is_op = false;
-        for (size_t i = 0; OPERATORS[i]; i++)
-        {
-            if (OPERATORS[i][0] == c)
-            {
-                is_op = true;
-            }
-        }
-        if (is_op) // Case 6: matched
-        {
-            if (str->size)
-            {
-                break;
-            }
-
-            mbt_str_pushc(str, c);
-            stream_read(stream);
             continue;
         }
-
-        // Case 7: Newlines
-        if (c == '\n')
-        {
-            if (!str->size)
-            {
-                mbt_str_pushc(str, c);
-                stream_read(stream);
-            }
-            break;
-        }
-
-        // Case 8: delimiter
-        if (isspace(c))
-        {
-            stream_read(stream);
-
-            if (str->size)
-            {
-                break;
-            }
-            else
-            {
-                continue;
-            }
-        }
-
-        // Case 9: existing word
-        if (str->size)
-        {
-            mbt_str_pushc(str, c);
-            stream_read(stream);
-            continue;
-        }
-
-        // Case 10: comments
-        if (c == '#')
-        {
-            while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
-            {
-                stream_read(stream); // Discard every char until \n 0 and -1
-                                     // (check with numeric value)
-            }
-            logger("\n");
-
-            continue;
-        }
-
-        // Case 11: new word: keep looping
-        mbt_str_pushc(str, c);
-        stream_read(stream);
     }
 
     char *data = NULL;
@@ -239,4 +121,148 @@ struct shard *splitter_next(struct stream *stream)
     }
 
     return NULL;
+}
+
+int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
+                   char c)
+{
+    if (str->size)
+    {
+        return BREAK;
+    }
+
+    char quote = c;
+    stream_read(stream);
+    while ((c = stream_read(stream)) != EOF && c != quote)
+    {
+        if (c == '\\')
+        {
+            c = stream_read(stream);
+
+            if (c == EOF)
+            {
+                return BREAK;
+            }
+
+            if (c != quote)
+            {
+                mbt_str_pushc(str, '\\');
+            }
+        }
+
+        mbt_str_pushc(str, c);
+    }
+
+    switch (c)
+    {
+    case '\"':
+        *quoted = SHARD_DOUBLE_QUOTED;
+        break;
+    case '\'':
+        *quoted = SHARD_SINGLE_QUOTED;
+        break;
+    case '\\':
+        stream_read(stream);
+        c = stream_peek(stream);
+
+        if (c == EOF)
+        {
+            break;
+        }
+
+        stream_read(stream);
+        if (c != '\n')
+        {
+            mbt_str_pushc(str, c);
+        }
+        break;
+    case EOF:
+        errx(SPLIT_ERROR, "unmatched quote");
+    default:
+        errx(EXIT_FAILURE, "wtf");
+    }
+
+    return BREAK;
+}
+
+int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
+{
+    // Case 5: Expansions
+    if (strchr("$`", c))
+    {
+        errx(EXIT_FAILURE, "not implemented");
+    }
+    // Case 6: New operator
+    bool is_op = false;
+    for (size_t i = 0; OPERATORS[i]; i++)
+    {
+        if (OPERATORS[i][0] == c)
+        {
+            is_op = true;
+        }
+    }
+    if (is_op) // Case 6: matched
+    {
+        if (str->size)
+        {
+            return BREAK;
+        }
+
+        mbt_str_pushc(str, c);
+        stream_read(stream);
+        return CONTINUE;
+    }
+
+    // Case 7: Newlines
+    if (c == '\n')
+    {
+        if (!str->size)
+        {
+            mbt_str_pushc(str, c);
+            stream_read(stream);
+        }
+        return BREAK;
+    }
+
+    // Case 8: delimiter
+    if (isspace(c))
+    {
+        stream_read(stream);
+
+        if (str->size)
+        {
+            return BREAK;
+        }
+        else
+        {
+            return CONTINUE;
+        }
+    }
+
+    // Case 9: existing word
+    if (str->size)
+    {
+        mbt_str_pushc(str, c);
+        stream_read(stream);
+        return CONTINUE;
+    }
+
+    // Case 10: comments
+    if (c == '#')
+    {
+        while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
+        {
+            stream_read(stream); // Discard every char until \n 0 and -1
+                                 // (check with numeric value)
+        }
+        logger("\n");
+
+        return CONTINUE;
+    }
+
+    // Case 11: new word: keep looping
+    mbt_str_pushc(str, c);
+    stream_read(stream);
+
+    return DO_NOTHING;
 }
