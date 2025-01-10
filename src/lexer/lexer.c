@@ -17,6 +17,7 @@ static const struct keyword KEYWORDS[] = {
     { "|", TOKEN_PIPE },      { "while", TOKEN_WHILE },
     { "until", TOKEN_UNTIL }, { "for", TOKEN_FOR },
     { "do", TOKEN_DO },       { "done", TOKEN_DONE },
+    { "&&", TOKEN_AND },      { "||", TOKEN_OR },
     { NULL, TOKEN_EOF }
 };
 

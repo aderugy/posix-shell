@@ -5,11 +5,15 @@
 
 #include "lexer/lexer.h"
 
+#define AND 0
+#define OR 1
+#define NONE 1
+
 struct ast_and_or_node
 {
-    bool is_and;
-    struct ast_node *left; // unkwown
-    struct ast_node *right; // unkwown
+    char type;
+    struct ast_node *left; // pipeline
+    struct ast_and_or_node *right; // and_or
 };
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer);

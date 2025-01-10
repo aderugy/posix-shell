@@ -19,13 +19,13 @@ enum token_type
     TOKEN_EOF, // end of input marker [11]
     TOKEN_ERROR, // it is not a real token, it is returned in case of invalid
                  // input [12]
-
-    // TODO implement in lexer
     TOKEN_WHILE, // while [13]
     TOKEN_UNTIL, // until [14]
     TOKEN_FOR, // until [15]
     TOKEN_DO, // do [16]
-    TOKEN_DONE // done [17]
+    TOKEN_DONE, // done [17]
+    TOKEN_AND, // and [18]
+    TOKEN_OR // or [19]
 };
 
 struct token
