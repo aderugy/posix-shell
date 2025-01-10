@@ -28,7 +28,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
     struct ast_and_or_node *node = root;
 
     struct token *tok = lexer_peek(lexer);
-    while (tok->type == TOKEN_AND && tok->type == TOKEN_OR)
+    while (tok->type == TOKEN_AND || tok->type == TOKEN_OR)
     {
         if (tok->type == TOKEN_AND)
         {
@@ -40,7 +40,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         }
         free(lexer_pop(lexer));
 
-        node->right = calloc(1, sizeof(struct ast_node));
+        node->right = calloc(1, sizeof(struct ast_and_or_node));
         node = node->right;
         node->type = NONE;
 
@@ -54,6 +54,8 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         {
             errx(AST_PARSE_ERROR, "and_or: 2nd pipeline did not match");
         }
+
+        tok = lexer_peek(lexer);
     }
 
     return root;
