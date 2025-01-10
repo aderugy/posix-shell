@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mbtstr/str.h"
 #include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
