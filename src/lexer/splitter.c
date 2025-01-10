@@ -55,6 +55,7 @@ struct shard *splitter_next(struct stream *stream)
     char quoted = SHARD_UNQUOTED;
     while ((c = stream_peek(stream)) != EOF)
     {
+        logger("%c\n", c);
         // Case 1: EOF handled by exiting the loop
 
         // Case 2-3: Operators
@@ -81,6 +82,7 @@ struct shard *splitter_next(struct stream *stream)
             {
                 break;
             }
+            logger("next : %c", c);
 
             mbt_str_pushc(str, next);
             quoted = SHARD_BACKSLASH_QUOTED;
@@ -130,7 +132,6 @@ int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
     {
         return BREAK;
     }
-
     char quote = c;
     stream_read(stream);
     while ((c = stream_read(stream)) != EOF && c != quote)
