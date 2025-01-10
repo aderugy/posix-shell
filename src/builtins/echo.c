@@ -48,7 +48,7 @@ void print_echo(struct echo_options *opts, int argc)
         }
     }
     if (!opts->not_newline)
-        fprintf(stdout,"\n");
+        fprintf(stdout, "\n");
     fflush(stdout);
 }
 
