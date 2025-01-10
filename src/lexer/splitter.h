@@ -1,6 +1,7 @@
 #ifndef SPLITTER_H
 #define SPLITTER_H
 
+#include "mbtstr/str.h"
 #include "streams/streams.h"
 
 #define SHARD_UNQUOTED 0
@@ -9,6 +10,9 @@
 #define SHARD_BACKSLASH_QUOTED 3
 
 #define SPLIT_ERROR 2
+#define CONTINUE 0
+#define BREAK 1
+#define DO_NOTHING 2
 
 struct shard
 {
@@ -17,6 +21,9 @@ struct shard
 };
 
 struct shard *splitter_next(struct stream *stream);
+int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c);
+int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
+                   char c);
 
 void shard_free(struct shard *shard);
 

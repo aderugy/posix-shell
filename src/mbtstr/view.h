@@ -1,5 +1,5 @@
-#ifndef MBTSTR_VIEW_H
-#define MBTSTR_VIEW_H
+#ifndef VIEW_H
+#define VIEW_H
 
 ////////////////////////////////////////////////////////////////////////////////
 /// THIS FILE WILL BE OVERWRITTEN                                            ///
@@ -85,4 +85,4 @@ int mbt_cview_cmp(struct mbt_cview lhs, struct mbt_cview rhs);
 bool mbt_cview_contains(struct mbt_cview view, char c);
 void mbt_cview_fprint(struct mbt_cview view, FILE *stream) MBT_NONNULL(2);
 
-#endif /* !MBTSTR_VIEW_H */
+#endif /* !VIEW_H */

@@ -1,5 +1,5 @@
-#ifndef AST_SIMPLE_COMMAND_H
-#define AST_SIMPLE_COMMAND_H
+#ifndef SIMPLE_COMMAND_H
+#define SIMPLE_COMMAND_H
 
 #include "lexer/lexer.h"
 #include "node.h"
@@ -16,4 +16,4 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd);
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd);
 
-#endif // !AST_SIMPLE_COMMAND_H
+#endif // !SIMPLE_COMMAND_H
