@@ -3,10 +3,11 @@
 
 #include "lexer/lexer.h"
 #include "node.h"
+#include "utils/linked_list.h"
 
 struct ast_pipeline
 {
-    struct ast_node *command;
+    struct linked_list *commands;
 };
 
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer);

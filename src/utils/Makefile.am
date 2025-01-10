@@ -6,7 +6,9 @@ libutils_a_SOURCES =  \
   fill_input.h \
   fill_input.c  \
   linked_list.c \
-  linked_list.h
+  linked_list.h \
+	mypipe.c \
+	mypipe.h
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
