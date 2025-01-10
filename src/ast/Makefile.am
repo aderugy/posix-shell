@@ -29,7 +29,9 @@ libast_a_SOURCES =  \
   nodes/redirection.c \
   nodes/redirection.h \
   nodes/else.c \
-  nodes/else.h
+  nodes/else.h \
+	nodes/pipeline.c \
+	nodes/pipeline.h
   
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src

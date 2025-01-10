@@ -12,7 +12,8 @@
 static const struct keyword KEYWORDS[] = {
     { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
     { "else", TOKEN_ELSE },   { "then", TOKEN_THEN }, { ";", TOKEN_SEMICOLON },
-    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },   { NULL, TOKEN_EOF }
+    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },   { "|", TOKEN_PIPE },
+    { NULL, TOKEN_EOF }
 };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
@@ -117,6 +118,7 @@ struct token *lexer_pop(struct lexer *lexer)
         stream_close(lexer->stream);
         lexer->stream = NULL;
     }
+    logger("%i\n", token->type);
 
     return token;
 }
