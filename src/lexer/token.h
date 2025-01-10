@@ -17,8 +17,14 @@ enum token_type
     TOKEN_PIPE, // | [9]
     TOKEN_NOT, // ! [10]
     TOKEN_EOF, // end of input marker [11]
-    TOKEN_ERROR // it is not a real token, it is returned in case of invalid
-                // input [12]
+    TOKEN_ERROR, // it is not a real token, it is returned in case of invalid
+                 // input [12]
+
+    // TODO implement in lexer
+    TOKEN_WHILE, // while [13]
+    TOKEN_UNTIL, // until [14]
+    TOKEN_DO, // do [15]
+    TOKEN_DONE // done [16]
 };
 
 struct token

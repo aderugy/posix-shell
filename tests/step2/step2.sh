@@ -133,7 +133,7 @@ test_ops()
 }
 test_var()
 {
-    tes "A=1; echo $A" 
+    for i in $(find assignement_substitution -name "*sh"); do tes $i; done;
 }
 test_non_builtin()
 {

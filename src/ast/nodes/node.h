@@ -19,7 +19,8 @@ enum ast_type
     AST_LIST,
     AST_IF,
     AST_ELSE,
-    AST_IONUMBER
+    AST_IONUMBER,
+    AST_WHILE
 };
 
 struct ast_node
