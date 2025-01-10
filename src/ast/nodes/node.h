@@ -18,7 +18,8 @@ enum ast_type
     AST_INPUT,
     AST_LIST,
     AST_IF,
-    AST_ELSE
+    AST_ELSE,
+    AST_IONUMBER
 };
 
 struct ast_node

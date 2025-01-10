@@ -11,6 +11,7 @@
 #include "else.h"
 #include "if.h"
 #include "input.h"
+#include "ionumber.h"
 #include "list.h"
 #include "pipeline.h"
 #include "shell_command.h"
@@ -63,7 +64,12 @@ static const struct ast_node_operations AST_FN[] = {
 
     { (void *(*)(struct lexer *))ast_parse_else,
       (int (*)(void *, void **))ast_eval_else, (void (*)(void *))ast_free_else,
-      (void (*)(void *))ast_print_else }
+      (void (*)(void *))ast_print_else },
+
+    { (void *(*)(struct lexer *))ast_parse_ionumber,
+      (int (*)(void *, void **))ast_eval_ionumber,
+      (void (*)(void *))ast_free_ionumber,
+      (void (*)(void *))ast_print_ionumber },
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)

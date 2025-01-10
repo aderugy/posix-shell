@@ -10,7 +10,8 @@
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";", "&&", "&", "|", "<", ">", "||", NULL };
+static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
+                                   ">>", ">&", "<&", ">,", "<>", NULL };
 
 static struct shard *shard_init(char quoted, char *data)
 {
@@ -70,6 +71,20 @@ struct shard *splitter_next(struct stream *stream)
             }
         }
 
+        if (c == '\\' && quoted == SHARD_UNQUOTED)
+        {
+            stream_read(stream);
+            char next = stream_read(stream);
+            if (next == EOF)
+            {
+                break;
+            }
+
+            mbt_str_pushc(str, next);
+            quoted = SHARD_BACKSLASH_QUOTED;
+            continue;
+        }
+
         // Case 4: Quoting
         if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
         {
@@ -79,7 +94,6 @@ struct shard *splitter_next(struct stream *stream)
             }
 
             char quote = c;
-
             stream_read(stream);
             while ((c = stream_read(stream)) != EOF && c != quote)
             {
@@ -110,7 +124,20 @@ struct shard *splitter_next(struct stream *stream)
                 quoted = SHARD_SINGLE_QUOTED;
                 break;
             case '\\':
-                errx(EXIT_FAILURE, "not implemented");
+                stream_read(stream);
+                c = stream_peek(stream);
+
+                if (c == EOF)
+                {
+                    break;
+                }
+
+                stream_read(stream);
+                if (c != '\n')
+                {
+                    mbt_str_pushc(str, c);
+                }
+                break;
             case EOF:
                 errx(SPLIT_ERROR, "unmatched quote");
             default:
