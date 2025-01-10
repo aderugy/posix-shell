@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "ast/ast.h"
@@ -50,17 +51,28 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         struct ast_node *children = list_get(cmd->args, i);
         ast_eval(children, (void **)argv + i);
     }
-
+    logger("simple commad : execute : %s\n", argv[0]);
     int ret_value = run_command(argc, argv);
+    int stat;
     if (ret_value == 127)
     {
-        ret_value = execvp(argv[0], argv);
-        logger("return simple command : %i\n", ret_value);
-        if (ret_value == -1)
+        logger("simple command : not a builtin\n");
+
+        pid_t p = fork();
+        if (p == 0)
         {
-            ret_value = 127;
+            ret_value = execvp(argv[0], argv);
+            exit(ret_value);
+        }
+        else
+        {
+            wait(&stat);
+
+    free(argv);
+            return WEXITSTATUS(stat);
         }
     }
+
     free(argv);
     return ret_value;
 }
