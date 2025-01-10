@@ -1,5 +1,6 @@
 #include <err.h>
 #include <fcntl.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,42 +13,52 @@
 
 int exec_pipeline(struct linked_list *linked_list)
 {
-    size_t i;
     int status;
-    int pipefds[2];
-    int in_fd = STDIN_FILENO;
-    int stdout_fd = dup(STDOUT_FILENO);
     size_t n = linked_list->size;
+    int *pipefds = calloc(2 * n, sizeof(int));
+    for (size_t l = 0; l < n; l++)
+    {
+        if (pipe(pipefds + l * 2) < 0)
+        {
+            perror("couldn't pipe");
+            exit(EXIT_FAILURE);
+        }
+    }
+    int j = 0;
     for (size_t i = 0; i < n; i++)
     {
-        if (i < n - 1)
+        /*if (i < n - 1)
         {
             int p =
                 pipe(pipefds); // Créer un pipe sauf pour la dernière commande
             if (p == -1)
                 errx(2, "exec_pipeline: error pipe");
-        }
+        }*/
 
         pid_t pid = fork();
         if (pid == 0)
         { // CHILD
-            if (in_fd != STDIN_FILENO)
+
+            if (j != 0)
             {
-                dup2(in_fd, STDIN_FILENO);
-                close(in_fd);
+                if (dup2(pipefds[j - 2], 0) < 0)
+                {
+                    perror(" dup2");
+                    exit(EXIT_FAILURE);
+                }
             }
             if (i < n - 1)
             {
-                dup2(pipefds[1], STDOUT_FILENO);
-                close(pipefds[1]);
+                if (dup2(pipefds[j + 1], 1) < 0)
+                {
+                    perror("dup2");
+                    exit(EXIT_FAILURE);
+                }
             }
-            else
+
+            for (size_t k = 0; k < 2 * n; k++)
             {
-                dup2(stdout_fd, STDOUT_FILENO);
-                if (pipefds[0] != -1)
-                    close(pipefds[0]);
-                if (pipefds[1] != -1)
-                    close(pipefds[1]);
+                close(pipefds[k]);
             }
             struct ast_node *ast_node = list_get(linked_list, i);
             int result = ast_eval(ast_node, NULL);
@@ -59,19 +70,17 @@ int exec_pipeline(struct linked_list *linked_list)
             return 1;
         }
 
-        // Parent : Fermer descripteurs inutilisés
-        if (in_fd != STDIN_FILENO)
-            close(in_fd);
-        if (i < n - 1)
-            close(pipefds[1]);
-
-        in_fd = pipefds[0]; // Préparer l'entrée pour la prochaine commande
+        j += 2;
     }
-    close(stdout_fd);
-    for (i = 0; i < n; i++)
+    for (size_t k = 0; k < 2 * n; k++)
+    {
+        close(pipefds[k]);
+    }
+    for (size_t k = 0; k < 2 * n; k++)
     {
         wait(&status);
     }
+    free(pipefds);
 
     return WEXITSTATUS(status);
 }
