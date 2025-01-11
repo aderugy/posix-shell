@@ -25,7 +25,14 @@ enum token_type
     TOKEN_DO, // do [16]
     TOKEN_DONE, // done [17]
     TOKEN_AND, // and [18]
-    TOKEN_OR // or [19]
+    TOKEN_OR, // or [19]
+    TOKEN_REDIR_STDOUT_FILE,
+    TOKEN_REDIR_FILE_STDIN,
+    TOKEN_REDIR_STDOUT_FILE_A,
+    TOKEN_REDIR_STDOUT_FD,
+    TOKEN_REDIR_STDIN_FD,
+    TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
+    TOKEN_REDIR_FOPEN_RW
 };
 
 struct token

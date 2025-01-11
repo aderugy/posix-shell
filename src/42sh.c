@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
     {
         errx(1, "stream error");
     }
+
     register_commands();
     struct lexer *lexer = lexer_create(stream);
-    // putchar(0);
 
     struct ast_node *node;
     int return_value = 0;

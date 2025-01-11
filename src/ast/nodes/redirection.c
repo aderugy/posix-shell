@@ -38,7 +38,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *element = NULL;
+    char *file = NULL;
     struct ast_node *number = ast_create(lexer, AST_IONUMBER);
     struct token *token = lexer_peek(lexer);
 
@@ -47,17 +47,18 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     {
         goto error;
     }
+    redir->pipe = token->value.c;
 
-    // Note: Fix element -> just simple word
-    element = ast_create(lexer, AST_ELEMENT);
-    if (!element)
+    // Note: Fix file -> just simple word
+    token = lexer_peek(lexer);
+    if (!token || token->type != TOKEN_WORD)
     {
         goto error;
     }
+    free(lexer_pop(lexer));
 
     redir->number = number;
-    redir->pipe = token->value.c;
-    redir->word = element;
+    redir->file = token->value.c;
     return redir;
 
 error:
@@ -73,21 +74,22 @@ error:
     {
         free(token);
     }
-    if (element)
+    if (file)
     {
-        ast_free(element);
+        free(file);
     }
     return NULL;
 }
 
-int ast_eval_redir(__attribute((unused)) struct ast_redir *node)
+int ast_eval_redir(__attribute((unused)) struct ast_redir *node,
+                   __attribute((unused)) void **out)
 {
     errx(EXIT_FAILURE, "not implemented");
 }
 
 void ast_free_redir(struct ast_redir *node)
 {
-    ast_free(node->word);
+    free(node->file);
     free(node->pipe);
     ast_free(node->number);
     free(node);
@@ -98,5 +100,5 @@ void ast_print_redir(struct ast_redir *node)
     logger("redir ");
     ast_print(node->number);
     logger("%s", node->pipe);
-    ast_print(node->word);
+    logger("%s", node->file);
 }

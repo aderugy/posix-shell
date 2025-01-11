@@ -28,6 +28,8 @@ libast_a_SOURCES =  \
   nodes/ionumber.h \
   nodes/redirection.c \
   nodes/redirection.h \
+  nodes/prefix.c \
+  nodes/prefix.h \
   nodes/else.c \
   nodes/else.h \
   nodes/pipeline.c \
