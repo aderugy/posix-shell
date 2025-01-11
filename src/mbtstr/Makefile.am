@@ -18,6 +18,6 @@ libmbtstr_a_SOURCES = \
 
 libmbtstr_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libmbtstr_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+libmbtstr_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
 
 noinst_LIBRARIES = libmbtstr.a
