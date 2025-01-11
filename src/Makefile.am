@@ -3,8 +3,7 @@ SUBDIRS = ast \
 		  mbtstr \
 		  lexer \
 				utils \
-				builtins \
-				eval
+				builtins
 bin_PROGRAMS = 42sh
 
 42sh_SOURCES = 42sh.c
@@ -14,7 +13,6 @@ bin_PROGRAMS = 42sh
 42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
 
 42sh_LDADD =  \
-    eval/libeval.a \
 	ast/libast.a \
 	lexer/liblex.a \
 	utils/libutils.a \
