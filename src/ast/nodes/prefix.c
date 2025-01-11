@@ -14,7 +14,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *redir = ast_create(lexer, AST_PREFIX);
+    struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
     if (!redir)
     {
         free(node);

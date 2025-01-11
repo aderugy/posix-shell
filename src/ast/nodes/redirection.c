@@ -14,14 +14,19 @@
  * WORD ;
  */
 
-static const char *REDIRECTIONS[] = { ">",  "<",  ">>", ">&",
-                                      "<&", ">,", "<>", NULL };
+static const enum token_type REDIRECTIONS[] = { TOKEN_REDIR_STDOUT_FILE,
+                                                TOKEN_REDIR_STDOUT_FILE_A,
+                                                TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
+                                                TOKEN_REDIR_FILE_STDIN,
+                                                TOKEN_REDIR_STDIN_FD,
+                                                TOKEN_REDIR_FOPEN_RW,
+                                                0 };
 
-static int is_redir(char *s)
+static int is_redir(struct token *token)
 {
     for (int i = 0; REDIRECTIONS[i]; i++)
     {
-        if (strcmp(s, REDIRECTIONS[i]) == 0)
+        if (token->type == REDIRECTIONS[i])
         {
             return 1;
         }
@@ -42,23 +47,24 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     struct ast_node *number = ast_create(lexer, AST_IONUMBER);
     struct token *token = lexer_peek(lexer);
 
-    // Note: might need to push back the IO Number on the stream if it fails
-    if (!token || token->type != TOKEN_WORD || !is_redir(token->value.c))
+    if (!token || !is_redir(token))
     {
         goto error;
     }
     redir->pipe = token->value.c;
 
-    // Note: Fix file -> just simple word
+    free(lexer_pop(lexer));
     token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
+        token = NULL;
         goto error;
     }
-    free(lexer_pop(lexer));
 
     redir->number = number;
     redir->file = token->value.c;
+    free(lexer_pop(lexer));
+
     return redir;
 
 error:
@@ -69,10 +75,6 @@ error:
     if (redir)
     {
         ast_free_redir(redir);
-    }
-    if (token)
-    {
-        free(token);
     }
     if (file)
     {

@@ -17,27 +17,50 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
+    struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
-        return NULL;
+        errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_simple_cmd *simple_cmd =
-        calloc(1, sizeof(struct ast_simple_cmd));
-    if (!simple_cmd)
+    struct token *token = NULL;
+    cmd->prefix = ast_create(lexer, AST_PREFIX);
+    cmd->prefixes = list_init();
+    cmd->cmd = NULL;
+    cmd->args = list_init();
+
+    struct ast_node *prefix;
+    while ((prefix = ast_create(lexer, AST_PREFIX)))
     {
-        errx(AST_PARSE_ERROR, "out of memory");
+        list_append(cmd->prefixes, prefix);
     }
 
-    struct linked_list *list = list_init();
-    do
+    if (cmd->prefix)
     {
-        list_append(list, cmd);
-    } while ((cmd = ast_create(lexer, AST_ELEMENT)));
+        // prefix { prefix }
+        return cmd;
+    }
 
-    simple_cmd->args = list;
-    return simple_cmd;
+    // { prefix } WORD { element }
+    token = lexer_peek(lexer);
+    if (token->type != TOKEN_WORD)
+    {
+        goto error;
+    }
+
+    cmd->cmd = token->value.c;
+    free(lexer_pop(lexer));
+
+    struct ast_node *element;
+    while ((element = ast_create(lexer, AST_ELEMENT)))
+    {
+        list_append(cmd->args, element);
+    }
+
+    return cmd;
+error:
+    ast_free_simple_cmd(cmd);
+    return NULL;
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
@@ -79,7 +102,18 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 {
+    if (cmd->prefix)
+    {
+        ast_free(cmd->prefix);
+    }
+    list_free(cmd->prefixes, (void (*)(void *))ast_free);
+
+    if (cmd)
+    {
+        free(cmd->cmd);
+    }
     list_free(cmd->args, (void (*)(void *))ast_free);
+
     free(cmd);
 }
 
