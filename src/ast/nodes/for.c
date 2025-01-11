@@ -26,6 +26,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
+    ast_free_for(ast);
     errx(AST_PARSE_ERROR, "Unimplemented ast_parse_for");
 }
 
