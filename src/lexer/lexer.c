@@ -9,6 +9,23 @@
 #include "token.h"
 #include "utils/logger.h"
 
+static const char *token_names[] = {
+    "TOKEN_IF",    "TOKEN_THEN",      "TOKEN_ELIF",     "TOKEN_ELSE",
+    "TOKEN_FI",    "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE",
+    "TOKEN_WORD",  "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",
+    "TOKEN_ERROR", "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",
+    "TOKEN_DO",    "TOKEN_DONE"
+};
+
+const char *get_token_name(enum token_type token)
+{
+    if (token >= 0 && token < sizeof(token_names) / sizeof(token_names[0]))
+    {
+        return token_names[token];
+    }
+    return "UNKNOWN_TOKEN";
+}
+
 static const struct keyword KEYWORDS[] = { { "if", TOKEN_IF },
                                            { "fi", TOKEN_FI },
                                            { "elif", TOKEN_ELIF },
@@ -137,7 +154,9 @@ struct token *lexer_pop(struct lexer *lexer)
         stream_close(lexer->stream);
         lexer->stream = NULL;
     }
-    logger("%i\n", token->type);
+    logger("TOKEN: %s\n", get_token_name(token->type));
+    if (token->type == TOKEN_WORD)
+        logger("Value: %s\n", token->value.c);
 
     return token;
 }

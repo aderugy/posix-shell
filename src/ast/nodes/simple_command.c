@@ -47,6 +47,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         goto error;
     }
+    logger("%s\n", token->value.c);
 
     cmd->cmd = token->value.c;
     free(lexer_pop(lexer));
@@ -66,12 +67,12 @@ error:
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) void **out)
 {
-    size_t argc = cmd->args->size;
+    size_t argc = cmd->args->size + 1;
     char **argv = calloc(argc, sizeof(char *));
-
-    for (size_t i = 0; i < argc; i++)
+    argv[0] = cmd->cmd;
+    for (size_t i = 1; i < argc; i++)
     {
-        struct ast_node *children = list_get(cmd->args, i);
+        struct ast_node *children = list_get(cmd->args, i - 1);
         ast_eval(children, (void **)argv + i);
     }
     logger("simple commad : execute : %s\n", argv[0]);

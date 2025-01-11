@@ -31,6 +31,8 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
+    lexer_pop(lexer);
+    free(token);
 
     number->value = strtoll(val, NULL, 10);
     return number;

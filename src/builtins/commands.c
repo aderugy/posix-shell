@@ -18,6 +18,10 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", FALSE);
     }
+    if (add_command(EXIT, exit_builtin))
+    {
+        errx(1, "%s: Couldn't register command", EXIT);
+    }
 
     return 0;
 }
@@ -35,6 +39,10 @@ int unregister_commands(void)
     if (del_command(FALSE))
     {
         errx(1, "%s: Couldn't delete command", FALSE);
+    }
+    if (del_command(EXIT))
+    {
+        errx(1, "%s: Couldn't delete command", EXIT);
     }
 
     return 0;
