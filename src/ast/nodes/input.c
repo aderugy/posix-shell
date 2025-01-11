@@ -55,8 +55,11 @@ int ast_eval_input(struct ast_input *node, void **out)
 
 void ast_free_input(struct ast_input *node)
 {
-    ast_free(node->list);
-    free(node);
+    if (node)
+    {
+        ast_free(node->list);
+        free(node);
+    }
 }
 
 void ast_print_input(__attribute((unused)) struct ast_input *input)

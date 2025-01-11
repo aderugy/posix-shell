@@ -103,13 +103,16 @@ test_pipeline() {
   tes "echo Hello | tr a e | tr e a"
   tes "echo Hello | tr a e | tr e a | tr a e"
   tes "find -name *.c | echo"
+  tes "tree -L 2 | echo | tr e a | tr c b"
   echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
   echo "========== NEGATION PIPELINE BEGIN =========="
+  test_code_error 0 "! false | true | true | true | false"
+  test_code_error 0 "! false | true | false | false | false | false"
   test_code_error 0 "! true | false"
   test_code_error 1 "! false | true"
-  test_code_error 0 "! false | true | false | false | false | false"
+  test_code_error 1 "! ls | echo"
   echo "========== NEGATION PIPELINE END =========="
 }
 test_ops() {
@@ -119,8 +122,12 @@ test_ops() {
   tes "true && ls && echo b || echo a"
   tes "true && false && echo b || echo a"
   tes "false && false && echo b || echo a"
+  tes "false && false && echo b; echo c && ls || echo a"
+  tes "false && false || echo b; echo c && ls || echo a"
   tes "false && echo b || echo a && true && false || true"
   tes "echo a && false || echo h"
+  tes "echo a && ls || echo h"
+  tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
   echo "========== OPS END =========="
 }
 test_for() {
@@ -143,10 +150,12 @@ test_while_loops() {
   echo "========== WHILE LOOP END =========="
 }
 test_var() {
+  echo "========== VARIABLES BEGIN =========="
   for i in $(find tests/step2/assignement_substitution -name "*sh"); do
     test_from_file $i
     test_from_stdin $i
   done
+  echo "========== VARIABLES BEGIN =========="
 }
 test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="

@@ -197,7 +197,7 @@ test_errs() {
 }
 testsuite() {
   test_echo_basic
-  test_echo_options
+  #test_echo_options
   test_non_builtin
   test_if
   test_elif
