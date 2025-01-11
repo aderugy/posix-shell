@@ -28,21 +28,28 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(2, "missing while condition");
+        errx(AST_PARSE_ERROR, "while: missing 1st clist");
     }
 
     tok = lexer_pop(lexer);
     if (!tok || tok->type != TOKEN_DO)
     {
-        errx(2, "missing then token");
+        errx(2, "while: missing do token");
     }
     free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
     {
-        errx(2, "missing done in while");
+        errx(AST_PARSE_ERROR, "while: missing 2nd clist");
     }
+
+    tok = lexer_pop(lexer);
+    if (!tok || tok->type != TOKEN_DONE)
+    {
+        errx(AST_PARSE_ERROR, "while: missing done token");
+    }
+    free(tok);
 
     return ast;
 }

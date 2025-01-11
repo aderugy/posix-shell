@@ -10,9 +10,14 @@
 #include "utils/logger.h"
 
 static const struct keyword KEYWORDS[] = {
-    { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
-    { "else", TOKEN_ELSE },   { "then", TOKEN_THEN }, { ";", TOKEN_SEMICOLON },
-    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },   { "|", TOKEN_PIPE },
+    { "if", TOKEN_IF },       { "fi", TOKEN_FI },
+    { "elif", TOKEN_ELIF },   { "else", TOKEN_ELSE },
+    { "then", TOKEN_THEN },   { ";", TOKEN_SEMICOLON },
+    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },
+    { "|", TOKEN_PIPE },      { "while", TOKEN_WHILE },
+    { "until", TOKEN_UNTIL }, { "for", TOKEN_FOR },
+    { "do", TOKEN_DO },       { "done", TOKEN_DONE },
+    { "&&", TOKEN_AND },      { "||", TOKEN_OR },
     { NULL, TOKEN_EOF }
 };
 

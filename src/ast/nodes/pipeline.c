@@ -38,6 +38,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
+        logger("pipeline: first command did not match\n");
         free(node);
         return NULL;
     }
@@ -63,6 +64,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         struct ast_node *command = ast_create(lexer, AST_COMMAND);
         if (!command)
         {
+            logger("pipeline: second command did not match\n");
             ast_free_pipeline(node);
             return NULL;
         }
