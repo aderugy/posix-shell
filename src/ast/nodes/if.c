@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
@@ -13,10 +14,11 @@
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_IF)
+    if (!tok || !tok->value.c || strcmp(tok->value.c, "if") != 0)
     {
         return NULL;
     }
+    logger("if : found if");
     lexer_pop(lexer);
     free(tok);
 

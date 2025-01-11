@@ -10,15 +10,14 @@
 #include "utils/logger.h"
 
 static const struct keyword KEYWORDS[] = {
-    { "if", TOKEN_IF },       { "fi", TOKEN_FI },
-    { "elif", TOKEN_ELIF },   { "else", TOKEN_ELSE },
-    { "then", TOKEN_THEN },   { ";", TOKEN_SEMICOLON },
-    { "\n", TOKEN_NEW_LINE }, { "'", TOKEN_QUOTE },
-    { "|", TOKEN_PIPE },      { "while", TOKEN_WHILE },
-    { "until", TOKEN_UNTIL }, { "for", TOKEN_FOR },
-    { "do", TOKEN_DO },       { "done", TOKEN_DONE },
-    { "&&", TOKEN_AND },      { "||", TOKEN_OR },
-    { NULL, TOKEN_EOF }
+    { "fi", TOKEN_FI },       { "elif", TOKEN_ELIF },
+    { "else", TOKEN_ELSE },   { "then", TOKEN_THEN },
+    { ";", TOKEN_SEMICOLON }, { "\n", TOKEN_NEW_LINE },
+    { "'", TOKEN_QUOTE },     { "|", TOKEN_PIPE },
+    { "while", TOKEN_WHILE }, { "until", TOKEN_UNTIL },
+    { "for", TOKEN_FOR },     { "do", TOKEN_DO },
+    { "done", TOKEN_DONE },   { "&&", TOKEN_AND },
+    { "||", TOKEN_OR },       { NULL, TOKEN_EOF }
 };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
@@ -87,6 +86,7 @@ static struct token *lex(struct lexer *lexer)
     {
         token->type = TOKEN_WORD;
         token->value.c = strdup(shard->data);
+        logger("lex : lexed : %s\n", token->value.c);
     }
 
     shard_free(shard);

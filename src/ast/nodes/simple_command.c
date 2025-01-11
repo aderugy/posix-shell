@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -17,11 +18,13 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
-    if (!cmd)
+    struct token *tok_cmd = lexer_peek(lexer);
+    if (tok_cmd && tok_cmd->value.c && strcmp("if", tok_cmd->value.c) == 0)
     {
         return NULL;
     }
+
+    struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
 
     struct ast_simple_cmd *simple_cmd =
         calloc(1, sizeof(struct ast_simple_cmd));

@@ -17,6 +17,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
     struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
     if (simple_cmd)
     {
+        logger("command : simple command found\n");
         node->type = SIMPLE_CMD;
         node->cmd = simple_cmd;
         return node;
@@ -28,6 +29,8 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         free(node);
         return NULL;
     }
+
+    logger("command : shell command found\n");
 
     node->type = SHELL_CMD;
     node->cmd = shell_cmd;
