@@ -5,9 +5,11 @@
 
 #include "node.h"
 #include "redirection.h"
+#include "utils/logger.h"
 
 struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 {
+    logger("Parse PREFIX\n");
     struct ast_prefix *node = calloc(1, sizeof(struct ast_prefix));
     if (!node)
     {
@@ -17,11 +19,13 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
     if (!redir)
     {
-        free(node);
+        ast_free_prefix(node);
+        logger("Exit PREFIX\n");
         return NULL;
     }
 
     node->redir = redir;
+    logger("Exit PREFIX\n");
     return node;
 }
 

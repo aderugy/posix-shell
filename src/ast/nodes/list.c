@@ -10,9 +10,11 @@
 
 struct ast_list *ast_parse_list(struct lexer *lexer)
 {
+    logger("parse LIST\n");
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
+        logger("Exit LIST\n");
         return NULL;
     }
 
@@ -46,6 +48,7 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         }
     }
 
+    logger("Exit LIST\n");
     return node;
 }
 

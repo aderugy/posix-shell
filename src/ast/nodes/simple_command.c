@@ -17,6 +17,7 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
+    logger("Parse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -38,6 +39,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
+        logger("Exit SIMPLE_COMMAND\n");
         return cmd;
     }
 
@@ -58,9 +60,11 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         list_append(cmd->args, element);
     }
 
+    logger("Exit SIMPLE_COMMAND\n");
     return cmd;
 error:
     ast_free_simple_cmd(cmd);
+    logger("Exit SIMPLE_COMMAND\n");
     return NULL;
 }
 
@@ -91,9 +95,14 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         else
         {
             wait(&stat);
+            int result = WEXITSTATUS(stat);
 
+            if (result == 255)
+            {
+                result = 127;
+            }
             free(argv);
-            return WEXITSTATUS(stat);
+            return result;
         }
     }
 

@@ -10,9 +10,11 @@
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {
+    logger("Parse AND_OR\n");
     struct ast_node *pipeline = ast_create(lexer, AST_PIPELINE);
     if (!pipeline)
     {
+        logger("Exit AND_OR\n");
         return NULL;
     }
 
@@ -58,6 +60,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         tok = lexer_peek(lexer);
     }
 
+    logger("Exit AND_OR\n");
     return root;
 }
 

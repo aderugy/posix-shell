@@ -13,9 +13,11 @@
 
 struct ast_element *ast_parse_element(struct lexer *lexer)
 {
+    logger("Parse ELEMENT\n");
     struct token *token = lexer_peek(lexer); // We check if the token is valid
     if (!token)
     {
+        logger("Exit ELEMENT\n");
         return NULL;
     }
 
@@ -31,17 +33,20 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 
         node->value = token->value.c;
         free(token);
+        logger("Exit ELEMENT\n");
         return node;
     }
 
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
     if (!redir)
     {
-        free(node);
+        ast_free_element(node);
+        logger("Exit ELEMENT\n");
         return NULL;
     }
 
     node->redir = redir;
+    logger("Exit ELEMENT\n");
     return node;
 }
 

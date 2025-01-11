@@ -37,6 +37,7 @@ static int is_redir(struct token *token)
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer)
 {
+    logger("Parse REDIRECTION\n");
     struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
     if (!redir)
     {
@@ -80,6 +81,7 @@ error:
     {
         free(file);
     }
+    logger("Exit REDIRECTION\n");
     return NULL;
 }
 

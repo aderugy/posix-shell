@@ -8,6 +8,7 @@
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
+    logger("Parse COMMAND\n");
     struct ast_cmd *node = calloc(1, sizeof(struct ast_cmd));
     if (!node)
     {
@@ -19,13 +20,15 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
     {
         node->type = SIMPLE_CMD;
         node->cmd = simple_cmd;
+        logger("Exit COMMAND\n");
         return node;
     }
 
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (!shell_cmd)
     {
-        free(node);
+        ast_free_cmd(node);
+        logger("Exit COMMAND\n");
         return NULL;
     }
 
@@ -38,6 +41,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 
     node->type = SHELL_CMD;
     node->cmd = shell_cmd;
+    logger("Exit COMMAND\n");
     return node;
 }
 
