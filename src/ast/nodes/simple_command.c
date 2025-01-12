@@ -21,6 +21,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     struct token *tok_cmd = lexer_peek(lexer);
     if (tok_cmd && tok_cmd->value.c && strcmp("if", tok_cmd->value.c) == 0)
     {
+        logger("simple cmd : found if as cmd : return NULL\n");
         return NULL;
     }
 

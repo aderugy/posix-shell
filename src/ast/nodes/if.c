@@ -34,6 +34,8 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing if condition");
     }
 
+    logger("SUCCESSFULLY found IF\n");
+
     tok = lexer_pop(lexer);
     if (!tok || tok->type != TOKEN_THEN)
     {
@@ -61,7 +63,8 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         logger("SUCCESSFULLY NOT create else clause\n");
     }
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_FI)
+
+    if (!tok || !tok->value.c || strcmp(tok->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }
