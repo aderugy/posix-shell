@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "node.h"
 #include "utils/logger.h"
@@ -15,35 +16,44 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
-    if (simple_cmd)
-    {
-        logger("command : simple command found\n");
-        node->type = SIMPLE_CMD;
-        node->cmd = simple_cmd;
-        logger("Exit COMMAND\n");
-        return node;
-    }
+    struct token *token_prefix = lexer_peek(lexer);
 
-    struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-    if (!shell_cmd)
-    {
-        ast_free_cmd(node);
-        logger("Exit COMMAND\n");
-        return NULL;
-    }
+    if ( token_prefix->value.c
+        && strcmp(token_prefix->value.c, "if") == 0)
+        {
+            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
+            if (!shell_cmd)
+            {
+                ast_free_cmd(node);
+                logger("Exit COMMAND\n");
+                return NULL;
+            }
 
-    node->redirs = list_init();
-    struct ast_node *redir;
-    while ((redir = ast_create(lexer, AST_REDIRECTION)))
-    {
-        list_append(node->redirs, redir);
-    }
+            node->redirs = list_init();
+            struct ast_node *redir;
+            while ((redir = ast_create(lexer, AST_REDIRECTION)))
+            {
+                list_append(node->redirs, redir);
+            }
 
-    node->type = SHELL_CMD;
-    node->cmd = shell_cmd;
-    logger("Exit COMMAND\n");
-    return node;
+            node->type = SHELL_CMD;
+            node->cmd = shell_cmd;
+            logger("Exit COMMAND\n");
+            return node;
+        }
+    else
+    {
+        struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
+        if (simple_cmd)
+        {
+            logger("command : simple command found\n");
+            node->type = SIMPLE_CMD;
+            node->cmd = simple_cmd;
+            logger("Exit COMMAND\n");
+            return node;
+        }
+    }
+    return NULL;
 }
 
 void ast_free_cmd(struct ast_cmd *node)

@@ -10,11 +10,11 @@
 #include "utils/logger.h"
 
 static const char *token_names[] = {
-    "TOKEN_IF",    "TOKEN_THEN",      "TOKEN_ELIF",     "TOKEN_ELSE",
-    "TOKEN_FI",    "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE",
-    "TOKEN_WORD",  "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",
-    "TOKEN_ERROR", "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",
-    "TOKEN_DO",    "TOKEN_DONE"
+    "TOKEN_THEN",      "TOKEN_ELIF",     "TOKEN_ELSE",  
+    "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE", "TOKEN_WORD",
+    "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",   "TOKEN_ERROR",
+    "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",   "TOKEN_DO",
+    "TOKEN_DONE"
 };
 
 const char *get_token_name(enum token_type token)
@@ -26,9 +26,7 @@ const char *get_token_name(enum token_type token)
     return "UNKNOWN_TOKEN";
 }
 
-static const struct keyword KEYWORDS[] = { { "if", TOKEN_IF },
-                                           { "fi", TOKEN_FI },
-                                           { "elif", TOKEN_ELIF },
+static const struct keyword KEYWORDS[] = { { "elif", TOKEN_ELIF },
                                            { "else", TOKEN_ELSE },
                                            { "then", TOKEN_THEN },
                                            { ";", TOKEN_SEMICOLON },
@@ -101,6 +99,7 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
+        logger("not shard\n");
         token->type = TOKEN_EOF;
         return token;
     }
@@ -155,9 +154,9 @@ struct token *lexer_pop(struct lexer *lexer)
         stream_close(lexer->stream);
         lexer->stream = NULL;
     }
-    logger("TOKEN: %s\n", get_token_name(token->type));
-    if (token->type == TOKEN_WORD)
-        logger("Value: %s\n", token->value.c);
+    logger("POPED TOKEN: %s\n", get_token_name(token->type));
+    if (token->value.c)
+        logger("\tValue: %s\n", token->value.c);
 
     return token;
 }

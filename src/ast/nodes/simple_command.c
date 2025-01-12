@@ -18,21 +18,7 @@
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-<<<<<<< HEAD
-    struct token *tok_cmd = lexer_peek(lexer);
-    if (tok_cmd && tok_cmd->value.c && strcmp("if", tok_cmd->value.c) == 0)
-    {
-        logger("simple cmd : found if as cmd : return NULL\n");
-        return NULL;
-    }
-
-    struct ast_node *cmd = ast_create(lexer, AST_ELEMENT);
-
-    struct ast_simple_cmd *simple_cmd =
-        calloc(1, sizeof(struct ast_simple_cmd));
-    if (!simple_cmd)
-=======
-    logger("Parse SIMPLE_COMMAND\n");
+    logger("\tParse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -47,7 +33,6 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     struct ast_node *prefix;
     while ((prefix = ast_create(lexer, AST_PREFIX)))
->>>>>>> main
     {
         list_append(cmd->prefixes, prefix);
     }
@@ -55,7 +40,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("Exit SIMPLE_COMMAND\n");
+        logger("\tExit SIMPLE_COMMAND\n");
         return cmd;
     }
 
@@ -65,7 +50,10 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         goto error;
     }
-    logger("%s\n", token->value.c);
+    if (token->value.c && strcmp(token->value.c, "fi") == 0) {
+    return NULL;
+    }
+    logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
     free(lexer_pop(lexer));
