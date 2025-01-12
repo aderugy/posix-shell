@@ -44,7 +44,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (token->type != TOKEN_THEN)
+        if (token->type != TOKEN_WORD || strcmp(token->value.c, "then") == 0)
             return NULL;
         lexer_pop(lexer);
         free(token);

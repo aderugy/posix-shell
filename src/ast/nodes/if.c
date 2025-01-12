@@ -37,12 +37,13 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     logger("\tif.c : SUCCESSFULLY found IF\n");
 
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_THEN)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "then") != 0)
     {
         errx(2, "missing then token");
     }
 
     logger("\tif.c : SUCCESSFULLY found THEN\n");
+    free(tok->value.c);
     free(tok);
 
     struct ast_node *body = ast_create(lexer, AST_CLIST);
