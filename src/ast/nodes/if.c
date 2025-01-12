@@ -56,11 +56,11 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     ast->else_clause = ast_create(lexer, AST_ELSE);
     if (ast->else_clause)
     {
-        logger("SUCCESSFULLY create else clause\n");
+        logger("\tSUCCESSFULLY create else clause\n");
     }
     else
     {
-        logger("SUCCESSFULLY NOT create else clause\n");
+        logger("\tSUCCESSFULLY NOT create else clause\n");
     }
     tok = lexer_pop(lexer);
 
@@ -68,7 +68,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     {
         errx(2, "missing fi");
     }
-    logger("SUCCESSFULLY found FI\n");
+    logger("\tSUCCESSFULLY found FI\n");
     free(tok->value.c);
     free(tok);
 

@@ -16,6 +16,21 @@
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
+static char *keywords[] = { "if", "fi", "else", NULL };
+
+bool is_keyword(char *word)
+{
+    for (size_t i = 0; keywords[i]; i++)
+    {
+        if (strcmp(keywords[i], word) == 0)
+        {
+            logger("\tsimple command : found keyword %s\n", word);
+            return true;
+        }
+    }
+    return false;
+}
+
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
     logger("\tParse SIMPLE_COMMAND\n");
@@ -50,7 +65,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         goto error;
     }
-    if (token->value.c && strcmp(token->value.c, "fi") == 0)
+    if (token->value.c && is_keyword(token->value.c))
     {
         ast_free_simple_cmd(cmd);
         return NULL;

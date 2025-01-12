@@ -7,7 +7,6 @@ enum token_type
 {
     TOKEN_THEN, // then [1]
     TOKEN_ELIF, // elif [2]
-    TOKEN_ELSE, // else [3]
     TOKEN_SEMICOLON, // ; [5]
     TOKEN_NEW_LINE, // \n [6]
     TOKEN_QUOTE, // ' [7]
