@@ -10,7 +10,7 @@
 #include "utils/logger.h"
 
 static const char *token_names[] = {
-    "TOKEN_ELIF",  "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE",
+  "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE",
     "TOKEN_WORD",  "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",
     "TOKEN_ERROR", "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",
     "TOKEN_DO",    "TOKEN_DONE"
@@ -25,7 +25,7 @@ const char *get_token_name(enum token_type token)
     return "UNKNOWN_TOKEN";
 }
 
-static const struct keyword KEYWORDS[] = { { "elif", TOKEN_ELIF },
+static const struct keyword KEYWORDS[] = { 
                                            { ";", TOKEN_SEMICOLON },
                                            { "\n", TOKEN_NEW_LINE },
                                            { "'", TOKEN_QUOTE },

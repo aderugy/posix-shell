@@ -20,7 +20,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     struct ast_else_node *node = calloc(1, sizeof(struct ast_else_node));
     struct token *token = lexer_peek(lexer);
 
-    logger("\tParsing ELSE_CLAUSE");
+    logger("\tParsing ELSE_CLAUSE\n");
 
     if (token->type == TOKEN_WORD && strcmp(token->value.c, "else") == 0)
     {
@@ -34,9 +34,10 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
         return node;
     }
 
-    else if (token->type == TOKEN_ELIF)
+    else if (token->type == TOKEN_WORD && strcmp(token->value.c, "elif") == 0)
     {
         lexer_pop(lexer);
+        free(token->value.c);
         free(token);
 
         struct ast_node *condition = ast_create(lexer, AST_CLIST);
@@ -44,9 +45,10 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (token->type != TOKEN_WORD || strcmp(token->value.c, "then") == 0)
+        if (token->type != TOKEN_WORD || strcmp(token->value.c, "then") != 0)
             return NULL;
         lexer_pop(lexer);
+        free(token->value.c);
         free(token);
 
         struct ast_node *body = ast_create(lexer, AST_CLIST);
