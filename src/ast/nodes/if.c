@@ -19,6 +19,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         return NULL;
     }
     lexer_pop(lexer);
+    free(tok->value.c);
     free(tok);
 
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
@@ -62,16 +63,13 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         logger("SUCCESSFULLY NOT create else clause\n");
     }
     tok = lexer_pop(lexer);
-    if (tok->value.c)
-    {
-        logger("\tjules token : %s\n", tok->value.c);
-    }
 
     if (!tok || !tok->value.c || strcmp(tok->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }
     logger("SUCCESSFULLY found FI\n");
+    free(tok->value.c);
     free(tok);
 
     return ast;

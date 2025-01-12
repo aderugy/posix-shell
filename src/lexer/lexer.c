@@ -10,11 +10,10 @@
 #include "utils/logger.h"
 
 static const char *token_names[] = {
-    "TOKEN_THEN",      "TOKEN_ELIF",     "TOKEN_ELSE",  
-    "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE", "TOKEN_WORD",
-    "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",   "TOKEN_ERROR",
-    "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",   "TOKEN_DO",
-    "TOKEN_DONE"
+    "TOKEN_THEN",     "TOKEN_ELIF",  "TOKEN_ELSE",  "TOKEN_SEMICOLON",
+    "TOKEN_NEW_LINE", "TOKEN_QUOTE", "TOKEN_WORD",  "TOKEN_PIPE",
+    "TOKEN_NOT",      "TOKEN_EOF",   "TOKEN_ERROR", "TOKEN_WHILE",
+    "TOKEN_UNTIL",    "TOKEN_FOR",   "TOKEN_DO",    "TOKEN_DONE"
 };
 
 const char *get_token_name(enum token_type token)
@@ -117,7 +116,7 @@ static struct token *lex(struct lexer *lexer)
     {
         token->type = TOKEN_WORD;
         token->value.c = strdup(shard->data);
-        logger("lex : lexed : %s\n", token->value.c);
+        logger("--LEXER.C: lexed : %s\n", token->value.c);
     }
 
     shard_free(shard);

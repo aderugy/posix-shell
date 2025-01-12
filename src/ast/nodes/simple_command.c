@@ -50,8 +50,10 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         goto error;
     }
-    if (token->value.c && strcmp(token->value.c, "fi") == 0) {
-    return NULL;
+    if (token->value.c && strcmp(token->value.c, "fi") == 0)
+    {
+        ast_free_simple_cmd(cmd);
+        return NULL;
     }
     logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 

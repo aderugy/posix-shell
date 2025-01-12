@@ -18,29 +18,28 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 
     struct token *token_prefix = lexer_peek(lexer);
 
-    if ( token_prefix->value.c
-        && strcmp(token_prefix->value.c, "if") == 0)
+    if (token_prefix->value.c && strcmp(token_prefix->value.c, "if") == 0)
+    {
+        struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
+        if (!shell_cmd)
         {
-            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-            if (!shell_cmd)
-            {
-                ast_free_cmd(node);
-                logger("Exit COMMAND\n");
-                return NULL;
-            }
-
-            node->redirs = list_init();
-            struct ast_node *redir;
-            while ((redir = ast_create(lexer, AST_REDIRECTION)))
-            {
-                list_append(node->redirs, redir);
-            }
-
-            node->type = SHELL_CMD;
-            node->cmd = shell_cmd;
+            ast_free_cmd(node);
             logger("Exit COMMAND\n");
-            return node;
+            return NULL;
         }
+
+        node->redirs = list_init();
+        struct ast_node *redir;
+        while ((redir = ast_create(lexer, AST_REDIRECTION)))
+        {
+            list_append(node->redirs, redir);
+        }
+
+        node->type = SHELL_CMD;
+        node->cmd = shell_cmd;
+        logger("Exit COMMAND\n");
+        return node;
+    }
     else
     {
         struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
@@ -53,6 +52,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
             return node;
         }
     }
+    ast_free_cmd(node);
     return NULL;
 }
 
