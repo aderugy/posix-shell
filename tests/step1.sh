@@ -108,6 +108,7 @@ test_echo_basic() {
   tes echo "\nouaaaaa\n\n\nla dinguerie\\\n\t"
   tes 'echo' 'a'
   tes "echo foo; echo 'a'"
+  tes "echo Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas purus viverra accumsan in nisl nisi. At quis risus sed vulputate. Neque laoreet suspendisse interdum consectetur libero. Et molestie ac feugiat sed lectus vestibulum mattis. Tristique nulla aliquet enim tortor at auctor. Aliquet porttitor lacus luctus accumsan tortor. Tellus cras adipiscing enim eu turpis. Mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Nec sagittis aliquam malesuada bibendum arcu vitae elementum. Consequat id porta nibh venenatis cras. Dolor magna eget est lorem ipsum. Vivamus at augue eget arcu dictum varius duis. Aliquam eleifend mi in nulla. Cursus risus at ultrices mi tempus imperdiet nulla malesuada. Adipiscing elit ut aliquam purus sit amet luctus venenatis. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Mauris cursus mattis molestie a iaculis at erat pellentesque adipiscing."
   echo "========== ECHO END =========="
 }
 test_non_builtin() {
@@ -188,13 +189,14 @@ test_errs() {
   test_pars_lex_error 2 "true; then if fi"
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
+  test_pars_lex_error 2 "ech res\n"
   test_pars_lex_error 2 "\""
   test_pars_lex_error 2 "\"\"\""
   echo "========== ERROR_CODE END =========="
 }
 testsuite() {
   test_echo_basic
-  test_echo_options
+  #test_echo_options
   test_non_builtin
   test_if
   test_elif

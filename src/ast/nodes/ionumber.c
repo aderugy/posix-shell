@@ -11,9 +11,11 @@ static const char *DIGITS = "0123456789";
 
 struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
 {
+    logger("Parse IONUMBER\n");
     struct token *token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
+        logger("Exit IONUMBER\n");
         return NULL;
     }
 
@@ -22,6 +24,7 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
     {
         if (!strchr(DIGITS, val[i]))
         {
+            logger("Exit IONUMBER\n");
             return NULL;
         }
     }
@@ -31,8 +34,11 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
+    lexer_pop(lexer);
+    free(token);
 
     number->value = strtoll(val, NULL, 10);
+    logger("Exit IONUMBER\n");
     return number;
 }
 

@@ -22,7 +22,9 @@ enum ast_type
     AST_IONUMBER, // 11
     AST_WHILE, // 12
     AST_UNTIL, // 13
-    AST_FOR // 14
+    AST_FOR, // 14
+    AST_REDIRECTION, // 15
+    AST_PREFIX // 16
 };
 
 struct ast_node

@@ -14,6 +14,7 @@
 
 struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
+    logger("Parse CLIST\n");
     struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
     if (!node)
     {

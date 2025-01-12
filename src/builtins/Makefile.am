@@ -7,6 +7,7 @@ true_and_false_builtin.c \
 run_command.c \
 run_command.h \
 commands.c \
+exit.c \
 commands.h
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src

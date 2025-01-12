@@ -15,6 +15,8 @@
 #include "ionumber.h"
 #include "list.h"
 #include "pipeline.h"
+#include "prefix.h"
+#include "redirection.h"
 #include "shell_command.h"
 #include "simple_command.h"
 #include "until.h"
@@ -86,6 +88,13 @@ static const struct ast_node_operations AST_FN[] = {
       (int (*)(void *, void **))ast_eval_for, (void (*)(void *))ast_free_for,
       (void (*)(void *))ast_print_for },
 
+    { (void *(*)(struct lexer *))ast_parse_redir,
+      (int (*)(void *, void **))ast_eval_redir,
+      (void (*)(void *))ast_free_redir, (void (*)(void *))ast_print_redir },
+
+    { (void *(*)(struct lexer *))ast_parse_prefix,
+      (int (*)(void *, void **))ast_eval_prefix,
+      (void (*)(void *))ast_free_prefix, (void (*)(void *))ast_print_prefix },
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)

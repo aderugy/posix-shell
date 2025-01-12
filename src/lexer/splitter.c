@@ -55,7 +55,6 @@ struct shard *splitter_next(struct stream *stream)
     char quoted = SHARD_UNQUOTED;
     while ((c = stream_peek(stream)) != EOF)
     {
-        logger("%c\n", c);
         // Case 1: EOF handled by exiting the loop
 
         // Case 2-3: Operators

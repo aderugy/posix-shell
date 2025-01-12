@@ -61,3 +61,6 @@ tests/builtt_tests
 tests/token_tests
 *.swp
 configure\~
+
+*.trs
+*.log

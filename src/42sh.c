@@ -8,6 +8,7 @@
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
+#include "lexer/token.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -60,9 +61,9 @@ int main(int argc, char *argv[])
     {
         errx(1, "stream error");
     }
+
     register_commands();
     struct lexer *lexer = lexer_create(stream);
-    // putchar(0);
 
     struct ast_node *node;
     int return_value = 0;
@@ -72,12 +73,15 @@ int main(int argc, char *argv[])
         return_value = ast_eval(node, NULL);
 
         ast_free(node);
+        node = NULL;
     }
 
     if (!node && lexer->stream)
     {
         return_value = 2;
     }
+    if (node)
+        ast_free(node);
 
     lexer_free(lexer);
     unregister_commands();

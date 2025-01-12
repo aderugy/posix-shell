@@ -4,6 +4,7 @@
 #include "lexer/lexer.h"
 #include "node.h"
 #include "simple_command.h"
+#include "utils/linked_list.h"
 
 enum command_type
 {
@@ -15,6 +16,7 @@ struct ast_cmd
 {
     enum command_type type;
     struct ast_node *cmd;
+    struct linked_list *redirs;
 };
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer);

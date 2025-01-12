@@ -30,7 +30,6 @@ AC_CONFIG_FILES([
                     src/lexer/Makefile
                     src/utils/Makefile
                     src/builtins/Makefile
-                    src/eval/Makefile
                     tests/Makefile
                 ])
 AC_OUTPUT

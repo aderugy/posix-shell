@@ -14,14 +14,19 @@
  * WORD ;
  */
 
-static const char *REDIRECTIONS[] = { ">",  "<",  ">>", ">&",
-                                      "<&", ">,", "<>", NULL };
+static const enum token_type REDIRECTIONS[] = { TOKEN_REDIR_STDOUT_FILE,
+                                                TOKEN_REDIR_STDOUT_FILE_A,
+                                                TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
+                                                TOKEN_REDIR_FILE_STDIN,
+                                                TOKEN_REDIR_STDIN_FD,
+                                                TOKEN_REDIR_FOPEN_RW,
+                                                0 };
 
-static int is_redir(char *s)
+static int is_redir(struct token *token)
 {
     for (int i = 0; REDIRECTIONS[i]; i++)
     {
-        if (strcmp(s, REDIRECTIONS[i]) == 0)
+        if (token->type == REDIRECTIONS[i])
         {
             return 1;
         }
@@ -32,32 +37,35 @@ static int is_redir(char *s)
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer)
 {
+    logger("Parse REDIRECTION\n");
     struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
     if (!redir)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *element = NULL;
+    char *file = NULL;
     struct ast_node *number = ast_create(lexer, AST_IONUMBER);
     struct token *token = lexer_peek(lexer);
 
-    // Note: might need to push back the IO Number on the stream if it fails
-    if (!token || token->type != TOKEN_WORD || !is_redir(token->value.c))
+    if (!token || !is_redir(token))
     {
         goto error;
     }
+    redir->pipe = token->value.c;
 
-    // Note: Fix element -> just simple word
-    element = ast_create(lexer, AST_ELEMENT);
-    if (!element)
+    free(lexer_pop(lexer));
+    token = lexer_peek(lexer);
+    if (!token || token->type != TOKEN_WORD)
     {
+        token = NULL;
         goto error;
     }
 
     redir->number = number;
-    redir->pipe = token->value.c;
-    redir->word = element;
+    redir->file = token->value.c;
+    free(lexer_pop(lexer));
+
     return redir;
 
 error:
@@ -69,25 +77,23 @@ error:
     {
         ast_free_redir(redir);
     }
-    if (token)
+    if (file)
     {
-        free(token);
+        free(file);
     }
-    if (element)
-    {
-        ast_free(element);
-    }
+    logger("Exit REDIRECTION\n");
     return NULL;
 }
 
-int ast_eval_redir(__attribute((unused)) struct ast_redir *node)
+int ast_eval_redir(__attribute((unused)) struct ast_redir *node,
+                   __attribute((unused)) void **out)
 {
     errx(EXIT_FAILURE, "not implemented");
 }
 
 void ast_free_redir(struct ast_redir *node)
 {
-    ast_free(node->word);
+    free(node->file);
     free(node->pipe);
     ast_free(node->number);
     free(node);
@@ -98,5 +104,5 @@ void ast_print_redir(struct ast_redir *node)
     logger("redir ");
     ast_print(node->number);
     logger("%s", node->pipe);
-    ast_print(node->word);
+    logger("%s", node->file);
 }

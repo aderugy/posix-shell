@@ -11,6 +11,7 @@
  */
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 {
+    logger("Parse SHELL_COMMAND\n");
     struct ast_shell_cmd *node = calloc(1, sizeof(struct ast_shell_cmd));
     if (!node)
     {
@@ -49,7 +50,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     if (!rule)
     {
         logger("shell_command : no rule matched\n");
-        free(node);
+        ast_free_shell_cmd(node);
         return NULL;
     }
 

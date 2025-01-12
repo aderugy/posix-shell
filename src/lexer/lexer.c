@@ -9,15 +9,48 @@
 #include "token.h"
 #include "utils/logger.h"
 
-static const struct keyword KEYWORDS[] = {
-    { "elif", TOKEN_ELIF },   { "else", TOKEN_ELSE },
-    { ";", TOKEN_SEMICOLON }, { "\n", TOKEN_NEW_LINE },
-    { "'", TOKEN_QUOTE },     { "|", TOKEN_PIPE },
-    { "while", TOKEN_WHILE }, { "until", TOKEN_UNTIL },
-    { "for", TOKEN_FOR },     { "do", TOKEN_DO },
-    { "done", TOKEN_DONE },   { "&&", TOKEN_AND },
-    { "||", TOKEN_OR },       { NULL, TOKEN_EOF }
+static const char *token_names[] = {
+    "TOKEN_IF",    "TOKEN_THEN",      "TOKEN_ELIF",     "TOKEN_ELSE",
+    "TOKEN_FI",    "TOKEN_SEMICOLON", "TOKEN_NEW_LINE", "TOKEN_QUOTE",
+    "TOKEN_WORD",  "TOKEN_PIPE",      "TOKEN_NOT",      "TOKEN_EOF",
+    "TOKEN_ERROR", "TOKEN_WHILE",     "TOKEN_UNTIL",    "TOKEN_FOR",
+    "TOKEN_DO",    "TOKEN_DONE"
 };
+
+const char *get_token_name(enum token_type token)
+{
+    if (token >= 0 && token < sizeof(token_names) / sizeof(token_names[0]))
+    {
+        return token_names[token];
+    }
+    return "UNKNOWN_TOKEN";
+}
+
+static const struct keyword KEYWORDS[] = { { "if", TOKEN_IF },
+                                           { "fi", TOKEN_FI },
+                                           { "elif", TOKEN_ELIF },
+                                           { "else", TOKEN_ELSE },
+                                           { "then", TOKEN_THEN },
+                                           { ";", TOKEN_SEMICOLON },
+                                           { "\n", TOKEN_NEW_LINE },
+                                           { "'", TOKEN_QUOTE },
+                                           { "|", TOKEN_PIPE },
+                                           { "while", TOKEN_WHILE },
+                                           { "until", TOKEN_UNTIL },
+                                           { "for", TOKEN_FOR },
+                                           { "do", TOKEN_DO },
+                                           { "done", TOKEN_DONE },
+                                           { "&&", TOKEN_AND },
+                                           { "||", TOKEN_OR },
+                                           { ">", TOKEN_REDIR_STDOUT_FILE },
+                                           { "<", TOKEN_REDIR_FILE_STDIN },
+                                           { ">>", TOKEN_REDIR_STDOUT_FILE_A },
+                                           { ">&", TOKEN_REDIR_STDOUT_FD },
+                                           { "<&", TOKEN_REDIR_STDIN_FD },
+                                           { ">,",
+                                             TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
+                                           { "<>", TOKEN_REDIR_FOPEN_RW },
+                                           { NULL, TOKEN_EOF } };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
@@ -122,7 +155,9 @@ struct token *lexer_pop(struct lexer *lexer)
         stream_close(lexer->stream);
         lexer->stream = NULL;
     }
-    logger("%i\n", token->type);
+    logger("TOKEN: %s\n", get_token_name(token->type));
+    if (token->type == TOKEN_WORD)
+        logger("Value: %s\n", token->value.c);
 
     return token;
 }
