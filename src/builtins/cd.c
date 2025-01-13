@@ -2,7 +2,6 @@
 
 #include <err.h>
 #include <getopt.h>
-#include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,7 +89,7 @@ int cd(int argc, char **argv)
         errx(1, "cd: Not a directory");
     }
 
-    char *resolved_path = realpath(argv[1], NULL);
+    char *resolved_path = NULL; // realpath(argv[1], NULL);
     if (!resolved_path)
     {
         errx(1, "cd: Path error");
