@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -15,9 +16,25 @@
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
+static char *keywords[] = { "then", "elif", "if",    "fi",    "else", "do",
+                            "for",  "done", "while", "until", NULL };
+
+bool is_keyword(char *word)
+{
+    for (size_t i = 0; keywords[i]; i++)
+    {
+        if (strcmp(keywords[i], word) == 0)
+        {
+            logger("\tsimple command : found keyword %s\n", word);
+            return true;
+        }
+    }
+    return false;
+}
+
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    logger("Parse SIMPLE_COMMAND\n");
+    logger("\tParse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -39,7 +56,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("Exit SIMPLE_COMMAND\n");
+        logger("\tExit SIMPLE_COMMAND\n");
         return cmd;
     }
 
@@ -49,7 +66,12 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     {
         goto error;
     }
-    logger("%s\n", token->value.c);
+    if (token->value.c && is_keyword(token->value.c))
+    {
+        ast_free_simple_cmd(cmd);
+        return NULL;
+    }
+    logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
     free(lexer_pop(lexer));

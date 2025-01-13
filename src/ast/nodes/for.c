@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
@@ -13,7 +14,7 @@
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_FOR)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "for") != 0)
     {
         return NULL;
     }

@@ -17,7 +17,7 @@ SCRIPT="script.sh"
 
 # bin name and path
 BIN="42sh"
-F="./src/$BIN"
+F="../src/$BIN"
 
 # for colors
 G="\033[0;92m"

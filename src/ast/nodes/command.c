@@ -1,10 +1,26 @@
 #include "command.h"
 
 #include <err.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "node.h"
 #include "utils/logger.h"
+
+static char *prefixes_shell_command[] = { "if", "while", NULL };
+
+bool is_prefix_shell_command(char *word)
+{
+    for (size_t i = 0; prefixes_shell_command[i]; i++)
+    {
+        if (strcmp(prefixes_shell_command[i], word) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
@@ -15,34 +31,44 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
-    if (simple_cmd)
+    struct token *token_prefix = lexer_peek(lexer);
+
+    if (token_prefix->value.c && is_prefix_shell_command(token_prefix->value.c))
     {
-        node->type = SIMPLE_CMD;
-        node->cmd = simple_cmd;
+        struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
+        if (!shell_cmd)
+        {
+            ast_free_cmd(node);
+            logger("Exit COMMAND\n");
+            return NULL;
+        }
+
+        node->redirs = list_init();
+        struct ast_node *redir;
+        while ((redir = ast_create(lexer, AST_REDIRECTION)))
+        {
+            list_append(node->redirs, redir);
+        }
+
+        node->type = SHELL_CMD;
+        node->cmd = shell_cmd;
         logger("Exit COMMAND\n");
         return node;
     }
-
-    struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-    if (!shell_cmd)
+    else
     {
-        ast_free_cmd(node);
-        logger("Exit COMMAND\n");
-        return NULL;
+        struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
+        if (simple_cmd)
+        {
+            logger("command : simple command found\n");
+            node->type = SIMPLE_CMD;
+            node->cmd = simple_cmd;
+            logger("Exit COMMAND\n");
+            return node;
+        }
     }
-
-    node->redirs = list_init();
-    struct ast_node *redir;
-    while ((redir = ast_create(lexer, AST_REDIRECTION)))
-    {
-        list_append(node->redirs, redir);
-    }
-
-    node->type = SHELL_CMD;
-    node->cmd = shell_cmd;
-    logger("Exit COMMAND\n");
-    return node;
+    ast_free_cmd(node);
+    return NULL;
 }
 
 void ast_free_cmd(struct ast_cmd *node)

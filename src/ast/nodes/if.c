@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
@@ -13,11 +14,12 @@
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_IF)
+    if (!tok || !tok->value.c || strcmp(tok->value.c, "if") != 0)
     {
         return NULL;
     }
     lexer_pop(lexer);
+    free(tok->value.c);
     free(tok);
 
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
@@ -32,13 +34,16 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing if condition");
     }
 
+    logger("\tif.c : SUCCESSFULLY found IF\n");
+
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_THEN)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "then") != 0)
     {
         errx(2, "missing then token");
     }
 
-    logger("SUCCESSFULLY found THEN\n");
+    logger("\tif.c : SUCCESSFULLY found THEN\n");
+    free(tok->value.c);
     free(tok);
 
     struct ast_node *body = ast_create(lexer, AST_CLIST);
@@ -47,23 +52,25 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing if body");
     }
     ast->body = body;
-    logger("SUCCESSFULLY create body\n");
+    logger("\tif.c : SUCCESSFULLY create body\n");
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
     if (ast->else_clause)
     {
-        logger("SUCCESSFULLY create else clause\n");
+        logger("\tSUCCESSFULLY create else clause\n");
     }
     else
     {
-        logger("SUCCESSFULLY NOT create else clause\n");
+        logger("\tSUCCESSFULLY NOT create else clause\n");
     }
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_FI)
+
+    if (!tok || !tok->value.c || strcmp(tok->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }
-    logger("SUCCESSFULLY found FI\n");
+    logger("\tSUCCESSFULLY found FI\n");
+    free(tok->value.c);
     free(tok);
 
     return ast;
