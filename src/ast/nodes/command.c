@@ -1,11 +1,26 @@
 #include "command.h"
 
 #include <err.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "node.h"
 #include "utils/logger.h"
+
+static char *prefixes_shell_command[] = { "if", "while", NULL };
+
+bool is_prefix_shell_command(char *word)
+{
+    for (size_t i = 0; prefixes_shell_command[i]; i++)
+    {
+        if (strcmp(prefixes_shell_command[i], word) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
@@ -18,7 +33,7 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 
     struct token *token_prefix = lexer_peek(lexer);
 
-    if (token_prefix->value.c && strcmp(token_prefix->value.c, "if") == 0)
+    if (token_prefix->value.c && is_prefix_shell_command(token_prefix->value.c))
     {
         struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
         if (!shell_cmd)
