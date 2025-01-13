@@ -189,7 +189,7 @@ test_errs() {
   test_pars_lex_error 2 "true; then if fi"
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
-  test_pars_lex_error 2 "ech res\n"
+  test_pars_lex_error 127 "ech res\n"
   test_pars_lex_error 2 "\""
   test_pars_lex_error 2 "\"\"\""
   echo "========== ERROR_CODE END =========="

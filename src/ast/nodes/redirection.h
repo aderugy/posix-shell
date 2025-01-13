@@ -1,5 +1,5 @@
-#ifndef AST_REDIRECTION_H
-#define AST_REDIRECTION_H
+#ifndef REDIRECTION_H
+#define REDIRECTION_H
 
 #include "element.h"
 #include "ionumber.h"
@@ -18,4 +18,4 @@ int ast_eval_redir(struct ast_redir *node, void **out);
 void ast_free_redir(struct ast_redir *node);
 void ast_print_redir(struct ast_redir *node);
 
-#endif // !AST_REDIRECTION_H
+#endif // !REDIRECTION_H
