@@ -45,6 +45,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         errx(AST_PARSE_ERROR, "while: missing 2nd clist");
     }
 
+    tok = lexer_pop(lexer);
     if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "done") != 0)
     {
         errx(AST_PARSE_ERROR, "while: missing done token");
