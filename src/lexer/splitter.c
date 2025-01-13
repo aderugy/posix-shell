@@ -89,16 +89,22 @@ struct shard *splitter_next(struct stream *stream)
         }
 
         // Case 4: Quoting
+        int ret_val;
         if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
         {
-            if (handle_quoting(stream, str, &quoted, c) == BREAK)
+            ret_val = handle_quoting(stream, str, &quoted, c);
+            if (ret_val == BREAK)
             {
                 break;
+            }
+            else if (ret_val == CONTINUE)
+            {
+                continue;
             }
         }
 
         // Case 5 to 11 included
-        int ret_val = handle_5_to_11(stream, str, c);
+        ret_val = handle_5_to_11(stream, str, c);
         if (ret_val == BREAK)
         {
             break;
@@ -127,6 +133,7 @@ struct shard *splitter_next(struct stream *stream)
 int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
                    char c)
 {
+    // Case 4: Quoting
     if (str->size)
     {
         return BREAK;
@@ -157,10 +164,10 @@ int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
     {
     case '\"':
         *quoted = SHARD_DOUBLE_QUOTED;
-        break;
+        return CONTINUE;
     case '\'':
         *quoted = SHARD_SINGLE_QUOTED;
-        break;
+        return CONTINUE;
     case '\\':
         stream_read(stream);
         c = stream_peek(stream);
@@ -182,7 +189,8 @@ int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
         errx(EXIT_FAILURE, "wtf");
     }
 
-    return BREAK;
+    // return BREAK;
+    return CONTINUE;
 }
 
 int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)

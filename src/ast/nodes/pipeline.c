@@ -88,7 +88,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out)
         result = ast_eval(list_get(node->commands, 0), out);
     else
         result = exec_pipeline(node->commands);
-    if (node->not== 1)
+    if (node->not == 1)
         return !result;
     return result;
 }

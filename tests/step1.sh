@@ -141,6 +141,7 @@ test_if() {
   tes "if false; then echo a; fi"
   tes "if false; then echo a; echo b; fi"
   tes "if true; then if true; then if true; then echo a; fi fi fi"
+  tes "if echo if; then echo then; else echo else; fi"
   echo "========== IF END =========="
 }
 test_elif() {
@@ -189,7 +190,7 @@ test_errs() {
   test_pars_lex_error 2 "true; then if fi"
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
-  test_pars_lex_error 2 "ech res\n"
+  test_pars_lex_error 127 "ech res\n"
   test_pars_lex_error 2 "\""
   test_pars_lex_error 2 "\"\"\""
   echo "========== ERROR_CODE END =========="

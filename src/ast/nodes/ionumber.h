@@ -1,5 +1,5 @@
-#ifndef AST_IONUMBER_H
-#define AST_IONUMBER_H
+#ifndef IONUMBER_H
+#define IONUMBER_H
 
 #include "lexer/lexer.h"
 
@@ -13,4 +13,4 @@ int ast_eval_ionumber(struct ast_ionumber *node, void **out);
 void ast_free_ionumber(struct ast_ionumber *node);
 void ast_print_ionumber(struct ast_ionumber *node);
 
-#endif // !AST_IONUMBER_H
+#endif // !IONUMBER_H

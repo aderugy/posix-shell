@@ -1,5 +1,5 @@
-#ifndef AST_PREFIX_H
-#define AST_PREFIX_H
+#ifndef PREFIX_H
+#define PREFIX_H
 
 #include "lexer/lexer.h"
 
@@ -13,4 +13,4 @@ int ast_eval_prefix(struct ast_prefix *node, void **out);
 void ast_free_prefix(struct ast_prefix *node);
 void ast_print_prefix(struct ast_prefix *node);
 
-#endif // !AST_PREFIX_H
+#endif // !PREFIX_H
