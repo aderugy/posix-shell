@@ -2,7 +2,6 @@
 
 #include <err.h>
 #include <getopt.h>
-#include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +12,8 @@
 #include "builtins.h"
 #include "commands.h"
 #include "utils/logger.h"
+
+#define MAX_PATH 4096
 
 char *get_current_path(void)
 {
@@ -42,6 +43,62 @@ char *get_current_path(void)
         }
     }
     return buf;
+}
+
+char *normalize_path(const char *path)
+{
+    // Buffer pour stocker le chemin absolu final
+    static char resolved_path[MAX_PATH];
+    char temp_path[MAX_PATH];
+    char *token, *resolved;
+
+    if (path[0] == '/')
+    {
+        resolved = resolved_path;
+        resolved[0] = '/';
+        resolved[1] = '\0';
+    }
+    else
+    {
+        if (!getcwd(resolved_path, sizeof(resolved_path)))
+        {
+            perror("getcwd");
+            return NULL;
+        }
+        resolved = resolved_path + strlen(resolved_path);
+    }
+
+    snprintf(temp_path, sizeof(temp_path), "%s", path);
+    temp_path[sizeof(temp_path) - 1] = '\0';
+
+    token = strtok(temp_path, "/");
+    while (token)
+    {
+        if (strcmp(token, ".") == 0)
+        {
+            token = strtok(NULL, "/");
+            continue;
+        }
+        else if (strcmp(token, "..") == 0)
+        {
+            if (resolved > resolved_path + 1)
+            {
+                resolved--; // Ignore le dernier '/'
+                while (resolved > resolved_path && resolved[-1] != '/')
+                    resolved--;
+            }
+        }
+        else
+        {
+            if (resolved > resolved_path + 1)
+                *resolved++ = '/';
+            strncpy(resolved, token, MAX_PATH - (resolved - resolved_path));
+            resolved += strlen(token);
+        }
+        token = strtok(NULL, "/");
+    }
+    *resolved = '\0';
+    return resolved_path;
 }
 
 int cd(int argc, char **argv)
@@ -90,7 +147,7 @@ int cd(int argc, char **argv)
         errx(1, "cd: Not a directory");
     }
 
-    char *resolved_path = realpath(argv[1], NULL);
+    char *resolved_path = normalize_path(argv[1]);
     if (!resolved_path)
     {
         errx(1, "cd: Path error");
@@ -105,7 +162,6 @@ int cd(int argc, char **argv)
     if (chdir(resolved_path) != 0)
         errx(1, "cd: chdir: error");
 
-    free(resolved_path);
     logger("Finish cd\n");
     return 0;
 }
