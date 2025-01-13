@@ -12,6 +12,7 @@
 
 #include "builtins.h"
 #include "commands.h"
+#include "utils/logger.h"
 
 char *get_current_path(void)
 {
@@ -59,6 +60,8 @@ int cd(int argc, char **argv)
         setenv("OLDPWD", current_path, 1);
         free(current_path);
         setenv("PWD", home, 1);
+        if (chdir(home) != 0)
+            errx(1, "cd: chdir: error");
         return 0;
     }
 
@@ -66,9 +69,13 @@ int cd(int argc, char **argv)
     {
         char *oldpwd = getenv("OLDPWD");
         char *current_path = get_current_path(); // RULE 2
-        if (setenv("OLDPWD", current_path, 1))
+        if (setenv("OLDPWD", current_path, 1) != 0)
             errx(1, "cd: setenv: error");
-        setenv("PWD", oldpwd, 1);
+        if (setenv("PWD", oldpwd, 1) != 0)
+            errx(1, "cd: setenv: error");
+        if (chdir(oldpwd) != 0)
+            errx(1, "cd: chdir: error");
+        free(current_path);
         return 0;
     }
 
@@ -90,9 +97,15 @@ int cd(int argc, char **argv)
     }
 
     char *current_path = get_current_path(); // RULE 2
-    setenv("OLDPWD", current_path, 1);
+    if (setenv("OLDPWD", current_path, 1) != 0)
+        errx(1, "cd: setenv: error");
     free(current_path);
-    setenv("PWD", resolved_path, 1);
+    if (setenv("PWD", resolved_path, 1) != 0)
+        errx(1, "cd: setenv: error");
+    if (chdir(resolved_path) != 0)
+        errx(1, "cd: chdir: error");
+
     free(resolved_path);
+    logger("Finish cd\n");
     return 0;
 }
