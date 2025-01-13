@@ -8,7 +8,8 @@ run_command.c \
 run_command.h \
 commands.c \
 exit.c \
-commands.h
+cd.c \
+commands.h 
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
 

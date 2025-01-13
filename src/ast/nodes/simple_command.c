@@ -79,7 +79,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         struct ast_node *children = list_get(cmd->args, i - 1);
         ast_eval(children, (void **)argv + i);
     }
-    logger("simple commad : execute : %s\n", argv[0]);
+    logger("simple command : execute : %s\n", argv[0]);
     int ret_value = run_command(argc, argv);
     int stat;
     if (ret_value == 127)
@@ -99,7 +99,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
             if (result == 255)
             {
-                result = 127;
+                errx(127, "simple_command: command not found");
             }
             free(argv);
             return result;

@@ -22,6 +22,10 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", EXIT);
     }
+    if (add_command(CD, cd))
+    {
+        errx(1, "%s: Couldn't register command", CD);
+    }
 
     return 0;
 }
@@ -43,6 +47,10 @@ int unregister_commands(void)
     if (del_command(EXIT))
     {
         errx(1, "%s: Couldn't delete command", EXIT);
+    }
+    if (del_command(CD))
+    {
+        errx(1, "%s: Couldn't delete command", CD);
     }
 
     return 0;
