@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
@@ -12,7 +13,7 @@
 struct ast_until_node *ast_parse_until(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_UNTIL)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "until") != 0)
     {
         return NULL;
     }
@@ -32,7 +33,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     }
 
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_DO)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "do") != 0)
     {
         errx(2, "until: missing do token");
     }
@@ -45,7 +46,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     }
 
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_DONE)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "done") != 0)
     {
         errx(AST_PARSE_ERROR, "until: missing done token");
     }

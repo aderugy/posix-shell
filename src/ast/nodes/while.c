@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
@@ -12,7 +13,7 @@
 struct ast_while_node *ast_parse_while(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_WHILE)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "while") != 0)
     {
         return NULL;
     }
@@ -32,7 +33,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     }
 
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_DO)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "do") != 0)
     {
         errx(2, "while: missing do token");
     }
@@ -44,8 +45,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         errx(AST_PARSE_ERROR, "while: missing 2nd clist");
     }
 
-    tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_DONE)
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "done") != 0)
     {
         errx(AST_PARSE_ERROR, "while: missing done token");
     }
