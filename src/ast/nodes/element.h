@@ -10,6 +10,12 @@ struct ast_element // can be produced with new_element_node
     struct ast_node *redir;
 };
 
+struct keywords
+{
+    char *name;
+    enum token_type type;
+};
+
 struct ast_element *ast_parse_element(struct lexer *lexer);
 int ast_eval_element(struct ast_element *node, void **out);
 void ast_free_element(struct ast_element *node);

@@ -2,14 +2,52 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "lexer/lexer.h"
 #include "lexer/token.h"
+#include "mbtstr/str.h"
 #include "node.h"
 #include "utils/logger.h"
 
 /**
- * element = WORD | redirection ;
+ * element = WORD
+ * | redirection ;
  */
+
+static const struct keywords KEYWORDS[] = {
+    { "if", TOKEN_IF },       { "fi", TOKEN_FI },     { "elif", TOKEN_ELIF },
+    { "else", TOKEN_ELSE },   { "then", TOKEN_THEN }, { "while", TOKEN_WHILE },
+    { "until", TOKEN_UNTIL }, { "for", TOKEN_FOR },   { "do", TOKEN_DO },
+    { "done", TOKEN_DONE }
+};
+
+#define KEYWORD_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]))
+
+char *get_word_token(struct token *token)
+{
+    char *mot = NULL;
+    size_t i = 0;
+    for (; i < KEYWORD_LEN; i++)
+    {
+        if (token->type == KEYWORDS[i].type)
+        {
+            mot = KEYWORDS[i].name;
+            break;
+        }
+    }
+    if (mot == NULL)
+    {
+        return NULL;
+    }
+    size_t len = strlen(mot);
+    char *result = calloc(1, len + 1);
+    for (size_t i = 0; i < len; i++)
+    {
+        result[i] = mot[i];
+    }
+    return result;
+}
 
 struct ast_element *ast_parse_element(struct lexer *lexer)
 {
@@ -30,10 +68,17 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     if (token->type == TOKEN_WORD)
     {
         lexer_pop(lexer); // Valid token -> we consume it
-
         node->value = token->value.c;
         free(token);
         logger("Exit ELEMENT\n");
+        return node;
+    }
+    char *word = get_word_token(token);
+    if (word != NULL)
+    {
+        lexer_pop(lexer);
+        node->value = word;
+        free(token);
         return node;
     }
 

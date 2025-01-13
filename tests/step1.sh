@@ -141,6 +141,7 @@ test_if() {
   tes "if false; then echo a; fi"
   tes "if false; then echo a; echo b; fi"
   tes "if true; then if true; then if true; then echo a; fi fi fi"
+  tes "if echo if; then echo then; else echo else; fi"
   echo "========== IF END =========="
 }
 test_elif() {
