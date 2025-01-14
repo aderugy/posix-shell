@@ -98,7 +98,7 @@ int redir_file_stdin(struct ast_redir *node)
     }
     char *file = node->file;
 
-    if (fcntl(fd2, F_GETFD, FD_CLOEXEC) == -1)
+    if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
@@ -119,6 +119,10 @@ int redir_stdout_file(struct ast_redir *node)
     if (node->number)
     {
         fd2 = ast_eval(node->number, NULL);
+    }
+    if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
+    {
+        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
     char *file = node->file;
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
