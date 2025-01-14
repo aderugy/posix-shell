@@ -4,13 +4,20 @@
 #include "element.h"
 #include "ionumber.h"
 #include "lexer/lexer.h"
+#include "lexer/token.h"
 #include "node.h"
 
 struct ast_redir
 {
     struct ast_node *number;
-    char *pipe;
+    enum token_type pipe;
     char *file;
+};
+
+struct redirection
+{
+    enum token_type type;
+    int (*redir)(struct ast_redir *);
 };
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer);

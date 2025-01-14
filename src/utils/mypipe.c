@@ -27,14 +27,6 @@ int exec_pipeline(struct linked_list *linked_list)
     int j = 0;
     for (size_t i = 0; i < n; i++)
     {
-        /*if (i < n - 1)
-        {
-            int p =
-                pipe(pipefds); // Créer un pipe sauf pour la dernière commande
-            if (p == -1)
-                errx(2, "exec_pipeline: error pipe");
-        }*/
-
         pid_t pid = fork();
         if (pid == 0)
         { // CHILD
