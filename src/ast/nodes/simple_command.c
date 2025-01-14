@@ -129,9 +129,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ret_value = run_command(elt, argv);
         if (*fd != 0)
         {
-            //logger("fd : %i\n", *fd);
-            //logger("fd2 : %i\n", *(fd + 1));
-            //logger("fd3 : %i\n", *(fd + 2));
+            // logger("fd : %i\n", *fd);
+            // logger("fd2 : %i\n", *(fd + 1));
+            // logger("fd3 : %i\n", *(fd + 2));
             close(*fd);
             dup2(*(fd + 2), STDOUT_FILENO);
             close(*(fd + 2));

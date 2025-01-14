@@ -8,6 +8,7 @@
 #include "splitter.h"
 #include "token.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 
 static const char *token_names[] = {
     "TOKEN_SEMICOLON", // ; [5]
@@ -98,7 +99,7 @@ static struct token *lex(struct lexer *lexer)
     }
     token->type = TOKEN_ERROR;
 
-    //logger("lexer.c : will peek a shard\n");
+    // logger("lexer.c : will peek a shard\n");
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
@@ -107,7 +108,7 @@ static struct token *lex(struct lexer *lexer)
         return token;
     }
 
-    //logger("lexer.c : peeked a shard\n");
+    // logger("lexer.c : peeked a shard\n");
 
     for (size_t i = 0; i < KEYWORDS_LEN && shard->quoted == SHARD_UNQUOTED; i++)
     {
@@ -117,14 +118,33 @@ static struct token *lex(struct lexer *lexer)
             break;
         }
     }
-
     if (token->type == TOKEN_ERROR)
     {
-        token->type = TOKEN_WORD;
+        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
+        char *pos = NULL;
+        // If the data contains a '=' and it does not come first
+        if ((pos = strchr(shard->data, '=')) && pos != shard->data)
+        {
+            int len = shard->data - pos;
+            // if the name is SCL compliant
+            if (convention_check(shard->data, len))
+            {
+                token->type = TOKEN_AWORD;
+            }
+            else
+            {
+                errx(LEX_ERROR, "incorrect assignment name");
+            }
+        }
+
+        if (token->type == TOKEN_ERROR)
+        {
+            token->type = TOKEN_WORD;
+        }
+
         token->value.c = strdup(shard->data);
         logger("--LEXER.C: lexed : %s\n", token->value.c);
     }
-
     shard_free(shard);
     return token;
 }
