@@ -42,16 +42,10 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
     return number;
 }
 
-int ast_eval_ionumber(struct ast_ionumber *node, void **out)
+int ast_eval_ionumber(struct ast_ionumber *node,
+                      __attribute((unused)) void **out)
 {
-    if (!out || !*out)
-    {
-        errx(EXIT_FAILURE, "out is not a valid pointer");
-    }
-
-    long long *ptr = *out;
-    *ptr = node->value;
-    return AST_EVAL_SUCCESS;
+    return node->value;
 }
 
 void ast_free_ionumber(struct ast_ionumber *node)

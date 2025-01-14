@@ -40,7 +40,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         return node;
     }
     char *word = NULL;
-    if (word != NULL)
+    if (word != NULL) // wtf c'est quoi ça ?
     {
         lexer_pop(lexer);
         node->value = word;
@@ -63,14 +63,14 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 
 int ast_eval_element(struct ast_element *node, void **out)
 {
-    *out = node->value;
-
     if (node->redir)
     {
         ast_eval(node->redir, NULL);
+        return 1;
     }
+    *out = node->value;
 
-    return AST_EVAL_SUCCESS;
+    return 0;
 }
 
 void ast_free_element(struct ast_element *node)

@@ -1,8 +1,12 @@
 #include "redirection.h"
 
 #include <err.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "element.h"
 #include "ionumber.h"
@@ -85,10 +89,53 @@ error:
     return NULL;
 }
 
-int ast_eval_redir(__attribute((unused)) struct ast_redir *node,
-                   __attribute((unused)) void **out)
+int redir_file_stdin(struct ast_redir *node)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    int fd2 = 0;
+    if (node->number)
+    {
+        fd2 = ast_eval(node->number, NULL);
+    }
+    char *file = node->file;
+
+    if (fcntl(fd2, F_GETFD, FD_CLOEXEC) == -1)
+    {
+        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
+    }
+    int fd = open(file, O_RDONLY);
+    if (fd == -1)
+    {
+        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+    }
+    if (dup2(fd, fd2) == -1)
+        errx(2, "redir_eval: dup: error");
+    return 0;
+}
+
+int redir_stdout_file(struct ast_redir *node)
+{
+    logger("Eval redir_stdout_file\n");
+    int fd2 = 1;
+    if (node->number)
+    {
+        fd2 = ast_eval(node->number, NULL);
+    }
+    char *file = node->file;
+    int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (fd == -1)
+    {
+        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+    }
+    if (dup2(fd, fd2) == -1)
+        errx(2, "redir_eval: dup: error");
+    logger("Exit Eval Redir\n");
+    return 0;
+}
+
+int ast_eval_redir(struct ast_redir *node, __attribute((unused)) void **out)
+{
+    logger("Eval redir\n");
+    return redir_stdout_file(node);
 }
 
 void ast_free_redir(struct ast_redir *node)

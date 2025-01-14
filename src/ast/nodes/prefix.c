@@ -19,8 +19,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
     if (!redir)
     {
-        ast_free_prefix(node);
-        logger("Exit PREFIX\n");
+        free(node);
         return NULL;
     }
 

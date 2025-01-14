@@ -1,0 +1,15 @@
+Exit Eval Redir
+Nombre d'argument: 2
+sortie de boucle
+Nombre d'arguments: 2
+simple command : execute : echo
+hello
+Parse INPUT
+parse LIST
+Parse AND_OR
+Parse PIPELINE
+token NULL
+Exit PIPELINE
+Exit AND_OR
+Exit LIST
+Exit INPUT

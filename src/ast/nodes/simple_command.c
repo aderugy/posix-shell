@@ -56,7 +56,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("\tExit SIMPLE_COMMAND\n");
+        logger("\tExit SIMPLE_COMMAND: RULE 1\n");
         return cmd;
     }
 
@@ -82,7 +82,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         list_append(cmd->args, element);
     }
 
-    logger("Exit SIMPLE_COMMAND\n");
+    logger("Exit SIMPLE_COMMAND: RULE 2\n");
     return cmd;
 error:
     ast_free_simple_cmd(cmd);
@@ -93,16 +93,29 @@ error:
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) void **out)
 {
+    if (!cmd->cmd)
+    {
+        logger("Eval SIMPLE_COMMAND: RULE 1\n");
+        return ast_eval(cmd->prefix, NULL);
+    }
+    logger("Eval SIMPLE_COMMAND: RULE 2\n");
     size_t argc = cmd->args->size + 1;
     char **argv = calloc(argc, sizeof(char *));
     argv[0] = cmd->cmd;
+    size_t elt = 1;
     for (size_t i = 1; i < argc; i++)
     {
         struct ast_node *children = list_get(cmd->args, i - 1);
-        ast_eval(children, (void **)argv + i);
+
+        if (ast_eval(children, (void **)argv + elt) == 0)
+            elt++;
+        logger("Nombre d\'argument: %lu\n", elt);
     }
+    logger("sortie de boucle\n");
+
+    logger("Nombre d\'arguments: %lu\n", elt);
     logger("simple command : execute : %s\n", argv[0]);
-    int ret_value = run_command(argc, argv);
+    int ret_value = run_command(elt, argv);
     int stat;
     if (ret_value == 127)
     {
