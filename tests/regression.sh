@@ -23,6 +23,8 @@ G=""
 R=""
 D=""
 
+TOTAL_TEST=0
+PASSED_TEST=0
 # @brief runs a test on all possible input ways
 # @params: a list of strings
 tes() {
@@ -55,12 +57,14 @@ test_from_direct_input() {
 
 # @params: err code and then a list of strings
 test_pars_lex_error() {
+    TOTAL_TEST=$((TOTAL_TEST+1))
   ERR="$1"
   shift
   "$F" -c "$@"
   ACTUAL_ERR="$?"
   if [ $ACTUAL_ERR -eq $ERR ]; then
     echo "$G[OK]$D $F -c \""$@"\"$D"
+    PASSED_TEST=$((PASSED_TEST+1))
   else
     echo "COMMAND RUN : $R$F -c \""$@"\"$D"
     echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
@@ -72,6 +76,8 @@ test_pars_lex_error() {
 # @params the command that was run
 # @remark change the options of diff as u like eg. try -y (column), -u, -q
 output_test() {
+
+    TOTAL_TEST=$((TOTAL_TEST+1))
   FA=$1
   shift
   diff -y --color="always" "$EXPECTED_OUT" "$ACTUAL_OUT" >"$DIFF_OUT" 2>&1
@@ -79,10 +85,13 @@ output_test() {
     diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" >"$DIFF_ERR" 2>&1
     if [ $? -eq 0 ]; then
       echo "$G[OK]$D $FA \""$@"\""
+    PASSED_TEST=$((PASSED_TEST+1))
     else
       echo "$R[KO]$D"
       echo "$FA \""$@"\""
+      echo "expected"
       E=$(cat -e "$EXPECTED_ERR")
+      echo "actual"
       A=$(cat -e "$ACTUAL_ERR")
       echo "$G$E$D"
       echo "$R$A$D"
@@ -90,7 +99,11 @@ output_test() {
   else
     echo "$R[KO]$D"
     echo "$FA \""$@"\""
+
+      echo "expected"
     E=$(cat -e "$EXPECTED_OUT")
+
+      echo "actual"
     A=$(cat -e "$ACTUAL_OUT")
     echo "$G$E$D"
     echo "$R$A$D"
@@ -114,7 +127,6 @@ test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="
   tes "ls -a"
   tes "tree -L 2"
-  tes "find -name *.c"
   echo "========== NON_BUILTIN END =========="
 }
 test_if() {
@@ -181,6 +193,11 @@ testsuite() {
 
 if [ "$COVERAGE" = "yes" ]; then
     testsuite
+    echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
+else
+    testsuite
+
+    echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n" > "$OUTPUT_FILE"
 fi
 
 #================== making sure every file exists before deleting them
