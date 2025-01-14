@@ -23,6 +23,7 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
 
     logger("input.c : will peek\n");
     struct token *token = lexer_peek(lexer);
+    logger("input.c : token : %s\n", get_token_name(token->type));
     logger("input.c : peeked\n");
     if (!token)
     {
@@ -33,8 +34,8 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
 
     if (token->type == TOKEN_NEW_LINE)
     {
-        logger("input.c : will pop\n");
-        free(lexer_pop(lexer));
+        logger("input.c : will pop newline\n");
+        free((lexer));
         logger("Exit INPUT\n");
         return input;
     }

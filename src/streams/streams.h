@@ -8,6 +8,7 @@
 struct stream
 {
     FILE *in;
+    char next;
 };
 
 struct stream *stream_from_file(const char *path);
