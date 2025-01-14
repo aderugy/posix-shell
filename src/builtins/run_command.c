@@ -29,7 +29,7 @@ static int init_commands(void)
     return 0;
 }
 
-static struct runnable *get_command(const char *name, size_t *index)
+struct runnable *get_command(const char *name, size_t *index)
 {
     if (!commands || !name)
     {

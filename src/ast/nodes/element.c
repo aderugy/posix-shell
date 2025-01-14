@@ -17,11 +17,11 @@
 
 struct ast_element *ast_parse_element(struct lexer *lexer)
 {
-    logger("Parse ELEMENT\n");
+    logger("\tParse ELEMENT\n");
     struct token *token = lexer_peek(lexer); // We check if the token is valid
     if (!token)
     {
-        logger("Exit ELEMENT\n");
+        logger("\tExit ELEMENT\n");
         return NULL;
     }
 
@@ -36,7 +36,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         lexer_pop(lexer); // Valid token -> we consume it
         node->value = token->value.c;
         free(token);
-        logger("Exit ELEMENT\n");
+        logger("\tExit ELEMENT\n");
         return node;
     }
     char *word = NULL;
@@ -52,12 +52,12 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     if (!redir)
     {
         ast_free_element(node);
-        logger("Exit ELEMENT\n");
+        logger("\tExit ELEMENT\n");
         return NULL;
     }
 
     node->redir = redir;
-    logger("Exit ELEMENT\n");
+    logger("\tExit ELEMENT\n");
     return node;
 }
 
@@ -70,10 +70,20 @@ int ast_eval_element(struct ast_element *node, void **out)
             node->child = 1;
             return 1;
         }
-        ast_eval(node->redir, NULL);
+        ast_eval(node->redir, out);
         return 1;
     }
-    *out = node->value;
+    else
+    {
+        if (node->child == 1)
+        {
+            return 0;
+        }
+        node->child = 1;
+
+        *out = node->value;
+        return 0;
+    }
 
     return 0;
 }

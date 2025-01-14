@@ -20,4 +20,5 @@ int add_command(const char *name, int (*command)(int, char **));
 int del_command(const char *name);
 int run_command(int argc, char **argv);
 
+struct runnable *get_command(const char *name, size_t *index);
 #endif // !RUN_COMMAND_H

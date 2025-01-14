@@ -2,6 +2,8 @@ lib_LIBRARIES = libast.a
 
 libast_a_SOURCES =  \
   ast.h \
+  expansion.h \
+  expansion.c \
   nodes/and_or.c \
   nodes/and_or.h \
   nodes/command.c \

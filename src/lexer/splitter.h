@@ -9,10 +9,10 @@
 #define SHARD_DOUBLE_QUOTED 2
 #define SHARD_BACKSLASH_QUOTED 3
 
-#define SPLIT_ERROR 2
 #define CONTINUE 0
 #define BREAK 1
-#define DO_NOTHING 2
+#define SPLIT_ERROR 2
+#define DO_NOTHING 3
 
 struct shard
 {

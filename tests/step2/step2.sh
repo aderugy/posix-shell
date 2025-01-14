@@ -14,6 +14,7 @@ DIFF_ERR="diff_err.out"
 
 #stores the shells commands
 SCRIPT="script.sh"
+DUMMY="dum.out"
 
 # bin name and path
 BIN="42sh"
@@ -68,6 +69,12 @@ test_code_error() {
   fi
 }
 
+# @params: a list of strings 
+test_redirections() {
+  "$F" -c "$@ $ACTUAL_OUT"
+  bash --posix -c "$@ $EXPECTED_OUT"
+  output_test "./$BIN" "$@"
+}
 # @brief output the results
 # @details compares stdouts and stderrs and prints the differences
 # @params the command that was run
@@ -159,10 +166,33 @@ test_var() {
 }
 test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="
-  tes "ls -a"
+  tes "ls -a; ls; ls"
   tes "tree -L 2"
   tes "find -name *.c"
   echo "========== NON_BUILTIN END =========="
+}
+test_quoting() {
+  echo "========== QUOTING BEGIN =========="
+  for i in $(find tests/step2/quoting -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
+  echo "========== QUOTING END =========="
+}
+test_redirections() {
+  echo "========== REDIRECTIONS BEGIN =========="
+  tes "echo lalalalalala > $DUMMY;echo < $DUMMY"
+  tes "echo <> $DUMMY"
+  tes "ls | echo > $DUMMY; echo < $DUMMY"
+  tes "echo tchou > $DUMMY;echo bebe >> $DUMMY; cat $DUMMY"
+  tes "echo tchou > $DUMMY;echo boubou > $DUMMY; cat $DUMMY"
+  tes "echo <1 ls && echo bbbb > $DUMMY; echo $DUMMY"
+  tes "echo <1 ls && echo bbbb 1> $DUMMY; echo < $DUMMY"
+  tes "ls 1> $DUMMY; cat $DUMMY"
+  tes "cat $DUMMY I_DO_NOT_EXIST > $DUMMY 2>&1; cat $DUMMY"
+  tes "ls brrrrrr . 2>&1"
+  tes "ls &1<2 ls aaaa ."
+  echo "========== REDIRECTIONS END =========="
 }
 test_comment() {
   echo "========== COMMENT BEGIN =========="
@@ -217,6 +247,8 @@ testsuite() {
   test_for
   test_while_loops
   test_mix_grammar
+  test_quoting
+  test_redirections
   test_errs
 }
 
@@ -229,6 +261,7 @@ touch $ACTUAL_ERR_OUT
 touch $DIFF_OUT
 touch $DIFF_ERR
 touch $SCRIPT
+touch $DUMMY
 #==================-^
 rm $EXPECTED_OUT
 rm $ACTUAL_OUT
@@ -237,3 +270,4 @@ rm $ACTUAL_ERR_OUT
 rm $DIFF_OUT
 rm $DIFF_ERR
 rm $SCRIPT
+rm $DUMMY

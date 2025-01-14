@@ -87,7 +87,7 @@ struct shard *splitter_next(struct stream *stream)
             mbt_str_pushc(str, next);
             quoted = SHARD_BACKSLASH_QUOTED;
 
-            //logger("splitter.c : will stream peek\n");
+            // logger("splitter.c : will stream peek\n");
             continue;
         }
 
@@ -102,7 +102,7 @@ struct shard *splitter_next(struct stream *stream)
             }
             else if (ret_val == CONTINUE)
             {
-                //logger("splitter.c : will stream peek\n");
+                // logger("splitter.c : will stream peek\n");
                 continue;
             }
         }
@@ -115,11 +115,11 @@ struct shard *splitter_next(struct stream *stream)
         }
         else if (ret_val == CONTINUE)
         {
-            //logger("splitter.c : will stream peek\n");
+            // logger("splitter.c : will stream peek\n");
             continue;
         }
 
-        //logger("splitter.c : will stream peek\n");
+        // logger("splitter.c : will stream peek\n");
     }
 
     char *data = NULL;

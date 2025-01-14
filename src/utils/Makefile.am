@@ -10,7 +10,9 @@ libutils_a_SOURCES =  \
 	mypipe.c \
 	mypipe.h \
 	hash_map.h \
-	hash_map.c 
+	hash_map.c \
+	naming.h \
+	naming.c 
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 

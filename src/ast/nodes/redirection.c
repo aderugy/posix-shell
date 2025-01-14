@@ -41,7 +41,7 @@ static int is_redir(struct token *token)
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer)
 {
-    logger("Parse REDIRECTION\n");
+    logger("\t\t\tParse REDIRECTION\n");
     struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
     if (!redir)
     {
@@ -85,11 +85,11 @@ error:
     {
         free(file);
     }
-    logger("Exit REDIRECTION\n");
+    logger("\t\t\tExit REDIRECTION\n");
     return NULL;
 }
 
-int redir_file_stdin(struct ast_redir *node)
+int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out)
 {
     int fd2 = 0;
     if (node->number)
@@ -112,8 +112,9 @@ int redir_file_stdin(struct ast_redir *node)
     return 0;
 }
 
-int redir_stdout_file(struct ast_redir *node)
+int redir_stdout_file(struct ast_redir *node, void **out)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file\n");
     int fd2 = 1;
     if (node->number)
@@ -125,18 +126,28 @@ int redir_stdout_file(struct ast_redir *node)
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
     char *file = node->file;
-    int fd = open(file, O_CREAT | O_WRONLY | O_EXCL, 0644);
+    int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    // logger("\t\tfd : %i\n", fd);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    logger("Exit Eval Redir\n");
+    logger("\t\tExit Eval Redir\n");
+    if (out)
+    {
+        // logger("\t\tfd2 : %i\n", fd2);
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
-int redir_stdout_file_a(struct ast_redir *node)
+int redir_stdout_file_a(struct ast_redir *node,
+                        __attribute((unused)) void **out)
 {
     logger("Eval redir_stdout_file_a\n");
     int fd2 = 1;
@@ -163,7 +174,7 @@ int redir_stdout_file_a(struct ast_redir *node)
     return 0;
 }
 
-int redir_stdout_fd(struct ast_redir *node)
+int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out)
 {
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
@@ -195,7 +206,7 @@ int redir_stdout_fd(struct ast_redir *node)
     return 0;
 }
 
-int redir_stdin_fd(struct ast_redir *node)
+int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out)
 {
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
@@ -227,7 +238,7 @@ int redir_stdin_fd(struct ast_redir *node)
     return 0;
 }
 
-int redir_fopen_rw(struct ast_redir *node)
+int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out)
 {
     int fd2 = 0;
     if (node->number)
@@ -250,7 +261,8 @@ int redir_fopen_rw(struct ast_redir *node)
     return 0;
 }
 
-int redir_stdout_file_notrunc(struct ast_redir *node)
+int redir_stdout_file_notrunc(struct ast_redir *node,
+                              __attribute((unused)) void **out)
 {
     int fd2 = 1;
     if (node->number)
@@ -288,13 +300,13 @@ static const struct redirection REDIR_LIST[] = {
 
 #define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
 
-int ast_eval_redir(struct ast_redir *node, __attribute((unused)) void **out)
+int ast_eval_redir(struct ast_redir *node, void **out)
 {
     for (size_t i = 0; i < REDIR_LEN; i++)
     {
         if (node->pipe == REDIR_LIST[i].type)
         {
-            return REDIR_LIST[i].redir(node);
+            return REDIR_LIST[i].redir(node, out);
         }
     }
     errx(2, "eval_redir: error");
