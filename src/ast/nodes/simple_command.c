@@ -125,6 +125,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             }
             logger("sortie de boucle\n");
             ret_value = execvp(argv[0], argv);
+            if (ret_value == -1)
+            {
+                ret_value = 127;
+            }
             exit(ret_value);
         }
         else
@@ -132,7 +136,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             wait(&stat);
             int result = WEXITSTATUS(stat);
 
-            if (result == 255)
+            if (result == 255 || result == 127)
             {
                 errx(127, "simple_command: command not found");
             }

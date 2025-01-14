@@ -98,6 +98,7 @@ static struct token *lex(struct lexer *lexer)
     }
     token->type = TOKEN_ERROR;
 
+    logger("lexer.c : will peek a shard\n");
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
@@ -105,6 +106,8 @@ static struct token *lex(struct lexer *lexer)
         token->type = TOKEN_EOF;
         return token;
     }
+
+    logger("lexer.c : peeked a shard\n");
 
     for (size_t i = 0; i < KEYWORDS_LEN && shard->quoted == SHARD_UNQUOTED; i++)
     {
@@ -137,6 +140,9 @@ struct token *lexer_peek(struct lexer *lexer)
     {
         lexer->next = lex(lexer);
     }
+    logger("PEEKED TOKEN: %s\n", get_token_name(lexer->next->type));
+    if (lexer->next->value.c)
+        logger("\tValue: %s\n", lexer->next->value.c);
 
     return lexer->next;
 }
@@ -149,8 +155,13 @@ struct token *lexer_pop(struct lexer *lexer)
     }
 
     struct token *token = lexer->next ? lexer->next : lex(lexer);
+    logger("lexer.c: found token %s\n", get_token_name(token->type));
     lexer->next = token->type != TOKEN_EOF ? lex(lexer) : NULL;
-
+    if (lexer->next)
+    {
+        logger("lexer.c: next token is set with %s\n",
+               get_token_name(lexer->next->type));
+    }
     if (token->type == TOKEN_EOF)
     {
         stream_close(lexer->stream);
