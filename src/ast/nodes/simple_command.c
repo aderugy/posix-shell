@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -62,6 +63,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
+
     if (token->type != TOKEN_WORD)
     {
         goto error;
@@ -106,18 +108,43 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     for (size_t i = 1; i < argc; i++)
     {
         struct ast_node *children = list_get(cmd->args, i - 1);
-
         if (ast_eval(children, (void **)argv + elt) == 0)
+        {
+            // logger("  simple_connad.c : found arg : %s\n", argv[elt]);
             elt++;
-        logger("Nombre d\'argument: %lu\n", elt);
+        }
     }
-    logger("Nombre d\'arguments: %lu\n", elt);
-    logger("simple command : execute : %s\n", argv[0]);
-    int ret_value = run_command(elt, argv);
-    elt = 1;
-    int stat;
-    if (ret_value == 127)
+    struct runnable *cmd_runnable = get_command(argv[0], NULL);
+    int ret_value = 0;
+    if (cmd_runnable)
     {
+        int *fd = calloc(3, sizeof(int));
+        for (size_t i = 1; i < argc; i++)
+        {
+            struct ast_node *children = list_get(cmd->args, i - 1);
+            ast_eval(children, (void **)&fd);
+        }
+
+        // logger("simple command : execute : %s\n", argv[0]);
+        ret_value = run_command(elt, argv);
+        if (*fd != 0)
+        {
+            //logger("fd : %i\n", *fd);
+            //logger("fd2 : %i\n", *(fd + 1));
+            //logger("fd3 : %i\n", *(fd + 2));
+            close(*fd);
+            dup2(*(fd + 2), STDOUT_FILENO);
+            close(*(fd + 2));
+            fflush(stdout);
+        }
+
+        free(fd);
+    }
+    else
+    {
+        elt = 1;
+        int stat;
+
         logger("simple command : not a builtin\n");
 
         pid_t p = fork();
