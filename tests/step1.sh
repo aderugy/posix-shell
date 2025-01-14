@@ -15,9 +15,8 @@ DIFF_ERR="diff_err.out"
 SCRIPT="script.sh"
 
 # bin name and path
-BIN="42sh"
-F="./src/$BIN"
 
+F="$BIN_PATH"
 # for colors
 G=""
 R=""

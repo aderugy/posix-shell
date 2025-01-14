@@ -178,7 +178,11 @@ testsuite() {
   test_errs
 }
 
-testsuite
+
+if [ "$COVERAGE" = "yes" ]; then
+    testsuite
+fi
+
 #================== making sure every file exists before deleting them
 touch $EXPECTED_OUT
 touch $ACTUAL_OUT
