@@ -65,6 +65,11 @@ int ast_eval_element(struct ast_element *node, void **out)
 {
     if (node->redir)
     {
+        if (node->child == 0)
+        {
+            node->child = 1;
+            return 1;
+        }
         ast_eval(node->redir, NULL);
         return 1;
     }

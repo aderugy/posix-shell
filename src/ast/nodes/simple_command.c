@@ -103,10 +103,18 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     char **argv = calloc(argc, sizeof(char *));
     argv[0] = cmd->cmd;
     size_t elt = 1;
+    for (size_t i = 1; i < argc; i++)
+    {
+        struct ast_node *children = list_get(cmd->args, i - 1);
 
+        if (ast_eval(children, (void **)argv + elt) == 0)
+            elt++;
+        logger("Nombre d\'argument: %lu\n", elt);
+    }
     logger("Nombre d\'arguments: %lu\n", elt);
     logger("simple command : execute : %s\n", argv[0]);
     int ret_value = run_command(elt, argv);
+    elt = 1;
     int stat;
     if (ret_value == 127)
     {
@@ -125,10 +133,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             }
             logger("sortie de boucle\n");
             ret_value = execvp(argv[0], argv);
-            if (ret_value == -1)
-            {
-                ret_value = 127;
-            }
             exit(ret_value);
         }
         else
@@ -136,7 +140,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             wait(&stat);
             int result = WEXITSTATUS(stat);
 
-            if (result == 255 || result == 127)
+            if (result == 255)
             {
                 errx(127, "simple_command: command not found");
             }
