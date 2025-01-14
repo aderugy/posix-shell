@@ -16,13 +16,12 @@ DIFF_ERR="diff_err.out"
 SCRIPT="script.sh"
 
 # bin name and path
-BIN="42sh"
-F="../src/$BIN"
-
+#BIN="42sh"
+F="$BIN_PATH"
 # for colors
-G="\033[0;92m"
-R="\033[0;91m"
-D="\033[00m"
+G=""
+R=""
+D=""
 
 # @brief runs a test on all possible input ways
 # @params: a list of strings

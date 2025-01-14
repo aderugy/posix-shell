@@ -59,6 +59,11 @@ token_tests
 tests/splitter_tests
 tests/builtt_tests
 tests/token_tests
+tests/.my_fun.out
+tests/original_err.out
+tests/.original_fun.out
+tests/my_fun_err.out
+tests/diff.out
 *.swp
 configure\~
 

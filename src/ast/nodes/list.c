@@ -30,7 +30,7 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     struct token *token;
     while ((token = lexer_peek(lexer)))
     {
-        if (!token || token->type != TOKEN_SEMICOLON)
+        if (!token || (token->type != TOKEN_SEMICOLON))
         {
             break;
         }
