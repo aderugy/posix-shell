@@ -135,6 +135,7 @@ static struct token *lex(struct lexer *lexer)
             token->value.c[s] = 0;
             logger("the value is : %s\n", token->value.c);
             logger("the redir is : %s\n", KEYWORDS[i].name);
+            logger("the redit token is : %s\n", get_token_name(token->type));
 
             break;
         }
@@ -142,7 +143,7 @@ static struct token *lex(struct lexer *lexer)
     if (token->type == TOKEN_ERROR)
     {
         // Code below is breaking the test -c "echo AA=AH"
-        /*
+
         char *pos = NULL;
         // If the data contains a '=' and it does not come first
         if ((pos = strchr(shard->data, '=')) && pos != shard->data)
@@ -162,8 +163,6 @@ static struct token *lex(struct lexer *lexer)
                 }
             }
         }
-
-        */
 
         if (token->type == TOKEN_ERROR)
         {

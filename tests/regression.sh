@@ -123,6 +123,7 @@ output_test() {
     echo "$R$A$D"
   fi
 }
+
 test_echo_basic() {
   echo "========== ECHO BEGIN =========="
   tes "echo     "

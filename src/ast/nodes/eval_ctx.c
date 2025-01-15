@@ -38,10 +38,10 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     }
 
     char *name = strndup(data, eq - data);
-    logger("eval_ctx.c : found name : %s", name);
+    logger("eval_ctx.c : found name : %s\n", name);
     // TODO call EXPANSION
     void *expanded = strdup(++eq);
-    logger("eval_ctx.c : found expension : %s", expanded);
+    logger("eval_ctx.c : found expension : %s\n", expanded);
 
     // errx(EXIT_FAILURE, "insert_ctx: not implemented");
     hash_map_insert(ctx->value, name, expanded);
