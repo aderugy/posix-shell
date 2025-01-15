@@ -22,8 +22,7 @@
 #include "until.h"
 #include "utils/logger.h"
 #include "while.h"
-
-
+extern int logger_stack_idx;
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
       (int (*)(void *, void **, void *))ast_eval_simple_cmd,
@@ -97,10 +96,8 @@ static const struct ast_node_operations AST_FN[] = {
       (int (*)(void *, void **, void *))ast_eval_prefix,
       (void (*)(void *))ast_free_prefix, (void (*)(void *))ast_print_prefix },
 };
-
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
-
     if (!lexer)
     {
         // lexer_parse_error actually
@@ -123,14 +120,14 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
     return root;
 }
 
-int ast_eval(struct ast_node *node, void **out, struct ast_eval_ctx *ctx)
+int ast_eval(struct ast_node *node, void **out,__attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (!node)
     {
         errx(AST_PARSE_ERROR, "eval NULL");
     }
 
-    return AST_FN[node->type].eval(node->value, out, ctx);
+    return AST_FN[node->type].eval(node->value, out, NULL);
 }
 
 void ast_free(struct ast_node *node)
