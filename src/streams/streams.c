@@ -1,4 +1,5 @@
 #include "streams.h"
+#include "utils/logger.h"
 
 #include <err.h>
 #include <stdio.h>
@@ -27,13 +28,11 @@ static struct stream *stream_init(FILE *in)
 
 struct stream *stream_from_file(const char *path)
 {
-
     return stream_init(fopen(path, "r"));
 }
 
 struct stream *stream_from_str(char *str)
 {
-
     return stream_init(fmemopen(str, strlen(str), "r"));
 }
 
@@ -61,11 +60,13 @@ void stream_close(struct stream *stream)
  */
 char stream_read(struct stream *stream)
 {
-
-    char c = stream->next;
-    stream->next = fgetc(stream->in);
-
-    return c;
+    if (stream->next)
+    {
+        char c = stream->next;
+        stream->next = 0;
+        return c;
+    }
+    return fgetc(stream->in);
 }
 
 /**
@@ -74,6 +75,19 @@ char stream_read(struct stream *stream)
  */
 char stream_peek(struct stream *stream)
 {
+    if (stream->next)
+    {
+        return stream->next;
+    }
+    char c = fgetc(stream->in);
+    // logger("stream.c : will fgetc\n");
+    if (c != EOF)
+    {
+        logger("stream.c : fgetc done\n");
+        stream->next = c;
 
-    return stream->next;
+        // logger("stream.c : ungetc done\n");
+    }
+
+    return c;
 }
