@@ -127,7 +127,11 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             ast_eval(children, (void **)&fd, NULL);
         }
 
-        // logger("simple command : execute : %s\n", argv[0]);
+        logger("simple command : execute : %s\n", argv[0]);
+        for (size_t i = 0; i < argc; i++)
+        {
+            logger("simple_command.c : %s\n", argv[i]);
+        }
         ret_value = run_command(elt, argv);
         if (*fd != 0)
         {
@@ -159,6 +163,12 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                 if (ast_eval(children, NULL, NULL) == 0)
                     elt++;
                 logger("Nombre d\'argument: %lu\n", elt);
+            }
+
+            logger("simple command : execute : %s\n", argv[0]);
+            for (size_t i = 0; i < argc; i++)
+            {
+                logger("simple_command.c : %s\n", argv[i]);
             }
             logger("simple_command.c : eval execvp\n");
             ret_value = execvp(argv[0], argv);

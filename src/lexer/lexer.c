@@ -1,6 +1,7 @@
 #include "lexer.h"
 
 #include <err.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -126,6 +127,11 @@ static struct token *lex(struct lexer *lexer)
             && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
         {
             token->type = KEYWORDS[i].type;
+            size_t s = first_occurence_of_chevron - shard->data;
+            token->value.c = malloc((s + 1) * sizeof(char));
+            strncpy(token->value.c, shard->data, s);
+            token->value.c[s] = 0;
+            logger("the value is : %s\n", token->value.c);
 
             break;
         }

@@ -12,8 +12,9 @@
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
-                                   ">>", ">&", "<&", ">,", "<>", "!", NULL };
+static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", "!", NULL };
+
+static const char *REDIRS[] = { ">", "<", ">>", ">&", "<&", ">,", "<>", NULL };
 
 static struct shard *shard_init(char *data, char *state)
 {
@@ -48,6 +49,19 @@ static int is_operator(struct mbt_str *str)
     return 0;
 }
 
+static int is_redir(struct mbt_str *str)
+{
+    for (size_t i = 0; REDIRS[i]; i++)
+    {
+        if (strpbrk(REDIRS[i], str->data))
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 struct shard *splitter_next(struct stream *stream)
 {
     struct mbt_str *str = mbt_str_init(64);
@@ -62,7 +76,22 @@ struct shard *splitter_next(struct stream *stream)
         // Case 2-3: Operators
         if (is_operator(str))
         {
-            logger("splitter : op1\n", c);
+            mbt_str_pushc(str, c);
+            if (is_operator(str)) // Case 2
+            {
+                stream_read(stream);
+                continue;
+            }
+            else // Case 3
+            {
+                mbt_str_pop(str); // Not an operator -> We delimit
+                break;
+            }
+        }
+
+        // case redir
+        if (is_redir(str))
+        {
             mbt_str_pushc(str, c);
             if (is_operator(str)) // Case 2
             {
@@ -223,7 +252,28 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     if (is_op) // Case 6: matched
     {
         logger("splitter : %c\n", c);
-        
+        if (str->size)
+        {
+            return BREAK;
+        }
+
+        mbt_str_pushc(str, c);
+        stream_read(stream);
+        return CONTINUE;
+    }
+
+    bool is_redir = false;
+    for (size_t i = 0; REDIRS[i]; i++)
+    {
+        if (REDIRS[i][0] == c)
+        {
+            is_redir = true;
+        }
+    }
+    if (is_redir) // Case 6: matched
+    {
+        logger("splitter : %c\n", c);
+
         mbt_str_pushc(str, c);
         stream_read(stream);
         return CONTINUE;
