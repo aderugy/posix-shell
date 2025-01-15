@@ -128,7 +128,8 @@ static struct token *lex(struct lexer *lexer)
     }
     if (token->type == TOKEN_ERROR)
     {
-        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
+        // Code below is breaking the test -c "echo AA=AH"
+        /*
         char *pos = NULL;
         // If the data contains a '=' and it does not come first
         if ((pos = strchr(shard->data, '=')) && pos != shard->data)
@@ -148,6 +149,8 @@ static struct token *lex(struct lexer *lexer)
                 }
             }
         }
+
+        */
 
         if (token->type == TOKEN_ERROR)
         {
