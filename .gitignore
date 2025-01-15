@@ -69,3 +69,5 @@ configure\~
 
 *.trs
 *.log
+
+out
