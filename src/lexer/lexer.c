@@ -120,9 +120,13 @@ static struct token *lex(struct lexer *lexer)
 
     for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
     {
-        if (strcmp(shard->data, KEYWORDS[i].name) == 0)
+        char *first_occurence_of_chevron =
+            strpbrk(shard->data, KEYWORDS[i].name);
+        if (first_occurence_of_chevron
+            && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
         {
             token->type = KEYWORDS[i].type;
+
             break;
         }
     }
@@ -148,7 +152,6 @@ static struct token *lex(struct lexer *lexer)
                 }
             }
         }
-
 
         if (token->type == TOKEN_ERROR)
         {
@@ -189,7 +192,8 @@ struct token *lexer_pop(struct lexer *lexer)
 
     struct token *token = lexer->next ? lexer->next : lex(lexer);
     lexer->next = (token->type != TOKEN_EOF && token->type != TOKEN_NEW_LINE)
-        ? lex(lexer) : NULL;
+        ? lex(lexer)
+        : NULL;
     /*if (lexer->next)
     {
          logger("lexer.c: next token is set with %s\n",

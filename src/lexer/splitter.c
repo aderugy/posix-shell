@@ -62,6 +62,7 @@ struct shard *splitter_next(struct stream *stream)
         // Case 2-3: Operators
         if (is_operator(str))
         {
+            logger("splitter : op1\n", c);
             mbt_str_pushc(str, c);
             if (is_operator(str)) // Case 2
             {
@@ -221,11 +222,8 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     }
     if (is_op) // Case 6: matched
     {
-        if (str->size)
-        {
-            return BREAK;
-        }
-
+        logger("splitter : %c\n", c);
+        
         mbt_str_pushc(str, c);
         stream_read(stream);
         return CONTINUE;
