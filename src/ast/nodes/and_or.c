@@ -5,7 +5,6 @@
 
 #include "ast/ast.h"
 #include "lexer/token.h"
-#include "node.h"
 #include "utils/logger.h"
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
@@ -64,7 +63,8 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
     return root;
 }
 
-int ast_eval_and_or(struct ast_and_or_node *node, void **out)
+int ast_eval_and_or(struct ast_and_or_node *node, void **out,
+                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (!node)
     {
@@ -73,17 +73,17 @@ int ast_eval_and_or(struct ast_and_or_node *node, void **out)
 
     if (!node->right)
     {
-        return ast_eval(node->left, out);
+        return ast_eval(node->left, out, NULL);
     }
 
-    int ret_val = ast_eval_and_or(node->right, out);
+    int ret_val = ast_eval_and_or(node->right, out, NULL);
     if (node->type == AND && ret_val == EXIT_SUCCESS)
     {
-        return ast_eval(node->left, out);
+        return ast_eval(node->left, out, NULL);
     }
     if (node->type == OR && ret_val != EXIT_SUCCESS)
     {
-        return ast_eval(node->left, out);
+        return ast_eval(node->left, out, NULL);
     }
 
     return ret_val;

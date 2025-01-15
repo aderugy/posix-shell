@@ -94,22 +94,23 @@ error:
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
-                        __attribute((unused)) void **out)
+                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (!cmd->cmd)
     {
         logger("Eval SIMPLE_COMMAND: RULE 1\n");
-        return ast_eval(cmd->prefix, NULL);
+        return ast_eval(cmd->prefix, NULL, NULL);
     }
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
     size_t argc = cmd->args->size + 1;
-    char **argv = calloc(argc, sizeof(char *));
+    char **argv = calloc(argc + 1, sizeof(char *));
     argv[0] = cmd->cmd;
     size_t elt = 1;
     for (size_t i = 1; i < argc; i++)
     {
         struct ast_node *children = list_get(cmd->args, i - 1);
-        if (ast_eval(children, (void **)argv + elt) == 0)
+        if (ast_eval(children, (void **)argv + elt, NULL) == 0)
         {
             // logger("  simple_connad.c : found arg : %s\n", argv[elt]);
             elt++;
@@ -123,7 +124,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         for (size_t i = 1; i < argc; i++)
         {
             struct ast_node *children = list_get(cmd->args, i - 1);
-            ast_eval(children, (void **)&fd);
+            ast_eval(children, (void **)&fd, NULL);
         }
 
         // logger("simple command : execute : %s\n", argv[0]);
@@ -155,16 +156,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             {
                 struct ast_node *children = list_get(cmd->args, i - 1);
 
-                if (ast_eval(children, (void **)argv + elt) == 0)
+                if (ast_eval(children, (void **)argv + elt, NULL) == 0)
                     elt++;
                 logger("Nombre d\'argument: %lu\n", elt);
             }
-            logger("simple_command : eval");
-            for (size_t i = 0; i < elt ; i++)
-            {
-                logger(" %s", argv[i]);
-            }
-            logger("\n");
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
         }
@@ -172,8 +167,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             wait(&stat);
             int result = WEXITSTATUS(stat);
-            logger("simple_command : result : %i\n", result);
-
             if (result == 255)
             {
                 errx(127, "simple_command: command not found");

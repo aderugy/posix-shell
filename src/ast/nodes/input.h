@@ -10,7 +10,8 @@ struct ast_input
 };
 
 struct ast_input *ast_parse_input(struct lexer *lexer);
-int ast_eval_input(struct ast_input *node, void **out);
+int ast_eval_input(struct ast_input *node, void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx);
 void ast_free_input(struct ast_input *node);
 void ast_print_input(struct ast_input *input);
 

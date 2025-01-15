@@ -82,11 +82,12 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_pipeline(struct ast_pipeline *node, void **out)
+int ast_eval_pipeline(struct ast_pipeline *node, void **out,
+                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int result;
     if (node->commands->size == 1)
-        result = ast_eval(list_get(node->commands, 0), out);
+        result = ast_eval(list_get(node->commands, 0), out, NULL);
     else
         result = exec_pipeline(node->commands);
     if (node->not== 1)

@@ -43,7 +43,8 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
 }
 
 int ast_eval_ionumber(struct ast_ionumber *node,
-                      __attribute((unused)) void **out)
+                      __attribute((unused)) void **out,
+                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     return node->value;
 }

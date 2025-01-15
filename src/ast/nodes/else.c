@@ -69,18 +69,19 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     }
 }
 
-int ast_eval_else(struct ast_else_node *node, void **out)
+int ast_eval_else(struct ast_else_node *node, void **out,
+                  __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (node->condition == NULL) // else
     {
-        return ast_eval(node->body, out);
+        return ast_eval(node->body, out, NULL);
     }
     else // ELIF
     {
-        if (ast_eval(node->condition, out) == 0)
-            return ast_eval(node->body, out);
+        if (ast_eval(node->condition, out, NULL) == 0)
+            return ast_eval(node->body, out, NULL);
         else
-            return ast_eval(node->else_clause, out);
+            return ast_eval(node->else_clause, out, NULL);
     }
 }
 

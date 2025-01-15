@@ -12,7 +12,8 @@ struct ast_else_node
 };
 
 struct ast_else_node *ast_parse_else(struct lexer *lexer);
-int ast_eval_else(struct ast_else_node *node, void **cmd);
+int ast_eval_else(struct ast_else_node *node, void **cmd,
+                  __attribute((unused)) struct ast_eval_ctx *ctx);
 void ast_free_else(struct ast_else_node *node);
 void ast_print_else(struct ast_else_node *node);
 

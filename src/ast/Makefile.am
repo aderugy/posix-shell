@@ -17,7 +17,6 @@ libast_a_SOURCES =  \
   nodes/list.c \
   nodes/list.h \
   nodes/node.c \
-  nodes/node.h \
   nodes/pipeline.c \
   nodes/pipeline.h \
   nodes/clist.c \
@@ -41,7 +40,8 @@ libast_a_SOURCES =  \
   nodes/until.c \
   nodes/until.h \
   nodes/for.c \
-  nodes/for.h
+  nodes/for.h \
+  nodes/node.h 
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 

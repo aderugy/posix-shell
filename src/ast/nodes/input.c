@@ -43,7 +43,8 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     return input;
 }
 
-int ast_eval_input(struct ast_input *node, void **out)
+int ast_eval_input(struct ast_input *node, void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (node->list == NULL)
     {
@@ -51,7 +52,7 @@ int ast_eval_input(struct ast_input *node, void **out)
         return AST_EVAL_SUCCESS;
     }
 
-    return ast_eval(node->list, out);
+    return ast_eval(node->list, out, NULL);
 }
 
 void ast_free_input(struct ast_input *node)

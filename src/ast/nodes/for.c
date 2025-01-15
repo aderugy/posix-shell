@@ -32,7 +32,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 }
 
 int ast_eval_for(__attribute((unused)) struct ast_for_node *node,
-                 __attribute((unused)) void **out)
+                 __attribute((unused)) void **out,
+                 __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     errx(EXIT_FAILURE, "Unimplemented ast_eval_for");
 }
