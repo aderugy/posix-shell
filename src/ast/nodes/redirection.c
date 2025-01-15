@@ -17,7 +17,6 @@
  * redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
  * WORD ;
  */
-static const char *DIGITS = "0123456789";
 
 int redir_stdout_file(struct ast_redir *redir, __attribute((unused)) void **out,
                       __attribute((unused)) struct ast_eval_ctx *ctx);
@@ -78,8 +77,29 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         goto error;
     }
     redir->pipe = token->type;
-    redir->number = token->value.s;
+    if (!token->value.c)
+    {
+        logger("token->value NULL\n");
+    }
+    else
+    {
+        logger("token->value not NULL\n");
+        logger("len: %i\n", strlen(token->value.c));
+    }
+    if (strlen(token->value.c) == 0)
+    {
+        redir->number = -1;
+    }
+    else
+    {
+        redir->number = atoi(token->value.c);
+    }
+    logger("redir->number = %i\n", redir->number);
 
+    if (token->value.c)
+    {
+        free(token->value.c);
+    }
     free(lexer_pop(lexer));
 
     token = lexer_peek(lexer);
@@ -96,10 +116,6 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     return redir;
 
 error:
-    if (number)
-    {
-        ast_free(number);
-    }
     if (redir)
     {
         ast_free_redir(redir);
@@ -154,9 +170,11 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     {
         fd2 = node->number;
     }
+    logger("fd2: %i\n", fd2);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
-        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
+        errx(EXIT_FAILURE,
+             "stdout_file: Invalid file descriptor for redirection");
     }
     char *file = node->file;
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -228,6 +246,7 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
+    int fd = atoi(node->file);
 
     if (fcntl(fd, F_SETFD) == -1)
     {
@@ -259,6 +278,7 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
+    int fd = atoi(node->file);
 
     if (fcntl(fd, F_SETFD) == -1)
     {
@@ -368,7 +388,7 @@ void ast_print_redir(struct ast_redir *node)
     logger("redir ");
     if (node->number)
     {
-        ast_print(node->number);
+        logger("Number: %lu", node->number);
     }
     if (node->pipe)
     {
