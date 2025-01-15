@@ -57,6 +57,19 @@ test_from_direct_input() {
 }
 
 # @params: err code and then a list of strings
+test_code_error() {
+  ERR="$1"
+  shift
+  "$F" -c "$@"
+  ACTUAL_ERR="$?"
+  if [ $ACTUAL_ERR -eq $ERR ]; then
+    echo "$G[OK]$D $BIN -c \""$@"\"$D"
+  else
+    echo "COMMAND RUN : $R$F -c \""$@"\"$D"
+    echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
+  fi
+}
+# @params: err code and then a list of strings
 test_pars_lex_error() {
     TOTAL_TEST=$((TOTAL_TEST+1))
   ERR="$1"
@@ -127,7 +140,9 @@ test_echo_basic() {
 test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="
   tes "ls -a"
+  tes "ls -a; ls; ls"
   tes "tree -L 2"
+  tes "find -name *.c"
   echo "========== NON_BUILTIN END =========="
 }
 test_if() {
@@ -160,6 +175,9 @@ test_comment() {
   tes echo "Ya un autre commentaire m c chill # mais moi je suis pas comment"
   tes echo "Ya un commentaire m c chill # mais moi je suis pas un comment"
   tes '# echo'
+  tes 'echo \escaped \#escaped "#"quoted not#first #commented'
+  tes echo "Ya un commentaire m c chill \# mais moi je suis pas un comment"
+  tes echo "Ya un commentaire m c chill #de ouf c chill"
   echo "========== COMMENT END =========="
 }
 test_pipeline() {
@@ -232,7 +250,6 @@ if [ "$COVERAGE" = "yes" ]; then
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
 else
     testsuite
-
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n" > "$OUTPUT_FILE"
 fi
 

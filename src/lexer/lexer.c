@@ -149,7 +149,6 @@ static struct token *lex(struct lexer *lexer)
             }
         }
 
-
         if (token->type == TOKEN_ERROR)
         {
             token->type = TOKEN_WORD;
@@ -189,7 +188,8 @@ struct token *lexer_pop(struct lexer *lexer)
 
     struct token *token = lexer->next ? lexer->next : lex(lexer);
     lexer->next = (token->type != TOKEN_EOF && token->type != TOKEN_NEW_LINE)
-        ? lex(lexer) : NULL;
+        ? lex(lexer)
+        : NULL;
     /*if (lexer->next)
     {
          logger("lexer.c: next token is set with %s\n",

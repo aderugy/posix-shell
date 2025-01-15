@@ -160,11 +160,6 @@ int handle_quoting(struct stream *stream, struct mbt_str *str,
             {
                 break;
             }
-
-            if (c != quote)
-            {
-                mbt_str_pushc(str, '\\');
-            }
         }
         mbt_str_pushc(str, c);
     }
