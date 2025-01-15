@@ -1,10 +1,11 @@
 #include "streams.h"
-#include "utils/logger.h"
 
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "utils/logger.h"
 
 static struct stream *stream_init(FILE *in)
 {
@@ -83,7 +84,6 @@ char stream_peek(struct stream *stream)
     // logger("stream.c : will fgetc\n");
     if (c != EOF)
     {
-        logger("stream.c : fgetc done\n");
         stream->next = c;
 
         // logger("stream.c : ungetc done\n");
