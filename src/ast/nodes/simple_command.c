@@ -104,7 +104,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
     size_t argc = cmd->args->size + 1;
-    char **argv = calloc(argc, sizeof(char *));
+    char **argv = calloc(argc + 1, sizeof(char *));
     argv[0] = cmd->cmd;
     size_t elt = 1;
     for (size_t i = 1; i < argc; i++)
