@@ -11,7 +11,6 @@
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    logger("Parse INPUT\n");
     struct ast_input *input = calloc(1, sizeof(struct ast_input));
     if (!input)
     {
@@ -25,26 +24,22 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     if (!token)
     {
         ast_free_input(input);
-        logger("Exit INPUT\n");
         return NULL;
     }
 
     if (token->type == TOKEN_NEW_LINE)
     {
         free(lexer_pop(lexer));
-        logger("Exit INPUT\n");
         return input;
     }
 
     if (token->type != TOKEN_EOF)
     {
         ast_free_input(input);
-        logger("Exit INPUT\n");
         return NULL;
     }
 
     free(lexer_pop(lexer));
-    logger("Exit INPUT\n");
     return input;
 }
 
