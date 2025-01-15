@@ -156,10 +156,11 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             {
                 struct ast_node *children = list_get(cmd->args, i - 1);
 
-                if (ast_eval(children, (void **)argv + elt, NULL) == 0)
+                if (ast_eval(children, NULL, NULL) == 0)
                     elt++;
                 logger("Nombre d\'argument: %lu\n", elt);
             }
+            logger("simple_command.c : eval execvp\n");
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
         }
