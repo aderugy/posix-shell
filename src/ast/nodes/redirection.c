@@ -115,6 +115,7 @@ error:
 int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 0;
     if (node->number)
     {
@@ -133,6 +134,13 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
@@ -173,6 +181,7 @@ int redir_stdout_file_a(struct ast_redir *node,
                         __attribute((unused)) void **out,
                         __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file_a\n");
     int fd2 = 1;
     if (node->number)
@@ -194,6 +203,13 @@ int redir_stdout_file_a(struct ast_redir *node,
 
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     logger("Exit Eval Redir\n");
     return 0;
 }
@@ -201,6 +217,7 @@ int redir_stdout_file_a(struct ast_redir *node,
 int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
     {
@@ -228,12 +245,20 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
 int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
     {
@@ -261,12 +286,20 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
 int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 0;
     if (node->number)
     {
@@ -285,6 +318,13 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
@@ -292,6 +332,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
                               __attribute((unused)) void **out,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 1;
     if (node->number)
     {
@@ -313,6 +354,13 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
     logger("Exit Eval Redir\n");
+    if (out)
+    {
+        int *origin_fd = *out;
+        *origin_fd = fd;
+        *(origin_fd + 1) = fd2;
+        *(origin_fd + 2) = saved_stdout;
+    }
     return 0;
 }
 
