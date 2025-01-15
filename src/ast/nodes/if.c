@@ -19,8 +19,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         return NULL;
     }
     lexer_pop(lexer);
-    free(tok->value.c);
-    free(tok);
+    token_free(tok);
 
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
     if (!ast)
@@ -43,8 +42,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     }
 
     logger("\tif.c : SUCCESSFULLY found THEN\n");
-    free(tok->value.c);
-    free(tok);
+    token_free(tok);
 
     struct ast_node *body = ast_create(lexer, AST_CLIST);
     if (body == NULL)
@@ -70,8 +68,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing fi");
     }
     logger("\tSUCCESSFULLY found FI\n");
-    free(tok->value.c);
-    free(tok);
+    token_free(tok);
 
     return ast;
 }

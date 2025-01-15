@@ -16,6 +16,7 @@ int exec_pipeline(struct linked_list *linked_list)
     int status;
     size_t n = linked_list->size;
     int *pipefds = calloc(2 * n, sizeof(int));
+    pid_t *pid_tab = calloc(n, sizeof(pid_t));
     for (size_t l = 0; l < n; l++)
     {
         if (pipe(pipefds + l * 2) < 0)
@@ -35,16 +36,14 @@ int exec_pipeline(struct linked_list *linked_list)
             {
                 if (dup2(pipefds[j - 2], 0) < 0)
                 {
-                    perror(" dup2");
-                    exit(EXIT_FAILURE);
+                    errx(1, "pipeline: dup2 error");
                 }
             }
             if (i < n - 1)
             {
                 if (dup2(pipefds[j + 1], 1) < 0)
                 {
-                    perror("dup2");
-                    exit(EXIT_FAILURE);
+                    errx(1, "pipeline: dup2 error");
                 }
             }
 
@@ -58,9 +57,9 @@ int exec_pipeline(struct linked_list *linked_list)
         }
         else if (pid < 0)
         {
-            perror("fork");
-            return 1;
+            errx(1, "pipeline: pid error");
         }
+        pid_tab[i] = pid;
 
         j += 2;
     }
@@ -68,11 +67,12 @@ int exec_pipeline(struct linked_list *linked_list)
     {
         close(pipefds[k]);
     }
-    for (size_t k = 0; k < 2 * n; k++)
+    for (size_t k = 0; k < n; k++)
     {
-        wait(&status);
+        waitpid(pid_tab[k], &status, 0);
     }
     free(pipefds);
+    free(pid_tab);
 
     return WEXITSTATUS(status);
 }

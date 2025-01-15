@@ -26,7 +26,7 @@ bool is_keyword(char *word)
     {
         if (strcmp(keywords[i], word) == 0)
         {
-            logger("\tsimple command : found keyword %s\n", word);
+            logger("simple command : found keyword %s\n", word);
             return true;
         }
     }
@@ -35,7 +35,7 @@ bool is_keyword(char *word)
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    logger("\tParse SIMPLE_COMMAND\n");
+    logger("Parse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -57,7 +57,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("\tExit SIMPLE_COMMAND: RULE 1\n");
+        logger("Exit SIMPLE_COMMAND: RULE 1\n");
         return cmd;
     }
 
@@ -73,9 +73,10 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         ast_free_simple_cmd(cmd);
         return NULL;
     }
-    logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
+    logger(" SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
+    free(token->state);
     free(lexer_pop(lexer));
 
     struct ast_node *element;
@@ -129,9 +130,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ret_value = run_command(elt, argv);
         if (*fd != 0)
         {
-            //logger("fd : %i\n", *fd);
-            //logger("fd2 : %i\n", *(fd + 1));
-            //logger("fd3 : %i\n", *(fd + 2));
+            // logger("fd : %i\n", *fd);
+            // logger("fd2 : %i\n", *(fd + 1));
+            // logger("fd3 : %i\n", *(fd + 2));
             close(*fd);
             dup2(*(fd + 2), STDOUT_FILENO);
             close(*(fd + 2));
@@ -158,7 +159,12 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                     elt++;
                 logger("Nombre d\'argument: %lu\n", elt);
             }
-            logger("sortie de boucle\n");
+            logger("simple_command : eval");
+            for (size_t i = 0; i < elt ; i++)
+            {
+                logger(" %s", argv[i]);
+            }
+            logger("\n");
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
         }
@@ -166,6 +172,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             wait(&stat);
             int result = WEXITSTATUS(stat);
+            logger("simple_command : result : %i\n", result);
 
             if (result == 255)
             {

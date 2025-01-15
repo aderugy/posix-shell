@@ -22,12 +22,14 @@ enum token_type
     TOKEN_REDIR_STDOUT_FD,
     TOKEN_REDIR_STDIN_FD,
     TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
-    TOKEN_REDIR_FOPEN_RW
+    TOKEN_REDIR_FOPEN_RW,
+    TOKEN_AWORD
 };
 
 struct token
 {
     enum token_type type; // The kind of token
+    char *state; // the state of each character of the token
     union
     {
         char *c;

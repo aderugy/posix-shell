@@ -8,6 +8,7 @@
 #include "splitter.h"
 #include "token.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 
 static const char *token_names[] = {
     "TOKEN_SEMICOLON", // ; [5]
@@ -75,6 +76,11 @@ void token_free(struct token *token)
             free(token->value.c);
         }
 
+        if (token->state)
+        {
+            free(token->state);
+        }
+
         free(token);
     }
 }
@@ -102,14 +108,17 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
-        logger("not shard\n");
         token->type = TOKEN_EOF;
         return token;
     }
 
     // logger("lexer.c : peeked a shard\n");
 
-    for (size_t i = 0; i < KEYWORDS_LEN && shard->quoted == SHARD_UNQUOTED; i++)
+    int condition = !strchr(shard->data, SHARD_DOUBLE_QUOTED);
+    condition = condition && !strchr(shard->data, SHARD_SINGLE_QUOTED);
+    condition = condition && !strchr(shard->data, SHARD_BACKSLASH_QUOTED);
+
+    for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
     {
         if (strcmp(shard->data, KEYWORDS[i].name) == 0)
         {
@@ -117,18 +126,39 @@ static struct token *lex(struct lexer *lexer)
             break;
         }
     }
-
     if (token->type == TOKEN_ERROR)
     {
-        token->type = TOKEN_WORD;
-        token->value.c = strdup(shard->data);
-        logger("--LEXER.C: lexed : %s\n", token->value.c);
-    }
+        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
+        char *pos = NULL;
+        // If the data contains a '=' and it does not come first
+        if ((pos = strchr(shard->data, '=')) && pos != shard->data)
+        {
+            int len = pos - shard->data;
+            // If the '=' is unquoted
+            if (shard->state[len] == SHARD_UNQUOTED)
+            {
+                // if the name is SCL compliant
+                if (convention_check(shard->data, len))
+                {
+                    token->type = TOKEN_AWORD;
+                }
+                else
+                {
+                    errx(LEX_ERROR, "incorrect assignment name");
+                }
+            }
+        }
 
-    if (shard)
-    {
-        shard_free(shard);
+
+        if (token->type == TOKEN_ERROR)
+        {
+            token->type = TOKEN_WORD;
+        }
+
+        token->value.c = strdup(shard->data);
+        token->state = strdup(shard->state);
     }
+    shard_free(shard);
     return token;
 }
 

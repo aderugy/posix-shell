@@ -2,6 +2,8 @@ lib_LIBRARIES = libast.a
 
 libast_a_SOURCES =  \
   ast.h \
+  expansion.h \
+  expansion.c \
   nodes/and_or.c \
   nodes/and_or.h \
   nodes/command.c \
@@ -43,6 +45,6 @@ libast_a_SOURCES =  \
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libast_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
+libast_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0
 
 noinst_LIBRARIES = libast.a

@@ -35,6 +35,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     {
         lexer_pop(lexer); // Valid token -> we consume it
         node->value = token->value.c;
+        free(token->state);
         free(token);
         logger("\tExit ELEMENT\n");
         return node;
@@ -44,6 +45,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     {
         lexer_pop(lexer);
         node->value = word;
+        free(token->state);
         free(token);
         return node;
     }

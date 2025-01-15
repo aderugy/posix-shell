@@ -54,4 +54,5 @@ struct token *lexer_pop(struct lexer *lexer);
 
 const char *get_token_name(enum token_type token);
 
+void token_free(struct token *token);
 #endif /* !LEXER_H */

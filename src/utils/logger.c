@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+int logger_stack_idx = 0;
+
 void logger(const char *s, ...)
 {
     static bool log = false;
@@ -17,6 +19,15 @@ void logger(const char *s, ...)
     }
     else if (log)
     {
+        for (int i = 0; i < logger_stack_idx - 1; i++)
+        {
+            printf("  ");
+        }
+        if (logger_stack_idx)
+        {
+            printf("-> ");
+        }
+
         va_list ap;
         va_start(ap, s);
         vprintf(s, ap);
