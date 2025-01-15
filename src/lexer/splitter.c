@@ -12,8 +12,9 @@
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
-                                   ">>", ">&", "<&", ">,", "<>", "!", NULL };
+static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", "!", NULL };
+
+static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", NULL };
 
 static struct shard *shard_init(char *data, char *state)
 {
@@ -39,7 +40,26 @@ static int is_operator(struct mbt_str *str)
 {
     for (size_t i = 0; OPERATORS[i]; i++)
     {
-        if (strcmp(OPERATORS[i], str->data) == 0)
+        if (strcmp(str->data, OPERATORS[i]) == 0)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int is_redir(struct mbt_str *str)
+{
+    for (size_t i = 0; REDIRS[i]; i++)
+    {
+        char *sub = strstr(str->data, REDIRS[i]);
+        if (!sub)
+        {
+            continue;
+        }
+        logger("testing : %s for sub %s\n", REDIRS[i], sub);
+        if (strcmp(sub, REDIRS[i]) == 0)
         {
             return 1;
         }
@@ -70,6 +90,29 @@ struct shard *splitter_next(struct stream *stream)
             }
             else // Case 3
             {
+                mbt_str_pop(str); // Not an operator -> We delimit
+                break;
+            }
+        }
+
+        // case redir
+        if (is_redir(str))
+        {
+            mbt_str_pushc(str, c);
+            if (is_redir(str)) // Case 2
+            {
+                logger("found token redir in splitter\n");
+                stream_read(stream);
+                continue;
+            }
+            else // Case 3
+            {
+                logger("not found token redir in splitter ");
+                for (size_t i = 0; i < str->size; i++)
+                {
+                    logger(" %c", str->data[i]);
+                }
+                logger("\n");
                 mbt_str_pop(str); // Not an operator -> We delimit
                 break;
             }
@@ -216,10 +259,28 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     }
     if (is_op) // Case 6: matched
     {
+        logger("splitter : %c\n", c);
         if (str->size)
         {
             return BREAK;
         }
+
+        mbt_str_pushc(str, c);
+        stream_read(stream);
+        return CONTINUE;
+    }
+
+    bool is_redir = false;
+    for (size_t i = 0; REDIRS[i]; i++)
+    {
+        if (REDIRS[i][0] == c)
+        {
+            is_redir = true;
+        }
+    }
+    if (is_redir) // Case 6: matched
+    {
+        logger("splitter : %c\n", c);
 
         mbt_str_pushc(str, c);
         stream_read(stream);
