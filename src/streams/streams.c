@@ -118,7 +118,7 @@ char stream_peek(struct stream *stream)
     // logger("stream.c : will fgetc\n");
     if (c != EOF)
     {
-        // logger("stream.c : fgetc done\n");
+        logger("stream.c : fgetc done\n");
         stream->next = c;
 
         // logger("stream.c : ungetc done\n");

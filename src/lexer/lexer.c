@@ -158,8 +158,9 @@ struct token *lexer_pop(struct lexer *lexer)
     }
 
     struct token *token = lexer->next ? lexer->next : lex(lexer);
-    // logger("lexer.c: found token %s\n", get_token_name(token->type));
-    lexer->next = token->type != TOKEN_EOF ? lex(lexer) : NULL;
+    logger("lexer.c: found token %s\n", get_token_name(token->type));
+    lexer->next = (token->type != TOKEN_EOF && token->type != TOKEN_NEW_LINE)
+        ? lex(lexer) : NULL;
     /*if (lexer->next)
     {
          logger("lexer.c: next token is set with %s\n",

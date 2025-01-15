@@ -14,7 +14,7 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
-        logger("Exit LIST\n");
+        logger("Exit LIST with NULL\n");
         return NULL;
     }
 

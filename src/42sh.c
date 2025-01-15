@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
     if (!stream)
     {
-        if (argc > 2)
+        if (argc > 1)
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
