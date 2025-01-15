@@ -52,4 +52,5 @@ struct token *lexer_peek(struct lexer *lexer);
  */
 struct token *lexer_pop(struct lexer *lexer);
 
+void token_free(struct token *token);
 #endif /* !LEXER_H */

@@ -18,7 +18,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         return NULL;
     }
     lexer_pop(lexer);
-    free(tok);
+    token_free(tok);
 
     struct ast_while_node *ast = calloc(1, sizeof(struct ast_while_node));
     if (!ast)

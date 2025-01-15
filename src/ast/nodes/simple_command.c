@@ -26,7 +26,7 @@ bool is_keyword(char *word)
     {
         if (strcmp(keywords[i], word) == 0)
         {
-            logger("\tsimple command : found keyword %s\n", word);
+            logger("simple command : found keyword %s\n", word);
             return true;
         }
     }
@@ -35,7 +35,7 @@ bool is_keyword(char *word)
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    logger("\tParse SIMPLE_COMMAND\n");
+    logger("Parse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -57,7 +57,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("\tExit SIMPLE_COMMAND: RULE 1\n");
+        logger("Exit SIMPLE_COMMAND: RULE 1\n");
         return cmd;
     }
 
@@ -73,9 +73,10 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         ast_free_simple_cmd(cmd);
         return NULL;
     }
-    logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
+    logger(" SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
+    free(token->state);
     free(lexer_pop(lexer));
 
     struct ast_node *element;

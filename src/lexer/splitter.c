@@ -15,7 +15,7 @@
 static const char *OPERATORS[] = { ";",  "&&", "&",  "|",  "||", ">", "<",
                                    ">>", ">&", "<&", ">,", "<>", "!", NULL };
 
-static struct shard *shard_init(char quoted, char *data)
+static struct shard *shard_init(char *data, char *state)
 {
     struct shard *shard = calloc(1, sizeof(struct shard));
     if (!shard)
@@ -23,14 +23,15 @@ static struct shard *shard_init(char quoted, char *data)
         errx(EXIT_FAILURE, "shard_init: memory error");
     }
 
-    shard->quoted = quoted;
     shard->data = data;
+    shard->state = state;
     return shard;
 }
 
 void shard_free(struct shard *shard)
 {
     free(shard->data);
+    free(shard->state);
     free(shard);
 }
 
@@ -50,16 +51,16 @@ static int is_operator(struct mbt_str *str)
 struct shard *splitter_next(struct stream *stream)
 {
     struct mbt_str *str = mbt_str_init(64);
+    struct mbt_str *str_state = mbt_str_init(64);
 
     char c;
-    char quoted = SHARD_UNQUOTED;
     // logger("splitter.c : will stream peek\n");
     while ((c = stream_peek(stream)) != EOF)
     {
         // Case 1: EOF handled by exiting the loop
 
         // Case 2-3: Operators
-        if (is_operator(str) && quoted == SHARD_UNQUOTED)
+        if (is_operator(str))
         {
             mbt_str_pushc(str, c);
             if (is_operator(str)) // Case 2
@@ -74,7 +75,7 @@ struct shard *splitter_next(struct stream *stream)
             }
         }
 
-        if (c == '\\' && quoted == SHARD_UNQUOTED)
+        if (c == '\\')
         {
             stream_read(stream);
             char next = stream_read(stream);
@@ -84,8 +85,9 @@ struct shard *splitter_next(struct stream *stream)
             }
             logger("next : %c", c);
 
+            mbt_str_fill(str, str_state, SHARD_UNQUOTED);
             mbt_str_pushc(str, next);
-            quoted = SHARD_BACKSLASH_QUOTED;
+            mbt_str_pushc(str_state, SHARD_BACKSLASH_QUOTED);
 
             // logger("splitter.c : will stream peek\n");
             continue;
@@ -93,9 +95,9 @@ struct shard *splitter_next(struct stream *stream)
 
         // Case 4: Quoting
         int ret_val;
-        if (strchr("\\\"\'", c) && quoted == SHARD_UNQUOTED)
+        if (strchr("\\\"\'", c))
         {
-            ret_val = handle_quoting(stream, str, &quoted, c);
+            ret_val = handle_quoting(stream, str, str_state, c);
             if (ret_val == BREAK)
             {
                 break;
@@ -123,39 +125,40 @@ struct shard *splitter_next(struct stream *stream)
     }
 
     char *data = NULL;
+    char *state = NULL;
     if (str->size)
     {
+        mbt_str_fill(str, str_state, SHARD_UNQUOTED);
         data = strdup(str->data);
+        state = strdup(str_state->data);
     }
     mbt_str_free(str);
+    mbt_str_free(str_state);
 
     if (data)
     {
-        return shard_init(quoted, data);
+        return shard_init(data, state);
     }
 
     return NULL;
 }
 
-int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
-                   char c)
+int handle_quoting(struct stream *stream, struct mbt_str *str,
+                   struct mbt_str *str_state, char c)
 {
     // Case 4: Quoting
-    if (str->size)
-    {
-        return BREAK;
-    }
+    mbt_str_fill(str, str_state, SHARD_UNQUOTED);
     char quote = c;
     stream_read(stream);
     while ((c = stream_read(stream)) != EOF && c != quote)
     {
-        if (c == '\\')
+        if (c == '\\' && quote != '\'')
         {
             c = stream_read(stream);
 
             if (c == EOF)
             {
-                return BREAK;
+                break;
             }
 
             if (c != quote)
@@ -163,17 +166,16 @@ int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
                 mbt_str_pushc(str, '\\');
             }
         }
-
         mbt_str_pushc(str, c);
     }
 
     switch (c)
     {
     case '\"':
-        *quoted = SHARD_DOUBLE_QUOTED;
+        mbt_str_fill(str, str_state, SHARD_DOUBLE_QUOTED);
         return CONTINUE;
     case '\'':
-        *quoted = SHARD_SINGLE_QUOTED;
+        mbt_str_fill(str, str_state, SHARD_SINGLE_QUOTED);
         return CONTINUE;
     case '\\':
         stream_read(stream);
@@ -188,10 +190,11 @@ int handle_quoting(struct stream *stream, struct mbt_str *str, char *quoted,
         if (c != '\n')
         {
             mbt_str_pushc(str, c);
+            mbt_str_pushc(str, SHARD_BACKSLASH_QUOTED);
         }
         break;
     case EOF:
-        errx(SPLIT_ERROR, "unmatched quote");
+        errx(SPLIT_ERROR, "bro unmatched quote");
     default:
         errx(EXIT_FAILURE, "wtf");
     }

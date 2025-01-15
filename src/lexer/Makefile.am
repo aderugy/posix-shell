@@ -9,6 +9,6 @@ liblex_a_SOURCES =  \
 
 liblex_a_CPPFLAGS = -I$(top_srcdir)/src
 
-liblex_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
+liblex_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0
 
 noinst_LIBRARIES = liblex.a

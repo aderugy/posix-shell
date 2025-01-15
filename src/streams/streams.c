@@ -1,90 +1,54 @@
 #include "streams.h"
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "utils///logger.h"
-
-static struct stream *stream_init(void)
+static struct stream *stream_init(FILE *in)
 {
-    // logger("stream_init: init\n");
+    if (!in)
+    {
+        errx(EXIT_FAILURE, "no input stream provided");
+    }
+
     struct stream *stream = calloc(1, sizeof(struct stream));
     if (!stream)
     {
-        // logger("stream_init: out of memory");
-        return NULL;
+        errx(EXIT_FAILURE, "out of memory");
     }
 
+    setvbuf(in, NULL, _IOLBF, 0);
+
+    stream->in = in;
+    stream->next = fgetc(in);
     return stream;
 }
 
 struct stream *stream_from_file(const char *path)
 {
-    struct stream *stream = stream_init();
-    if (!stream)
-    {
-        return NULL;
-    }
-
-    stream->in = fopen(path, "r");
-    // logger("stream_from_file: %s\n", path);
-    if (!stream->in)
-    {
-        // logger("stream_from_file: failed to open stream\n");
-
-        free(stream);
-        return NULL;
-    }
-
-    return stream;
+    return stream_init(fopen(path, "r"));
 }
 
 struct stream *stream_from_str(char *str)
 {
-    struct stream *stream = stream_init();
-    if (!stream)
-    {
-        return NULL;
-    }
-
-    stream->in = fmemopen(str, strlen(str), "r");
-    // logger("stream_from_str: %s\n", str);
-    if (!stream->in)
-    {
-        // logger("stream_from_str: failed to open stream\n");
-
-        free(stream);
-        return NULL;
-    }
-
-    return stream;
+    return stream_init(fmemopen(str, strlen(str), "r"));
 }
 
 struct stream *stream_from_stream(FILE *in)
 {
-    if (!in)
-    {
-        return NULL;
-    }
-
-    struct stream *stream = stream_init();
-    if (!stream)
-    {
-        // logger("stream_from_stream: failed to init stream\n");
-        return NULL;
-    }
-    // logger("stream_from_stream: %p\n", in);
-
-    stream->in = in;
-    return stream;
+    return stream_init(in);
 }
 
 void stream_close(struct stream *stream)
 {
     if (stream)
     {
-        fclose(stream->in);
+        if (stream->in)
+        {
+            fclose(stream->in);
+        }
+
         free(stream);
     }
 }
@@ -95,7 +59,10 @@ void stream_close(struct stream *stream)
  */
 char stream_read(struct stream *stream)
 {
-    return fgetc(stream->in);
+    char c = stream->next;
+    stream->next = fgetc(stream->in);
+
+    return c;
 }
 
 /**
@@ -104,15 +71,5 @@ char stream_read(struct stream *stream)
  */
 char stream_peek(struct stream *stream)
 {
-    char c = fgetc(stream->in);
-    // logger("stream.c : will fgetc\n");
-    if (c != EOF)
-    {
-        // logger("stream.c : fgetc done\n");
-        ungetc(c, stream->in);
-
-        // logger("stream.c : ungetc done\n");
-    }
-
-    return c;
+    return stream->next;
 }

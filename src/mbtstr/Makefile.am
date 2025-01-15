@@ -12,12 +12,13 @@ libmbtstr_a_SOURCES = \
     mbt_str_pushcstr.c \
     mbt_str_pushcv.c \
 	mbt_str_pop.c \
+	mbt_str_fill.c \
 	utils.h \
 	str.h \
 	view.h
 
 libmbtstr_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libmbtstr_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -fsanitize=address -O0
+libmbtstr_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0
 
 noinst_LIBRARIES = libmbtstr.a

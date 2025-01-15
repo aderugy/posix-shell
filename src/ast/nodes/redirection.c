@@ -18,19 +18,41 @@
  * WORD ;
  */
 static const char *DIGITS = "0123456789";
-static const enum token_type REDIRECTIONS[] = { TOKEN_REDIR_STDOUT_FILE,
-                                                TOKEN_REDIR_STDOUT_FILE_A,
-                                                TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
-                                                TOKEN_REDIR_FILE_STDIN,
-                                                TOKEN_REDIR_STDIN_FD,
-                                                TOKEN_REDIR_FOPEN_RW,
-                                                0 };
+
+int redir_stdout_file(struct ast_redir *redir, __attribute((unused)) void **out,
+                      __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_stdout_file_a(struct ast_redir *redir,
+                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_stdout_file_notrunc(struct ast_redir *redir,
+                              __attribute((unused)) void **out,
+                              __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_file_stdin(struct ast_redir *redir, __attribute((unused)) void **out,
+                     __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_fopen_rw(struct ast_redir *redir, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx);
+
+static const struct redirection REDIR_LIST[] = {
+    { TOKEN_REDIR_STDOUT_FILE, redir_stdout_file, ">" },
+    { TOKEN_REDIR_STDOUT_FILE_A, redir_stdout_file_a, ">>" },
+    { TOKEN_REDIR_STDOUT_FILE_NOTRUNC, redir_stdout_file_notrunc, ">|" },
+    { TOKEN_REDIR_FILE_STDIN, redir_file_stdin, "<" },
+    { TOKEN_REDIR_STDIN_FD, redir_stdin_fd, "<&" },
+    { TOKEN_REDIR_FOPEN_RW, redir_fopen_rw, "<>" },
+    { TOKEN_REDIR_STDOUT_FD, redir_stdin_fd, ">&" }
+};
+
+#define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
 
 static int is_redir(struct token *token)
 {
-    for (int i = 0; REDIRECTIONS[i]; i++)
+    for (size_t i = 0; i < REDIR_LEN; i++)
     {
-        if (token->type == REDIRECTIONS[i])
+        if (token->type == REDIR_LIST[i].type)
         {
             return 1;
         }
@@ -41,7 +63,7 @@ static int is_redir(struct token *token)
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer)
 {
-    logger("\t\t\tParse REDIRECTION\n");
+    logger("Parse REDIRECTION\n");
     struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
     if (!redir)
     {
@@ -68,6 +90,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
 
     redir->number = number;
     redir->file = token->value.c;
+    free(token->state);
     free(lexer_pop(lexer));
 
     return redir;
@@ -85,7 +108,7 @@ error:
     {
         free(file);
     }
-    logger("\t\t\tExit REDIRECTION\n");
+    logger("Exit REDIRECTION\n");
     return NULL;
 }
 
@@ -129,17 +152,15 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     }
     char *file = node->file;
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-    // logger("\t\tfd : %i\n", fd);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    logger("\t\tExit Eval Redir\n");
+    logger("Exit Eval Redir\n");
     if (out)
     {
-        // logger("\t\tfd2 : %i\n", fd2);
         int *origin_fd = *out;
         *origin_fd = fd;
         *(origin_fd + 1) = fd2;
@@ -295,18 +316,6 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     return 0;
 }
 
-static const struct redirection REDIR_LIST[] = {
-    { TOKEN_REDIR_STDOUT_FILE, redir_stdout_file },
-    { TOKEN_REDIR_STDOUT_FILE_A, redir_stdout_file_a },
-    { TOKEN_REDIR_STDOUT_FILE_NOTRUNC, redir_stdout_file_notrunc },
-    { TOKEN_REDIR_FILE_STDIN, redir_file_stdin },
-    { TOKEN_REDIR_STDIN_FD, redir_stdin_fd },
-    { TOKEN_REDIR_FOPEN_RW, redir_fopen_rw },
-    { TOKEN_REDIR_STDOUT_FD, redir_stdin_fd }
-};
-
-#define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
-
 int ast_eval_redir(struct ast_redir *node, void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
@@ -330,7 +339,23 @@ void ast_free_redir(struct ast_redir *node)
 void ast_print_redir(struct ast_redir *node)
 {
     logger("redir ");
-    ast_print(node->number);
-    logger("%s", node->pipe);
-    logger("%s", node->file);
+    if (node->number)
+    {
+        ast_print(node->number);
+    }
+    if (node->pipe)
+    {
+        for (size_t i = 0; i < REDIR_LEN; i++)
+        {
+            if (REDIR_LIST[i].type == node->pipe)
+            {
+                logger("%s", REDIR_LIST[i].token);
+                break;
+            }
+        }
+    }
+    if (node->file)
+    {
+        logger("%s", node->file);
+    }
 }
