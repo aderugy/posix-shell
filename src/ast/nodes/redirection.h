@@ -18,6 +18,7 @@ struct redirection
 {
     enum token_type type;
     int (*redir)(struct ast_redir *, void **);
+    char *token;
 };
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer);

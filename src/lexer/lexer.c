@@ -108,7 +108,6 @@ static struct token *lex(struct lexer *lexer)
     struct shard *shard = splitter_next(lexer->stream);
     if (!shard)
     {
-        logger("not shard\n");
         token->type = TOKEN_EOF;
         return token;
     }
@@ -156,7 +155,6 @@ static struct token *lex(struct lexer *lexer)
 
         token->value.c = strdup(shard->data);
         token->state = strdup(shard->state);
-        logger("--LEXER.C: lexed : %s\n", token->value.c);
     }
     shard_free(shard);
     return token;

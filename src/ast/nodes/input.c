@@ -21,9 +21,7 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     struct ast_node *list = ast_create(lexer, AST_LIST);
     input->list = list;
 
-    logger("input.c : will peek\n");
     struct token *token = lexer_peek(lexer);
-    logger("input.c : peeked\n");
     if (!token)
     {
         ast_free_input(input);
@@ -33,7 +31,6 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
 
     if (token->type == TOKEN_NEW_LINE)
     {
-        logger("input.c : will pop\n");
         free(lexer_pop(lexer));
         logger("Exit INPUT\n");
         return input;
