@@ -57,9 +57,10 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     node->ast_node = rule;
     return node;
 }
-int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr)
+int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr,
+                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    return ast_eval(cmd->ast_node, ptr);
+    return ast_eval(cmd->ast_node, ptr, NULL);
 }
 void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 {

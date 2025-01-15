@@ -52,7 +52,7 @@ int exec_pipeline(struct linked_list *linked_list)
                 close(pipefds[k]);
             }
             struct ast_node *ast_node = list_get(linked_list, i);
-            int result = ast_eval(ast_node, NULL);
+            int result = ast_eval(ast_node, NULL, NULL);
             _exit(result);
         }
         else if (pid < 0)

@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
     {
         ast_print(node);
-        return_value = ast_eval(node, NULL);
+        return_value = ast_eval(node, NULL, NULL);
 
         ast_free(node);
     }

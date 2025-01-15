@@ -55,12 +55,13 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     return ast;
 }
 
-int ast_eval_until(struct ast_until_node *node, void **out)
+int ast_eval_until(struct ast_until_node *node, void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int ret_val;
-    while (!ast_eval(node->condition, out) == EXIT_SUCCESS)
+    while (!ast_eval(node->condition, out, NULL) == EXIT_SUCCESS)
     {
-        ret_val = ast_eval(node->body, out);
+        ret_val = ast_eval(node->body, out, NULL);
         if (ret_val != EXIT_SUCCESS)
         {
             return ret_val;

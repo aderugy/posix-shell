@@ -76,16 +76,17 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     return ast;
 }
 
-int ast_eval_if(struct ast_if_node *node, void **out)
+int ast_eval_if(struct ast_if_node *node, void **out,
+                __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int value = ast_eval(node->condition, out);
+    int value = ast_eval(node->condition, out, NULL);
 
     if (value == 0)
     {
-        return ast_eval(node->body, out);
+        return ast_eval(node->body, out, NULL);
     }
     if (node->else_clause)
-        return ast_eval(node->else_clause, out);
+        return ast_eval(node->else_clause, out, NULL);
     return 0;
 }
 

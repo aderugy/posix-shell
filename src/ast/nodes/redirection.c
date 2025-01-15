@@ -89,12 +89,13 @@ error:
     return NULL;
 }
 
-int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out)
+int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
+                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
     char *file = node->file;
 
@@ -112,14 +113,15 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out)
     return 0;
 }
 
-int redir_stdout_file(struct ast_redir *node, void **out)
+int redir_stdout_file(struct ast_redir *node, void **out,
+                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file\n");
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
@@ -147,13 +149,14 @@ int redir_stdout_file(struct ast_redir *node, void **out)
 }
 
 int redir_stdout_file_a(struct ast_redir *node,
-                        __attribute((unused)) void **out)
+                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     logger("Eval redir_stdout_file_a\n");
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -174,7 +177,8 @@ int redir_stdout_file_a(struct ast_redir *node,
     return 0;
 }
 
-int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out)
+int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
+                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
@@ -188,7 +192,7 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out)
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     int fd = atoi(val);
@@ -206,7 +210,8 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out)
     return 0;
 }
 
-int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out)
+int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;
     for (size_t i = 0; val[i]; i++)
@@ -220,7 +225,7 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out)
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     int fd = atoi(val);
@@ -238,12 +243,13 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out)
     return 0;
 }
 
-int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out)
+int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
     char *file = node->file;
 
@@ -262,12 +268,13 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out)
 }
 
 int redir_stdout_file_notrunc(struct ast_redir *node,
-                              __attribute((unused)) void **out)
+                              __attribute((unused)) void **out,
+                              __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL);
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -300,13 +307,14 @@ static const struct redirection REDIR_LIST[] = {
 
 #define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
 
-int ast_eval_redir(struct ast_redir *node, void **out)
+int ast_eval_redir(struct ast_redir *node, void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     for (size_t i = 0; i < REDIR_LEN; i++)
     {
         if (node->pipe == REDIR_LIST[i].type)
         {
-            return REDIR_LIST[i].redir(node, out);
+            return REDIR_LIST[i].redir(node, out, NULL);
         }
     }
     errx(2, "eval_redir: error");

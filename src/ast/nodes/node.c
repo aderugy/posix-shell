@@ -25,75 +25,75 @@
 
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
-      (int (*)(void *, void **))ast_eval_simple_cmd,
+      (int (*)(void *, void **, void *))ast_eval_simple_cmd,
       (void (*)(void *))ast_free_simple_cmd,
       (void (*)(void *))ast_print_simple_cmd },
 
     { (void *(*)(struct lexer *))ast_parse_shell_cmd,
-      (int (*)(void *, void **))ast_eval_shell_cmd,
+      (int (*)(void *, void **, void *))ast_eval_shell_cmd,
       (void (*)(void *))ast_free_shell_cmd,
       (void (*)(void *))ast_print_shell_cmd },
 
     { (void *(*)(struct lexer *))ast_parse_pipeline,
-      (int (*)(void *, void **))ast_eval_pipeline,
+      (int (*)(void *, void **, void *))ast_eval_pipeline,
       (void (*)(void *))ast_free_pipeline,
       (void (*)(void *))ast_print_pipeline },
 
     { (void *(*)(struct lexer *))ast_parse_cmd,
-      (int (*)(void *, void **))ast_eval_cmd, (void (*)(void *))ast_free_cmd,
-      (void (*)(void *))ast_print_cmd },
+      (int (*)(void *, void **, void *))ast_eval_cmd,
+      (void (*)(void *))ast_free_cmd, (void (*)(void *))ast_print_cmd },
 
     { (void *(*)(struct lexer *))ast_parse_element,
-      (int (*)(void *, void **))ast_eval_element,
+      (int (*)(void *, void **, void *))ast_eval_element,
       (void (*)(void *))ast_free_element, (void (*)(void *))ast_print_element },
 
     { (void *(*)(struct lexer *))ast_parse_and_or,
-      (int (*)(void *, void **))ast_eval_and_or,
+      (int (*)(void *, void **, void *))ast_eval_and_or,
       (void (*)(void *))ast_free_and_or, (void (*)(void *))ast_print_and_or },
 
     { (void *(*)(struct lexer *))ast_parse_clist,
-      (int (*)(void *, void **))ast_eval_clist,
+      (int (*)(void *, void **, void *))ast_eval_clist,
       (void (*)(void *))ast_free_clist, (void (*)(void *))ast_print_clist },
 
     { (void *(*)(struct lexer *))ast_parse_input,
-      (int (*)(void *, void **))ast_eval_input,
+      (int (*)(void *, void **, void *))ast_eval_input,
       (void (*)(void *))ast_free_input, (void (*)(void *))ast_print_input },
 
     { (void *(*)(struct lexer *))ast_parse_list,
-      (int (*)(void *, void **))ast_eval_list, (void (*)(void *))ast_free_list,
-      (void (*)(void *))ast_print_list },
+      (int (*)(void *, void **, void *))ast_eval_list,
+      (void (*)(void *))ast_free_list, (void (*)(void *))ast_print_list },
 
     { (void *(*)(struct lexer *))ast_parse_if,
-      (int (*)(void *, void **))ast_eval_if, (void (*)(void *))ast_free_if,
-      (void (*)(void *))ast_print_if },
+      (int (*)(void *, void **, void *))ast_eval_if,
+      (void (*)(void *))ast_free_if, (void (*)(void *))ast_print_if },
 
     { (void *(*)(struct lexer *))ast_parse_else,
-      (int (*)(void *, void **))ast_eval_else, (void (*)(void *))ast_free_else,
-      (void (*)(void *))ast_print_else },
+      (int (*)(void *, void **, void *))ast_eval_else,
+      (void (*)(void *))ast_free_else, (void (*)(void *))ast_print_else },
 
     { (void *(*)(struct lexer *))ast_parse_ionumber,
-      (int (*)(void *, void **))ast_eval_ionumber,
+      (int (*)(void *, void **, void *))ast_eval_ionumber,
       (void (*)(void *))ast_free_ionumber,
       (void (*)(void *))ast_print_ionumber },
 
     { (void *(*)(struct lexer *))ast_parse_while,
-      (int (*)(void *, void **))ast_eval_while,
+      (int (*)(void *, void **, void *))ast_eval_while,
       (void (*)(void *))ast_free_while, (void (*)(void *))ast_print_while },
 
     { (void *(*)(struct lexer *))ast_parse_until,
-      (int (*)(void *, void **))ast_eval_until,
+      (int (*)(void *, void **, void *))ast_eval_until,
       (void (*)(void *))ast_free_until, (void (*)(void *))ast_print_until },
 
     { (void *(*)(struct lexer *))ast_parse_for,
-      (int (*)(void *, void **))ast_eval_for, (void (*)(void *))ast_free_for,
-      (void (*)(void *))ast_print_for },
+      (int (*)(void *, void **, void *))ast_eval_for,
+      (void (*)(void *))ast_free_for, (void (*)(void *))ast_print_for },
 
     { (void *(*)(struct lexer *))ast_parse_redir,
-      (int (*)(void *, void **))ast_eval_redir,
+      (int (*)(void *, void **, void *))ast_eval_redir,
       (void (*)(void *))ast_free_redir, (void (*)(void *))ast_print_redir },
 
     { (void *(*)(struct lexer *))ast_parse_prefix,
-      (int (*)(void *, void **))ast_eval_prefix,
+      (int (*)(void *, void **, void *))ast_eval_prefix,
       (void (*)(void *))ast_free_prefix, (void (*)(void *))ast_print_prefix },
 };
 
@@ -121,14 +121,14 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
     return root;
 }
 
-int ast_eval(struct ast_node *node, void **out)
+int ast_eval(struct ast_node *node, void **out, struct ast_eval_ctx *ctx)
 {
     if (!node)
     {
         errx(AST_PARSE_ERROR, "eval NULL");
     }
 
-    return AST_FN[node->type].eval(node->value, out);
+    return AST_FN[node->type].eval(node->value, out, ctx);
 }
 
 void ast_free(struct ast_node *node)

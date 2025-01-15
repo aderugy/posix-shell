@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "node.h"
 #include "utils/linked_list.h"
@@ -71,15 +72,16 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out)
+int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     for (size_t i = 0; i < node->list->size - 1; i++)
     {
         struct ast_node *children = list_get(node->list, i);
-        ast_eval(children, NULL);
+        ast_eval(children, NULL, NULL);
     }
     struct ast_node *children = list_get(node->list, node->list->size - 1);
-    return ast_eval(children, NULL);
+    return ast_eval(children, NULL, NULL);
 }
 
 void ast_free_clist(struct ast_clist *node)

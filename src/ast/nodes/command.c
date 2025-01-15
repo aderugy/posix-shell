@@ -82,9 +82,10 @@ void ast_free_cmd(struct ast_cmd *node)
     free(node);
 }
 
-int ast_eval_cmd(struct ast_cmd *node, void **out)
+int ast_eval_cmd(struct ast_cmd *node, void **out,
+                 __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    return ast_eval(node->cmd, out);
+    return ast_eval(node->cmd, out, NULL);
 }
 
 void ast_print_cmd(struct ast_cmd *node)
