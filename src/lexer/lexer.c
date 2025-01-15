@@ -1,6 +1,7 @@
 #include "lexer.h"
 
 #include <err.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,15 +121,28 @@ static struct token *lex(struct lexer *lexer)
 
     for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
     {
-        if (strcmp(shard->data, KEYWORDS[i].name) == 0)
+        char *first_occurence_of_chevron =
+            strpbrk(shard->data, KEYWORDS[i].name);
+
+        if (first_occurence_of_chevron
+            && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
         {
+            logger("the shard is : %s\n", first_occurence_of_chevron);
             token->type = KEYWORDS[i].type;
+            size_t s = first_occurence_of_chevron - shard->data;
+            token->value.c = malloc((s + 1) * sizeof(char));
+            strncpy(token->value.c, shard->data, s);
+            token->value.c[s] = 0;
+            logger("the value is : %s\n", token->value.c);
+            logger("the redir is : %s\n", KEYWORDS[i].name);
+
             break;
         }
     }
     if (token->type == TOKEN_ERROR)
     {
-        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
+        // Code below is breaking the test -c "echo AA=AH"
+        /*
         char *pos = NULL;
         // If the data contains a '=' and it does not come first
         if ((pos = strchr(shard->data, '=')) && pos != shard->data)
@@ -149,6 +163,7 @@ static struct token *lex(struct lexer *lexer)
             }
         }
 
+        */
 
         if (token->type == TOKEN_ERROR)
         {
@@ -189,7 +204,8 @@ struct token *lexer_pop(struct lexer *lexer)
 
     struct token *token = lexer->next ? lexer->next : lex(lexer);
     lexer->next = (token->type != TOKEN_EOF && token->type != TOKEN_NEW_LINE)
-        ? lex(lexer) : NULL;
+        ? lex(lexer)
+        : NULL;
     /*if (lexer->next)
     {
          logger("lexer.c: next token is set with %s\n",

@@ -41,7 +41,9 @@ libast_a_SOURCES =  \
   nodes/until.h \
   nodes/for.c \
   nodes/for.h \
-  nodes/node.h 
+  nodes/node.h \
+  nodes/eval_ctx.h \
+  nodes/eval_ctx.c 
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
 

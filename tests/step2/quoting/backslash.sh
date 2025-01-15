@@ -1,0 +1,14 @@
+echo "\\k"""""""
+echo "\""
+echo "\\\""
+echo "\\\\"""
+echo \"\"
+echo \\
+echo \7
+echo \"A\"
+echo H\"\/A\"
+echo H\1\23A\"
+echo \'\'''23A\"
+echo \{\}'2'3A\"
+echo \\\''\'
+echo '""\\\'

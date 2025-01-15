@@ -6,6 +6,7 @@
 
 struct ast_prefix
 {
+    struct token *data;
     struct ast_node *redir;
 };
 

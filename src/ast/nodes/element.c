@@ -64,7 +64,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 }
 
 int ast_eval_element(struct ast_element *node, void **out,
-                     __attribute((unused)) struct ast_eval_ctx *ctx)
+                     struct ast_eval_ctx *ctx)
 {
     if (node->redir)
     {
@@ -73,7 +73,7 @@ int ast_eval_element(struct ast_element *node, void **out,
             node->child = 1;
             return 1;
         }
-        ast_eval(node->redir, out, NULL);
+        ast_eval(node->redir, out, ctx);
         return 1;
     }
     else
