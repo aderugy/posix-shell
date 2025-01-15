@@ -9,10 +9,10 @@
 
 // returns a 64bits hash_key for a null terminated string
 // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
-size_t hash(const char *key)
+size_t hash(char *key)
 {
     size_t hash_key = FNV_OFFSET;
-    for (const char *p = key; *p; p++)
+    for (char *p = key; *p; p++)
     {
         hash_key ^= (size_t)(unsigned char)(*p);
         hash_key *= FNV_PRIME;
@@ -24,13 +24,18 @@ size_t hash(const char *key)
 struct hash_map *hash_map_init(size_t size)
 {
     struct hash_map *hm = calloc(1, sizeof(struct hash_map));
+    if (!hm)
+    {
+        errx(EXIT_FAILURE, "hash_map_init: not enough memory");
+    }
+
     hm->size = size;
     hm->data = calloc(size, sizeof(struct pair_list *));
 
     return hm;
 }
 
-void hash_map_insert(struct hash_map *hash_map, const char *key, void *value)
+void hash_map_insert(struct hash_map *hash_map, char *key, void *value)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
@@ -68,6 +73,16 @@ void hash_map_insert(struct hash_map *hash_map, const char *key, void *value)
     }
 }
 
+void pair_list_free(struct pair_list *pl)
+{
+    if (pl)
+    {
+        free(pl->key);
+        free(pl->value);
+        free(pl);
+    }
+}
+
 // free the entire hashmap
 void hash_map_free(struct hash_map *hash_map)
 {
@@ -79,7 +94,7 @@ void hash_map_free(struct hash_map *hash_map)
             while (hash_map->data[i])
             {
                 hash_map->data[i] = hash_map->data[i]->next;
-                free(p);
+                pair_list_free(p);
                 p = hash_map->data[i];
             }
 
@@ -112,7 +127,7 @@ void hash_map_dump(struct hash_map *hash_map)
     }
 }
 
-void *hash_map_get(const struct hash_map *hash_map, const char *key)
+void *hash_map_get(struct hash_map *hash_map, char *key)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
@@ -139,7 +154,7 @@ void *hash_map_get(const struct hash_map *hash_map, const char *key)
 
     return p->value;
 }
-bool hash_map_remove(struct hash_map *hash_map, const char *key)
+bool hash_map_remove(struct hash_map *hash_map, char *key)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {

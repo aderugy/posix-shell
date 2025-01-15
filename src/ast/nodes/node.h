@@ -1,7 +1,9 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "eval_ctx.h"
 #include "lexer/lexer.h"
+#include "lexer/splitter.h"
 
 #define AST_EVAL_SUCCESS 0
 #define AST_EVAL_ERROR 1
@@ -39,12 +41,6 @@ struct ast_node_operations
     int (*eval)(void *node, void **out, void *ctx);
     void (*free)(void *node);
     void (*print)(void *node);
-};
-
-struct ast_eval_ctx
-{
-    char *todo;
-    // TODO
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type);

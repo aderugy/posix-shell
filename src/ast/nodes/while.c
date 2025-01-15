@@ -56,12 +56,12 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
 }
 
 int ast_eval_while(struct ast_while_node *node, void **out,
-                   __attribute((unused)) struct ast_eval_ctx *ctx)
+                   struct ast_eval_ctx *ctx)
 {
     int ret_val;
-    while (ast_eval(node->condition, out, NULL) == EXIT_SUCCESS)
+    while (ast_eval(node->condition, out, ctx) == EXIT_SUCCESS)
     {
-        ret_val = ast_eval(node->body, out, NULL);
+        ret_val = ast_eval(node->body, out, ctx);
         if (ret_val != EXIT_SUCCESS)
         {
             return ret_val;
