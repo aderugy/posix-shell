@@ -23,7 +23,6 @@ static struct stream *stream_init(FILE *in)
     setvbuf(in, NULL, _IOLBF, 0);
 
     stream->in = in;
-    stream->next = fgetc(in);
     return stream;
 }
 
