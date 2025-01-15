@@ -23,7 +23,6 @@
 #include "utils/logger.h"
 #include "while.h"
 
-extern int logger_stack_idx;
 
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
@@ -101,7 +100,6 @@ static const struct ast_node_operations AST_FN[] = {
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
-    logger_stack_idx++;
 
     if (!lexer)
     {
@@ -111,7 +109,6 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
     void *value = AST_FN[type].parse(lexer);
     if (!value)
     {
-        logger_stack_idx--;
         return NULL;
     }
 
@@ -123,7 +120,6 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 
     root->type = type;
     root->value = value;
-    logger_stack_idx--;
     return root;
 }
 

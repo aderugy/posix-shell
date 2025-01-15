@@ -34,6 +34,7 @@ tes() {
   test_from_stdin "$SCRIPT"
 }
 
+
 # @params: a list of files
 test_from_stdin() {
   bash --posix <"$@" >"$EXPECTED_OUT" 2>"$EXPECTED_ERR_OUT"
@@ -161,6 +162,38 @@ test_comment() {
   tes '# echo'
   echo "========== COMMENT END =========="
 }
+test_pipeline() {
+  echo "========== PIPELINE BEGIN =========="
+  tes "echo Hello | tr a e"
+  tes "echo Hello | tr a e | tr e a"
+  tes "echo Hello | tr a e | tr e a | tr a e"
+  tes "tree -L 2 | echo | tr e a | tr c b"
+  echo "========== PIPELINE END =========="
+}
+test_neg_pipeline() {
+  echo "========== NEGATION PIPELINE BEGIN =========="
+  test_code_error 0 "! false | true | true | true | false"
+  test_code_error 0 "! false | true | false | false | false | false"
+  test_code_error 0 "! true | false"
+  test_code_error 1 "! false | true"
+  test_code_error 1 "! ls | echo"
+  echo "========== NEGATION PIPELINE END =========="
+}
+test_ops() {
+  echo "========== OPS BEGIN =========="
+  tes "true && false && false || echo a"
+  tes "true && echo b && true || echo a"
+  tes "true && ls && echo b || echo a"
+  tes "true && false && echo b || echo a"
+  tes "false && false && echo b || echo a"
+  tes "false && false && echo b; echo c && ls || echo a"
+  tes "false && false || echo b; echo c && ls || echo a"
+  tes "false && echo b || echo a && true && false || true"
+  tes "echo a && false || echo h"
+  tes "echo a && ls || echo h"
+  tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
+  echo "========== OPS END =========="
+}
 test_errs() {
   echo "========== ERROR_CODE BEGIN =========="
   # PARSER ERRS
@@ -187,6 +220,9 @@ testsuite() {
   test_elif
   test_else
   test_comment
+  test_ops
+  test_neg_pipeline
+  test_pipeline
   test_errs
 }
 

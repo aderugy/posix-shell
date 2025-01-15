@@ -161,6 +161,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                 logger("Nombre d\'argument: %lu\n", elt);
             }
             logger("sortie de boucle\n");
+            for (size_t i = 0; argv[i]; i++)
+            {
+                logger("cmd : %s$\n", argv[i]);
+            }
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
         }
@@ -168,6 +172,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             wait(&stat);
             int result = WEXITSTATUS(stat);
+            logger("sortie de cmd : %i\n", result);
 
             if (result == 255)
             {
