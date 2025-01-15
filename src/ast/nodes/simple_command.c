@@ -76,6 +76,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     logger("\t SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
+    free(token->state);
     free(lexer_pop(lexer));
 
     struct ast_node *element;

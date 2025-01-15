@@ -76,6 +76,11 @@ void token_free(struct token *token)
             free(token->value.c);
         }
 
+        if (token->state)
+        {
+            free(token->state);
+        }
+
         free(token);
     }
 }
@@ -109,8 +114,11 @@ static struct token *lex(struct lexer *lexer)
     }
 
     // logger("lexer.c : peeked a shard\n");
+    int condition = !strchr(shard->data, SHARD_DOUBLE_QUOTED);
+    condition = condition && !strchr(shard->data, SHARD_SINGLE_QUOTED);
+    condition = condition && !strchr(shard->data, SHARD_BACKSLASH_QUOTED);
 
-    for (size_t i = 0; i < KEYWORDS_LEN && shard->quoted == SHARD_UNQUOTED; i++)
+    for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
     {
         if (strcmp(shard->data, KEYWORDS[i].name) == 0)
         {
@@ -125,15 +133,19 @@ static struct token *lex(struct lexer *lexer)
         // If the data contains a '=' and it does not come first
         if ((pos = strchr(shard->data, '=')) && pos != shard->data)
         {
-            int len = shard->data - pos;
-            // if the name is SCL compliant
-            if (convention_check(shard->data, len))
+            int len = pos - shard->data;
+            // If the '=' is unquoted
+            if (shard->state[len] == SHARD_UNQUOTED)
             {
-                token->type = TOKEN_AWORD;
-            }
-            else
-            {
-                errx(LEX_ERROR, "incorrect assignment name");
+                // if the name is SCL compliant
+                if (convention_check(shard->data, len))
+                {
+                    token->type = TOKEN_AWORD;
+                }
+                else
+                {
+                    errx(LEX_ERROR, "incorrect assignment name");
+                }
             }
         }
 
@@ -143,6 +155,7 @@ static struct token *lex(struct lexer *lexer)
         }
 
         token->value.c = strdup(shard->data);
+        token->state = strdup(shard->state);
         logger("--LEXER.C: lexed : %s\n", token->value.c);
     }
     shard_free(shard);

@@ -68,6 +68,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
 
     redir->number = number;
     redir->file = token->value.c;
+    free(token->state);
     free(lexer_pop(lexer));
 
     return redir;

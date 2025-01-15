@@ -29,6 +29,7 @@ enum token_type
 struct token
 {
     enum token_type type; // The kind of token
+    char *state; // the state of each character of the token
     union
     {
         char *c;

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/mypipe.h"
@@ -33,8 +34,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     {
         node->not = 1;
         lexer_pop(lexer);
-        free(token->value.c);
-        free(token);
+        token_free(token);
         token = lexer_peek(lexer);
     }
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
@@ -55,13 +55,13 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     while (token->type == TOKEN_PIPE)
     {
         lexer_pop(lexer);
-        free(token);
+        token_free(token);
         token = lexer_peek(lexer);
 
         while (token->type == TOKEN_NEW_LINE)
         {
             lexer_pop(lexer);
-            free(token);
+            token_free(token);
             token = lexer_peek(lexer);
         }
 
