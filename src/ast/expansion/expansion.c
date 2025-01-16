@@ -27,10 +27,14 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream)
         return get(ctx, name);
     }
 
+    mbt_str_pushc(name, c);
+    c = dstream_peek(dstream);
+
+    // alphanumeric or '_'
     while (c && (isalnum(c) || c == '_'))
     {
-        mbt_str_pushc(name, c);
-        c = dstream_read(dstream);
+        mbt_str_pushc(name, dstream_read(dstream));
+        c = dstream_peek(dstream);
     }
 
     // no special parameter
@@ -60,11 +64,12 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
     int brackets = 0;
     char c;
 
-    while ((c = dstream_peek(dstream)))
+    while ((c = dstream_read(dstream)))
     {
-        while (strchr("$\0", (c = dstream_read(dstream))) == NULL)
+        while (strchr("$\0", c) == NULL)
         {
             mbt_str_pushc(str, c);
+            c = dstream_read(dstream);
         }
 
         // case '$'

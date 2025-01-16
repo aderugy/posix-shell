@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
 
@@ -31,7 +32,11 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
     struct mbt_str *value = hash_map_get(ctx->value, name->data);
-    logger("Retreived the value of %s : %s\n", name->data, value->data);
+
+    if (value)
+    {
+        logger("Retreived the value of %s : %s\n", name->data, value->data);
+    }
 
     mbt_str_free(name);
 
@@ -40,20 +45,25 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 
 void insert(struct ast_eval_ctx *ctx, struct token *token)
 {
-    char *data = token->value.c;
+    struct mbt_str *expanded = expand(ctx, token);
+
+    char *data = expanded->data;
     char *eq = data;
     while (*eq != '=')
     {
         ++eq;
     }
 
-    char *name = strndup(data, eq - data);
+    char *name = strndup(expanded->data, eq - data);
     logger("eval_ctx.c : found name : %s\n", name);
-    // TODO call EXPANSION
-    void *expanded = strdup(++eq);
-    logger("eval_ctx.c : found expension : %s\n", expanded);
+    logger("eval_ctx.c : found expansion : %s\n", expanded);
 
-    // errx(EXIT_FAILURE, "insert_ctx: not implemented");
-    hash_map_insert(ctx->value, name, expanded);
+    // Basically the value after '='
+    // this will be freed by the hashmap
+    struct mbt_str *value = mbt_str_init(32);
+    mbt_str_pushcstr(value, ++eq);
+    free(expanded);
+
+    hash_map_insert(ctx->value, name, (void *)value);
     logger("Assigned %s=%s\n", name, expanded);
 }

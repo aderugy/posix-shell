@@ -30,5 +30,5 @@ int dollar_valid(int state)
 
 int regular(int c)
 {
-    return isdigit(c) || strchr("@*#?$", c);
+    return isdigit(c) || strchr("@*#?$", c) || isalnum(c);
 }
