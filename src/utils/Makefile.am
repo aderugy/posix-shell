@@ -12,7 +12,10 @@ libutils_a_SOURCES =  \
 	hash_map.h \
 	hash_map.c \
 	naming.h \
-	naming.c 
+	naming.c \
+	stack.c \
+	stack.h \
+	err_utils.h
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
