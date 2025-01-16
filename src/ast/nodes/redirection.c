@@ -382,7 +382,7 @@ void ast_print_redir(struct ast_redir *node)
         {
             if (REDIR_LIST[i].type == node->pipe)
             {
-                logger("%s", REDIR_LIST[i].token);
+                logger("%s ", REDIR_LIST[i].token);
                 break;
             }
         }

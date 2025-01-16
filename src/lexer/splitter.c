@@ -101,18 +101,11 @@ struct shard *splitter_next(struct stream *stream)
             mbt_str_pushc(str, c);
             if (is_redir(str)) // Case 2
             {
-                logger("found token redir in splitter\n");
                 stream_read(stream);
                 continue;
             }
             else // Case 3
             {
-                logger("not found token redir in splitter ");
-                for (size_t i = 0; i < str->size; i++)
-                {
-                    logger(" %c", str->data[i]);
-                }
-                logger("\n");
                 mbt_str_pop(str); // Not an operator -> We delimit
                 break;
             }

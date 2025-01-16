@@ -140,7 +140,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             // logger("fd3 : %i\n", *(fd + 2));
             close(*fd);
             dup2(*(fd + 2), STDOUT_FILENO);
-            close(*(fd + 2));
+            close(*(fd + 1));
             fflush(stdout);
         }
 

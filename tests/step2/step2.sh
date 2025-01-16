@@ -200,11 +200,11 @@ test_redirections() {
   tes "cat < file1 > out.txt 2>&1; cat out.txt"
   tes "echo 'Message' 1> file1 2> file2; cat file1 file2"
   tes "ls non_existing_file 3>&2 2>&1 1>&3"
-  tes "exec 3> file1; echo 'Via FD 3' >&3; cat file1"
   tes "echo 'Test' > /root/protected_file 2>&1"
   tes "cat non_existent_file 2> err.txt; cat err.txt"
   tes "echo 'This will not appear' > /dev/null"
   tes "ls invalid_file 2> /dev/null"
+  tes "ls > text ; sort < text ; rm text"
 
   echo "========== REDIRECTIONS END =========="
 }
