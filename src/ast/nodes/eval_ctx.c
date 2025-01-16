@@ -16,6 +16,7 @@ struct ast_eval_ctx *ctx_init(void)
     }
 
     ctx->value = hash_map_init(64);
+    ctx->check_redir = false;
     return ctx;
 }
 
