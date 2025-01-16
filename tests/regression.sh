@@ -19,9 +19,9 @@ SCRIPT="script.sh"
 #BIN="42sh"
 F="$BIN_PATH"
 # for colors
-G=""
-R=""
-D=""
+G="\033[0;32m"
+R="\033[0;31m"
+D="\033[0m"
 
 TOTAL_TEST=0
 PASSED_TEST=0
@@ -33,7 +33,6 @@ tes() {
   test_from_file "$SCRIPT"
   test_from_stdin "$SCRIPT"
 }
-
 
 # @params: a list of files
 test_from_stdin() {
@@ -71,14 +70,14 @@ test_code_error() {
 }
 # @params: err code and then a list of strings
 test_pars_lex_error() {
-    TOTAL_TEST=$((TOTAL_TEST+1))
+  TOTAL_TEST=$((TOTAL_TEST + 1))
   ERR="$1"
   shift
   "$F" -c "$@"
   ACTUAL_ERR="$?"
   if [ $ACTUAL_ERR -eq $ERR ]; then
     echo "$G[OK]$D $F -c \""$@"\"$D"
-    PASSED_TEST=$((PASSED_TEST+1))
+    PASSED_TEST=$((PASSED_TEST + 1))
   else
     echo "COMMAND RUN : $R$F -c \""$@"\"$D"
     echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
@@ -91,7 +90,7 @@ test_pars_lex_error() {
 # @remark change the options of diff as u like eg. try -y (column), -u, -q
 output_test() {
 
-    TOTAL_TEST=$((TOTAL_TEST+1))
+  TOTAL_TEST=$((TOTAL_TEST + 1))
   FA=$1
   shift
   diff -y --color="always" "$EXPECTED_OUT" "$ACTUAL_OUT" >"$DIFF_OUT" 2>&1
@@ -99,7 +98,7 @@ output_test() {
     diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" >"$DIFF_ERR" 2>&1
     if [ $? -eq 0 ]; then
       echo "$G[OK]$D $FA \""$@"\""
-    PASSED_TEST=$((PASSED_TEST+1))
+      PASSED_TEST=$((PASSED_TEST + 1))
     else
       echo "$R[KO]$D"
       echo "$FA \""$@"\""
@@ -114,10 +113,10 @@ output_test() {
     echo "$R[KO]$D"
     echo "$FA \""$@"\""
 
-      echo "expected"
+    echo "expected"
     E=$(cat -e "$EXPECTED_OUT")
 
-      echo "actual"
+    echo "actual"
     A=$(cat -e "$ACTUAL_OUT")
     echo "$G$E$D"
     echo "$R$A$D"
@@ -212,6 +211,17 @@ test_ops() {
   tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
   echo "========== OPS END =========="
 }
+
+test_redirections() {
+  echo "========== REDIRECTION BEGIN =========="
+  tes "cat non_existent_file 2> err.txt; cat err.txt"
+  tes "echo 'This will not appear' > /dev/null"
+  tes "ls invalid_file 2> /dev/null"
+  tes "ls > text ; sort < text ; rm text"
+  echo "========== REDIRECTION END =========="
+
+}
+
 test_errs() {
   echo "========== ERROR_CODE BEGIN =========="
   # PARSER ERRS
@@ -241,16 +251,16 @@ testsuite() {
   test_ops
   test_neg_pipeline
   test_pipeline
+  test_redirections
   test_errs
 }
 
-
 if [ "$COVERAGE" = "yes" ]; then
-    testsuite
-    echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
+  testsuite
+  echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
 else
-    testsuite
-    echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n" > "$OUTPUT_FILE"
+  testsuite
+  echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n" >"$OUTPUT_FILE"
 fi
 
 #================== making sure every file exists before deleting them

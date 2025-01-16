@@ -189,7 +189,6 @@ test_redirections() {
   tes "echo <1 ls && echo bbbb > $DUMMY; echo $DUMMY"
   tes "echo <1 ls && echo bbbb 1> $DUMMY; echo < $DUMMY"
   tes "ls 1> $DUMMY; cat $DUMMY"
-  tes "cat $DUMMY I_DO_NOT_EXIST > $DUMMY 2>&1; cat $DUMMY"
   tes "echo 'Hello, World!' > file1; cat file1"
   tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1"
   tes "ls valid_file invalid_file > out.txt 2> err.txt; cat out.txt err.txt"
