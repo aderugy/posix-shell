@@ -26,7 +26,7 @@ void mbt_str_free(struct mbt_str *str);
 
 bool mbt_str_pushc(struct mbt_str *str, char c) MBT_NONNULL(1);
 bool mbt_str_pushcstr(struct mbt_str *str, const char *cstr) MBT_NONNULL(1);
-bool mbt_str_pushcv(struct mbt_str *str, struct mbt_cview view) MBT_NONNULL(1);
+void mbt_str_merge(struct mbt_str *str1, struct mbt_str *str2);
 
 char mbt_str_pop(struct mbt_str *str);
 void mbt_str_fill(struct mbt_str *str, struct mbt_str *to_fill, char c);

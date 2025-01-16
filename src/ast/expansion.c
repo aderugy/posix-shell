@@ -7,48 +7,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-void assignment(char *data)
-{
-    char *eq = data;
-    while (*eq != '=')
-    {
-        ++eq;
-    }
+#include "nodes/eval_ctx.h"
+#include "nodes/node.h"
+#include "utils/logger.h"
 
-    char *name = strndup(data, data - eq);
-
-    if (setenv(name, ++eq, 1) == -1)
-    {
-        errx(EXIT_FAILURE, "assignment: setenv failed");
-    }
-
-    free(name);
-}
-
-/*
 // retrieves the longest valid name from a '$'
-void expand_dollar(struct dstream *dstream)
+struct mbt_str *expand_dollar(struct dstream *dstream, struct ast_eval_ctx *ctx)
 {
-    struct mbt_str *str = mbt_str_init(8);
+    struct mbt_str *name = mbt_str_init(8);
     int c = dstream_peek(dstream);
 
     // $0, $1, etc, $n, $@, $*, $#, etc
     if (isdigit(c) || strchr("@*#?$", c))
     {
-        mbt_str_pushcstr(str, getenv());
+        mbt_str_pushc(name, c);
+        return get(ctx, name);
     }
 
-    while (c && (isalnum(c)) || c == '_')
+    while (c && (isalnum(c) || c == '_'))
     {
-        mbt_str_pushc(str, c);
+        mbt_str_pushc(name, c);
         c = dstream_read(dstream);
     }
 
     // no special parameter
-
-    mbt_str_free(str);
+    return name;
 }
 
+/*
 //returns the value of a param if it exists
 struct mbt_str *get_param(struct mbt_str *str)
 {

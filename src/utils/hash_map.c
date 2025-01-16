@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils/logger.h"
+
 // returns a 64bits hash_key for a null terminated string
 // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
 size_t hash(char *key)
@@ -148,7 +150,7 @@ void *hash_map_get(struct hash_map *hash_map, char *key)
 
     if (p == NULL)
     {
-        perror("HASH_MAP: asking for non-existant parameter");
+        logger("HASH_MAP: asking for non-existant parameter");
         return NULL;
     }
 
