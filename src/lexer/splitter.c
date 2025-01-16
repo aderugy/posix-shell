@@ -75,6 +75,7 @@ struct shard *splitter_next(struct stream *stream)
             }
         }
 
+
         if (c == '\\')
         {
             stream_read(stream);

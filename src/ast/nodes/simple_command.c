@@ -149,12 +149,22 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             logger("simple_command.c : %s\n", argv[i]);
         }
-        for (size_t j = 0; fd_ptr[j]; j++)
-        {
-            logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
-        }
+        /*for (size_t j = 0; fd_ptr[j]; j++)
+            {
+    <<<<<<< HEAD
+                logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
+    =======
+                // logger("fd : %i\n", *fd);
+                // logger("fd2 : %i\n", *(fd + 1));
+                // logger("fd3 : %i\n", *(fd + 2));
+                close(*fd);
+                dup2(*(fd + 2), STDOUT_FILENO);
+                close(*(fd + 1));
+                fflush(stdout);
+    >>>>>>> main
+            }*/
 
-        ret_value = run_command(elt, argv);
+            ret_value = run_command(elt, argv);
 
         fd_pointer = fd_ptr;
         while (*fd_pointer)
@@ -184,8 +194,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             for (size_t i = 1; i < argc; i++)
             {
-
-            ctx->check_redir = true;
+                ctx->check_redir = true;
                 struct ast_node *children = list_get(cmd->args, i - 1);
 
                 if (ast_eval(children, NULL, ctx) == 0)

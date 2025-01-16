@@ -3,6 +3,7 @@
 
 #include "streams/streams.h"
 #include "token.h"
+#include "utils/stack.h"
 
 #define LEX_ERROR 2
 
@@ -19,7 +20,7 @@
 struct lexer
 {
     struct stream *stream;
-    struct token *next;
+    struct stack *tokens;
 };
 
 struct keyword

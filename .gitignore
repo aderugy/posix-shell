@@ -69,7 +69,9 @@ configure\~
 
 *.trs
 *.log
-
+*.txt
 out
 *.out
 a.sh
+vgcore*
+

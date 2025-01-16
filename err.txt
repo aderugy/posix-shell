@@ -1,1 +1,0 @@
-cat: non_existent_file: No such file or directory
