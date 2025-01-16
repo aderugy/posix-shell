@@ -113,7 +113,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
     for (size_t i = 1; i < argc; i++)
     {
-            ctx->check_redir = false;
+        ctx->check_redir = false;
         struct ast_node *children = list_get(cmd->args, i - 1);
         if (ast_eval(children, (void **)argv + elt, ctx) == 0)
         {
@@ -135,6 +135,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
         for (size_t i = 1; i < argc; i++)
         {
+            ctx->check_redir = true;
             struct ast_node *children = list_get(cmd->args, i - 1);
             if (ast_eval(children, (void **)&fd_pointer, ctx) == 1)
             {
@@ -183,6 +184,8 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             for (size_t i = 1; i < argc; i++)
             {
+
+            ctx->check_redir = true;
                 struct ast_node *children = list_get(cmd->args, i - 1);
 
                 if (ast_eval(children, NULL, ctx) == 0)
