@@ -69,7 +69,7 @@ test_code_error() {
   fi
 }
 
-# @params: a list of strings 
+# @params: a list of strings
 test_redirections() {
   "$F" -c "$@ $ACTUAL_OUT"
   bash --posix -c "$@ $EXPECTED_OUT"
@@ -192,6 +192,20 @@ test_redirections() {
   tes "cat $DUMMY I_DO_NOT_EXIST > $DUMMY 2>&1; cat $DUMMY"
   tes "ls brrrrrr . 2>&1"
   tes "ls &1<2 ls aaaa ."
+  tes "echo 'Hello, World!' > file1; cat file1"
+  tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1"
+  tes "ls valid_file invalid_file > out.txt 2> err.txt; cat out.txt err.txt"
+  tes "ls valid_file invalid_file > combined.txt 2>&1; cat combined.txt"
+  tes "cat < file1"
+  tes "cat < file1 > out.txt 2>&1; cat out.txt"
+  tes "echo 'Message' 1> file1 2> file2; cat file1 file2"
+  tes "ls non_existing_file 3>&2 2>&1 1>&3"
+  tes "exec 3> file1; echo 'Via FD 3' >&3; cat file1"
+  tes "echo 'Test' > /root/protected_file 2>&1"
+  tes "cat non_existent_file 2> err.txt; cat err.txt"
+  tes "echo 'This will not appear' > /dev/null"
+  tes "ls invalid_file 2> /dev/null"
+
   echo "========== REDIRECTIONS END =========="
 }
 test_comment() {
