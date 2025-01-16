@@ -1,3 +1,3 @@
 A=aaaaaa
 B=bbbbbb
-echo $AA$BBBB
+echo $A$BBBB${A}${B}
