@@ -30,7 +30,7 @@ static struct dstream *dstream_init(FILE *in, FILE *in_state)
     return dstream;
 }
 
-struct dstream *stream_from_str(char *str, char *str_state)
+struct dstream *dstream_from_str(char *str, char *str_state)
 {
     FILE *in = fmemopen(str, strlen(str), "r");
     FILE *in_state = fmemopen(str_state, strlen(str_state), "r");

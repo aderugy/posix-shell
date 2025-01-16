@@ -10,10 +10,11 @@
 #include "nodes/eval_ctx.h"
 #include "nodes/node.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 
 // retrieves the longest valid name from a '$'
 // called upon no brackets behind the '$'
-struct mbt_str *expand_dollar(struct dstream *dstream, struct ast_eval_ctx *ctx)
+struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream)
 {
     // will be freed in a call to 'get'
     struct mbt_str *name = mbt_str_init(8);
@@ -35,29 +36,18 @@ struct mbt_str *expand_dollar(struct dstream *dstream, struct ast_eval_ctx *ctx)
     // no special parameter
     return get(ctx, name);
 }
-
 /*
-//returns the value of a param if it exists
-struct mbt_str *get_param(struct mbt_str *str)
+struct mbt_str *expand_brackets(struct ast_eval_ctx *ctx,
+                                struct dstream* dstream)
 {
-    const char *name = strndup(str->data, str->size);
-
-    char *value = getenv(name);
-    free(name);
-
-    if (!value)
-    {
-        return NULL;
-    }
-
-    struct mbt_str *val = mbt_str_init(64);
-    mbt_str_pushcstr(value);
-
-    return val;
+    return NULL;
 }
-
-void expand(struct mbt_str *str, struct dstream* dstream, int *brackets)
+*/
+struct mbt_str *expand_reg(struct ast_eval_ctx *ctx, struct token *token)
 {
+    struct dstream *dstream = dstream_from_str(token->value.c, token->state);
+    struct mbt_str *str = mbt_str_init(64);
+    int brackets = 0;
     char c;
 
     while ((c = dstream_peek(dstream)) != EOF)
@@ -67,44 +57,40 @@ void expand(struct mbt_str *str, struct dstream* dstream, int *brackets)
             mbt_str_pushc(str, c);
         }
 
-        // If '$' single quoted or escaped
-        if (!dollar_valid(dstream_peek_state(dstream)))
-        {
-            mbt_str_pushc(str, c);
-            continue;
-        }
-
         // case '$'
         if (c != EOF)
         {
-            if (c == '{' && dollar_valid(dstream_peek_state(dstream)))
+            // If '$' single quoted or escaped
+            if (!dollar_valid(dstream_peek_state(dstream)))
+            {
+                // Reads the '$' and pushes it
+                mbt_str_pushc(str, dstream_read(dstream));
+                continue;
+            }
+
+            c = dstream_peek(dstream);
+            // Just a chill $A, $_JJJ, $ABBB, $1, $$, etc
+            if (regular(c))
+            {
+                mbt_str_merge(str, expand_dollar(ctx, dstream));
+            }
+            // ${ etc } AND { is not escaped nor in single_quote
+            else if (c == '{' && dollar_valid(dstream_peek_state(dstream)))
             {
                 dstream_read(dstream);
                 // TODO
             }
             else
             {
-                // TODO
-                c = dstream_read(dstream);
-                expand(str, dstream, brackets);
+                mbt_str_pushc(str, '$');
             }
         }
     }
-}
-
-struct mbt_str *expand_word(struct token *token)
-{
-    struct dstream *dstream = dstream_init(token->value.c, token->state);
-    struct mbt_str *str = mbt_str_init(64);
-    int brackets = 0;
-
-    expand(str, dstream, &brackets);
 
     if (brackets > 0)
     {
-        errx(EXIT_FAILURE, "expansion: unclosed brackets")
+        errx(EXIT_FAILURE, "expansion: unclosed brackets");
     }
 
     return str;
 }
-*/
