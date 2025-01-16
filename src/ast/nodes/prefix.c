@@ -17,7 +17,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     struct token *token = lexer_peek(lexer);
     if (!token)
     {
-        logger("\tExit ELEMENT\n");
+        logger("\tExit PREFIX\n");
         return NULL;
     }
 
@@ -31,7 +31,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     {
         lexer_pop(lexer);
         node->data = token;
-        logger("\tExit ELEMENT\n");
+        logger("\tExit PREFIX\n");
         return node;
     }
 
