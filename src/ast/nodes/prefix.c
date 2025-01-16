@@ -53,6 +53,7 @@ int ast_eval_prefix(struct ast_prefix *node, void **out,
     if (node->data)
     {
         insert(ctx, node->data);
+        return EXIT_SUCCESS;
     }
     return ast_eval(node->redir, out, ctx);
 }
