@@ -71,4 +71,5 @@ configure\~
 *.log
 
 out
+*.out
 a.sh

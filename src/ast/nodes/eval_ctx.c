@@ -65,5 +65,4 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     free(expanded);
 
     hash_map_insert(ctx->value, name, (void *)value);
-    logger("Assigned %s=%s\n", name, expanded);
 }
