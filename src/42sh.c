@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     int opt_idx = 0;
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
+    int nb_arg = 0;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
             {
                 char *number = calloc(1, 65);
                 hash_map_insert(ctx->value, my_itoa(j, number), argv[i]);
+                nb_arg++;
             }
         }
         else
@@ -70,6 +72,10 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
+    char *nb_arg_str = calloc(1, 64);
+    char *key = calloc(1, 2);
+    key[0] = '#';
+    hash_map_insert(ctx->value, key, my_itoa(nb_arg, nb_arg_str));
     register_commands();
     struct lexer *lexer = lexer_create(stream);
 
