@@ -17,6 +17,7 @@
  * redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
  * WORD ;
  */
+static const char *DIGITS = "0123456789";
 
 int redir_stdout_file(struct ast_redir *redir, __attribute((unused)) void **out,
                       __attribute((unused)) struct ast_eval_ctx *ctx);
@@ -70,25 +71,20 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     char *file = NULL;
-    // struct ast_node *number = ast_create(lexer, AST_IONUMBER);
+    struct ast_node *number = ast_create(lexer, AST_IONUMBER);
+    if (number)
+    {
+        logger("get ionumber : %l\n", number->value);
+    }
     struct token *token = lexer_peek(lexer);
+
     if (!token || !is_redir(token))
     {
         goto error;
     }
     redir->pipe = token->type;
-    if (strlen(token->value.c) == 0)
-    {
-        redir->number = -1;
-    }
-    else
-    {
-        redir->number = atoi(token->value.c);
-    }
 
-    free(token->value.c);
     free(lexer_pop(lexer));
-
     token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
@@ -96,6 +92,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         goto error;
     }
 
+    redir->number = number;
     redir->file = token->value.c;
     free(token->state);
     free(lexer_pop(lexer));
@@ -103,6 +100,10 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     return redir;
 
 error:
+    if (number)
+    {
+        ast_free(number);
+    }
     if (redir)
     {
         ast_free_redir(redir);
@@ -118,11 +119,10 @@ error:
 int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 0;
-    if (node->number != -1)
+    if (node->number)
     {
-        fd2 = node->number;
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
     char *file = node->file;
 
@@ -137,13 +137,6 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     return 0;
 }
 
@@ -153,15 +146,13 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file\n");
     int fd2 = 1;
-    if (node->number != -1)
+    if (node->number)
     {
-        fd2 = node->number;
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
-    logger("fd2: %i\n", fd2);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
-        errx(EXIT_FAILURE,
-             "stdout_file: Invalid file descriptor for redirection");
+        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
     char *file = node->file;
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -186,12 +177,11 @@ int redir_stdout_file_a(struct ast_redir *node,
                         __attribute((unused)) void **out,
                         __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file_a\n");
     int fd2 = 1;
-    if (node->number != -1)
+    if (node->number)
     {
-        fd2 = node->number;
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -208,13 +198,6 @@ int redir_stdout_file_a(struct ast_redir *node,
 
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     logger("Exit Eval Redir\n");
     return 0;
 }
@@ -222,18 +205,26 @@ int redir_stdout_file_a(struct ast_redir *node,
 int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
-    int fd2 = 1;
-    if (node->number != -1)
+    char *val = node->file;
+    for (size_t i = 0; val[i]; i++)
     {
-        fd2 = node->number;
+        if (!strchr(DIGITS, val[i]))
+        {
+            errx(2, "redir_stdout_fd: not a number");
+        }
     }
 
+    int fd2 = 1;
+    if (node->number)
+    {
+        fd2 = ast_eval(node->number, NULL, NULL);
+    }
+
+    int fd = atoi(val);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
-    int fd = atoi(node->file);
 
     if (fcntl(fd, F_SETFD) == -1)
     {
@@ -241,31 +232,32 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     return 0;
 }
 
 int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
-    int fd2 = 1;
-    if (node->number != -1)
+    char *val = node->file;
+    for (size_t i = 0; val[i]; i++)
     {
-        fd2 = node->number;
+        if (!strchr(DIGITS, val[i]))
+        {
+            errx(2, "redir_stdout_fd: not a number");
+        }
     }
 
+    int fd2 = 1;
+    if (node->number)
+    {
+        fd2 = ast_eval(node->number, NULL, NULL);
+    }
+
+    int fd = atoi(val);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
-    int fd = atoi(node->file);
 
     if (fcntl(fd, F_SETFD) == -1)
     {
@@ -273,24 +265,16 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     return 0;
 }
 
 int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 0;
-    if (node->number != -1)
+    if (node->number)
     {
-        fd2 = node->number;
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
     char *file = node->file;
 
@@ -305,13 +289,6 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     return 0;
 }
 
@@ -319,11 +296,10 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
                               __attribute((unused)) void **out,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
     int fd2 = 1;
-    if (node->number != -1)
+    if (node->number)
     {
-        fd2 = node->number;
+        fd2 = ast_eval(node->number, NULL, NULL);
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -341,13 +317,6 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
     logger("Exit Eval Redir\n");
-    if (out)
-    {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
     return 0;
 }
 
@@ -367,6 +336,7 @@ int ast_eval_redir(struct ast_redir *node, void **out,
 void ast_free_redir(struct ast_redir *node)
 {
     free(node->file);
+    ast_free(node->number);
     free(node);
 }
 
@@ -375,7 +345,7 @@ void ast_print_redir(struct ast_redir *node)
     logger("redir ");
     if (node->number)
     {
-        logger("%i", node->number);
+        ast_print(node->number);
     }
     if (node->pipe)
     {

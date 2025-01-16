@@ -26,9 +26,17 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     }
 
     struct ast_element *node = calloc(1, sizeof(struct ast_element));
+
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
+    }
+
+    struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
+    if (redir)
+    {
+        node->redir = redir;
+        return node;
     }
 
     if (token->type == TOKEN_WORD || token->type == TOKEN_AWORD)
@@ -40,17 +48,10 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         return node;
     }
 
-    struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
-    if (!redir)
-    {
         ast_free_element(node);
         logger("\tExit ELEMENT\n");
         return NULL;
-    }
 
-    node->redir = redir;
-    logger("\tExit ELEMENT\n");
-    return node;
 }
 
 int ast_eval_element(struct ast_element *node, void **out,
