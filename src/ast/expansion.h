@@ -6,17 +6,16 @@
 #include "lexer/splitter.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"
+#include "nodes/eval_ctx.h"
 #include "streams/dstream.h"
 
-/*
-void expand_dollar(struct dstream *dstream);
+struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx,
+                              struct dstream *dstream);
 
-void expand(struct mbt_str *str, struct dstream* dstream, int *brackets);
-struct mbt_str *expand_word(struct token *token);
+struct mbt_str *
+expand_brackets(__attribute__((unused)) struct ast_eval_ctx *ctx,
+                struct dstream *dstream, int *brackets);
 
-struct mbt_str *get_param(struct mbt_str *str);
-*/
-
-void assignment(char *data);
+struct mbt_str *expand_reg(struct ast_eval_ctx *ctx, struct token *token);
 
 #endif /* ! EXPANSION_H */
