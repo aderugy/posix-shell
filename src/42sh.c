@@ -9,7 +9,9 @@
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
 #include "streams/streams.h"
+#include "utils/hash_map.h"
 #include "utils/logger.h"
+#include "utils/my_itoa.h"
 
 static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "comput", required_argument, 0, 'c' },
@@ -22,6 +24,7 @@ int main(int argc, char *argv[])
     int c;
     int opt_idx = 0;
     struct stream *stream = NULL;
+    struct ast_eval_ctx *ctx = ctx_init();
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -49,6 +52,12 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
+            int j = 1;
+            for (int i = optind + 1; i < argc; i++)
+            {
+                char *number = calloc(1, 65);
+                hash_map_insert(ctx->value, my_itoa(j, number), argv[i]);
+            }
         }
         else
         {
@@ -63,7 +72,6 @@ int main(int argc, char *argv[])
 
     register_commands();
     struct lexer *lexer = lexer_create(stream);
-    struct ast_eval_ctx *ctx = ctx_init();
 
     struct ast_node *node;
     int return_value = 0;
