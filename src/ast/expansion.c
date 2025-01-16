@@ -12,10 +12,12 @@
 #include "utils/logger.h"
 
 // retrieves the longest valid name from a '$'
+// called upon no brackets behind the '$'
 struct mbt_str *expand_dollar(struct dstream *dstream, struct ast_eval_ctx *ctx)
 {
+    // will be freed in a call to 'get'
     struct mbt_str *name = mbt_str_init(8);
-    int c = dstream_peek(dstream);
+    int c = dstream_read(dstream);
 
     // $0, $1, etc, $n, $@, $*, $#, etc
     if (isdigit(c) || strchr("@*#?$", c))
@@ -31,7 +33,7 @@ struct mbt_str *expand_dollar(struct dstream *dstream, struct ast_eval_ctx *ctx)
     }
 
     // no special parameter
-    return name;
+    return get(ctx, name);
 }
 
 /*

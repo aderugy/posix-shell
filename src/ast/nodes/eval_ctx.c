@@ -30,9 +30,11 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
 
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
-    // errx(EXIT_FAILURE, "insert_ctx: not implemented");
     struct mbt_str *value = hash_map_get(ctx->value, name->data);
     logger("Retreived the value of %s : %s\n", name->data, value->data);
+
+    mbt_str_free(name);
+
     return value;
 }
 
