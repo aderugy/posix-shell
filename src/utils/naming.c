@@ -32,3 +32,10 @@ int regular(int c)
 {
     return isdigit(c) || strchr("@*#?$", c) || isalnum(c);
 }
+/*
+int is_bracket_end(struct dstream *dstream)
+{
+    int c = dstream_peek(dstream);
+    return c == '}' && dollar_valid(dstream_peek_state(dstream));
+}
+*/

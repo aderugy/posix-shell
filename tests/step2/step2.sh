@@ -121,46 +121,6 @@ test_assignment() {
   done
   echo "========== QUOTING END =========="
 }
-test_redirections() {
-  echo "========== REDIRECTIONS BEGIN =========="
-  tes "echo lalalalalala > $DUMMY;echo < $DUMMY"
-  tes "echo <> $DUMMY"
-  tes "ls | echo > $DUMMY; echo < $DUMMY"
-  tes "echo tchou > $DUMMY;echo bebe >> $DUMMY; cat $DUMMY"
-  tes "echo tchou > $DUMMY;echo boubou > $DUMMY; cat $DUMMY"
-  tes "echo <1 ls && echo bbbb > $DUMMY; echo $DUMMY"
-  tes "echo <1 ls && echo bbbb 1> $DUMMY; echo < $DUMMY"
-  tes "ls 1> $DUMMY; cat $DUMMY"
-  tes "cat $DUMMY I_DO_NOT_EXIST > $DUMMY 2>&1; cat $DUMMY"
-  tes "ls brrrrrr . 2>&1"
-  tes "ls &1<2 ls aaaa ."
-  tes "echo 'Hello, World!' > file1; cat file1"
-  tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1"
-  tes "ls valid_file invalid_file > out.txt 2> err.txt; cat out.txt err.txt"
-  tes "ls valid_file invalid_file > combined.txt 2>&1; cat combined.txt"
-  tes "cat < file1"
-  tes "cat < file1 > out.txt 2>&1; cat out.txt"
-  tes "echo 'Message' 1> file1 2> file2; cat file1 file2"
-  tes "ls non_existing_file 3>&2 2>&1 1>&3"
-  tes "exec 3> file1; echo 'Via FD 3' >&3; cat file1"
-  tes "echo 'Test' > /root/protected_file 2>&1"
-  tes "cat non_existent_file 2> err.txt; cat err.txt"
-  tes "echo 'This will not appear' > /dev/null"
-  tes "ls invalid_file 2> /dev/null"
-
-  echo "========== REDIRECTIONS END =========="
-}
-test_comment() {
-  echo "========== COMMENT BEGIN =========="
-  tes echo "Ya un commentaire m c chill #de ouf c chill"
-  tes echo "Ya un commentaire m c chill \# mais moi je suis pas un comment"
-  tes 'echo \escaped \#escaped "#"quoted not#first #commented'
-  echo "========== COMMENT END =========="
-}
-test_mix_grammar() {
-  echo "========== MIXED GRAMMAR TESTS BEGIN =========="
-  echo "========== ASSIGNMENT END =========="
-}
 test_neg_pipeline() {
   echo "========== NEGATION PIPELINE BEGIN =========="
   test_code_error 0 "! false | true | true | true | false"

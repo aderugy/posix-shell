@@ -41,20 +41,43 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream)
     return get(ctx, name);
 }
 
-struct mbt_str *
-expand_brackets(__attribute__((unused)) struct ast_eval_ctx *ctx,
-                struct dstream *dstream, int *brackets)
+struct mbt_str *expand_brackets(struct ast_eval_ctx *ctx,
+                                struct dstream *dstream, int *brackets)
 {
-    struct mbt_str *str = mbt_str_init(64);
-    char c = dstream_peek(dstream);
+    struct mbt_str *name = mbt_str_init(64);
+    char c;
 
     // TODO
+    while ((c = dstream_read(dstream)) && (c != '}' && dollar_valid(c)))
+    {
+        while (strchr("$\0}", c) == NULL)
+        {
+            mbt_str_pushc(name, c);
+            c = dstream_read(dstream);
+        }
+
+        switch (c)
+        {
+            /*
+            case '$' && dollar_valid(dstream_peek_state(dstream)):
+                break;
+            case '}' && dollar_valid(dstream_peek_state(dstream)):
+                break;
+            case '\0':
+                break;
+            default:
+                mbt_str_pushc(name, c);
+                break;
+                */
+        }
+    }
 
     if (!c && *brackets > 0)
     {
         errx(EXIT_FAILURE, "expand_brackets: unclosed bracket left");
     }
-    return str;
+
+    return get(ctx, name);
 }
 
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
@@ -93,7 +116,8 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
             else if (c == '{' && dollar_valid(dstream_peek_state(dstream)))
             {
                 dstream_read(dstream);
-                // TODO
+                ++brackets;
+                mbt_str_merge(str, expand_brackets(ctx, dstream, &brackets));
             }
             else
             {
