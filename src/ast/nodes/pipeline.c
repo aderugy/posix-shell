@@ -72,7 +72,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
             logger("pipeline: second command did not match\n");
             ast_free_pipeline(node);
             logger("Exit PIPELINE\n");
-            return NULL;
+            errx(2, "ast_parse_ast_pipeline: error no command");
         }
 
         list_append(node->commands, command);
@@ -90,7 +90,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
         result = ast_eval(list_get(node->commands, 0), out, ctx);
     else
         result = exec_pipeline(node->commands);
-    if (node->not == 1)
+    if (node->not== 1)
         return !result;
     return result;
 }
