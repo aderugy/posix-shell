@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"
@@ -35,6 +36,12 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     {
         lexer_pop(lexer); // Valid token -> we consume it
         node->value = strdup(token->value.c);
+
+        // Adding zero at the end
+        // char *dump = token->value.c;
+        // token->value.c = strdup(token->value.c);
+        // free(dump);
+
         node->token = token;
         logger("\tExit ELEMENT\n");
         return node;
@@ -56,7 +63,13 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 int ast_eval_element(struct ast_element *node, void **out,
                      struct ast_eval_ctx *ctx)
 {
-    if (node->redir)
+    if (node->token)
+    {
+        struct mbt_str *str = expand(ctx, node->token);
+        *out = strdup(str->data);
+        mbt_str_free(str);
+    }
+    else if (node->redir)
     {
         if (node->child == 0)
         {

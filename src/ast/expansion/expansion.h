@@ -16,6 +16,6 @@ struct mbt_str *
 expand_brackets(__attribute__((unused)) struct ast_eval_ctx *ctx,
                 struct dstream *dstream, int *brackets);
 
-struct mbt_str *expand_reg(struct ast_eval_ctx *ctx, struct token *token);
+struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token);
 
 #endif /* ! EXPANSION_H */

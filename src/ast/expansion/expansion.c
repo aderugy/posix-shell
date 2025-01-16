@@ -46,21 +46,21 @@ expand_brackets(__attribute__((unused)) struct ast_eval_ctx *ctx,
 
     // TODO
 
-    if (c == EOF && *brackets > 0)
+    if (!c && *brackets > 0)
     {
         errx(EXIT_FAILURE, "expand_brackets: unclosed bracket left");
     }
     return str;
 }
 
-struct mbt_str *expand_reg(struct ast_eval_ctx *ctx, struct token *token)
+struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct dstream *dstream = dstream_from_str(token->value.c, token->state);
     struct mbt_str *str = mbt_str_init(64);
     int brackets = 0;
     char c;
 
-    while ((c = dstream_peek(dstream)) != EOF)
+    while ((c = dstream_peek(dstream)))
     {
         while (strchr("$\0", (c = dstream_read(dstream))) == NULL)
         {
@@ -68,7 +68,7 @@ struct mbt_str *expand_reg(struct ast_eval_ctx *ctx, struct token *token)
         }
 
         // case '$'
-        if (c != EOF)
+        if (c)
         {
             // If '$' single quoted or escaped
             if (!dollar_valid(dstream_peek_state(dstream)))

@@ -2,8 +2,8 @@ SUBDIRS = ast \
 		  streams \
 		  mbtstr \
 		  lexer \
-				utils \
-				builtins
+          utils \
+          builtins
 bin_PROGRAMS = 42sh
 
 42sh_SOURCES = 42sh.c

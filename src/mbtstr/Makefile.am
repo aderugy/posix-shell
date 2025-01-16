@@ -12,6 +12,7 @@ libmbtstr_a_SOURCES = \
     mbt_str_pushcstr.c \
 	mbt_str_pop.c \
 	mbt_str_fill.c \
+	mbt_str_merge.c \
 	utils.h \
 	str.h \
 	view.h

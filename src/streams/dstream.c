@@ -65,6 +65,13 @@ char dstream_read(struct dstream *stream)
     stream->next = fgetc(stream->in);
     stream->next_state = fgetc(stream->in_state);
 
+    if (c == EOF)
+    {
+        stream->next = 0;
+        stream->next_state = 0;
+        return 0;
+    }
+
     return c;
 }
 
@@ -74,6 +81,10 @@ char dstream_read(struct dstream *stream)
  */
 char dstream_peek(struct dstream *stream)
 {
+    if (stream->next == EOF)
+    {
+        return 0;
+    }
     return stream->next;
 }
 
