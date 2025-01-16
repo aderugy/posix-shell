@@ -1,7 +1,12 @@
 #include "naming.h"
 
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "lexer/splitter.h"
+
+// checks weither the name respect the conventions
 int convention_check(char *name, int len)
 {
     if (isdigit(*name))
@@ -16,4 +21,9 @@ int convention_check(char *name, int len)
     }
 
     return i == len;
+}
+
+int dollar_valid(int state)
+{
+    return state == SHARD_UNQUOTED || state == SHARD_DOUBLE_QUOTED;
 }

@@ -95,49 +95,58 @@ error:
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) void **out,
-                        __attribute((unused)) struct ast_eval_ctx *ctx)
+                        struct ast_eval_ctx *ctx)
 {
     if (!cmd->cmd)
     {
         logger("Eval SIMPLE_COMMAND: RULE 1\n");
-        return ast_eval(cmd->prefix, NULL, NULL);
+        return ast_eval(cmd->prefix, NULL, ctx);
     }
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
+
     size_t argc = cmd->args->size + 1;
     char **argv = calloc(argc + 1, sizeof(char *));
+
     argv[0] = cmd->cmd;
+
     size_t elt = 1;
+
     for (size_t i = 1; i < argc; i++)
     {
         struct ast_node *children = list_get(cmd->args, i - 1);
-        if (ast_eval(children, (void **)argv + elt, NULL) == 0)
+        if (ast_eval(children, (void **)argv + elt, ctx) == 0)
         {
             // logger("  simple_connad.c : found arg : %s\n", argv[elt]);
             elt++;
         }
     }
-    struct runnable *cmd_runnable = get_command(argv[0], NULL);
+
+    struct runnable *cmd_runnable =
+        get_command(argv[0], NULL); // get the builtin if exists
+
     int ret_value = 0;
-    if (cmd_runnable)
+
+    if (cmd_runnable) // check if it is a builtin
     {
-        int *fd = calloc(3, sizeof(int));
+        int *fd = calloc(3, sizeof(int)); // alloc in case of redirections
+
         for (size_t i = 1; i < argc; i++)
         {
             struct ast_node *children = list_get(cmd->args, i - 1);
-            ast_eval(children, (void **)&fd, NULL);
+            ast_eval(children, (void **)&fd, ctx);
         }
 
         logger("simple command : execute : %s\n", argv[0]);
+
         for (size_t i = 0; i < argc; i++)
         {
             logger("simple_command.c : %s\n", argv[i]);
         }
+
         ret_value = run_command(elt, argv);
+
         if (*fd != 0)
         {
-            // logger("fd : %i\n", *fd);
-            // logger("fd2 : %i\n", *(fd + 1));
-            // logger("fd3 : %i\n", *(fd + 2));
             close(*fd);
             dup2(*(fd + 2), STDOUT_FILENO);
             close(*(fd + 2));
@@ -149,41 +158,42 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     else
     {
         elt = 1;
+
         int stat;
 
         logger("simple command : not a builtin\n");
 
         pid_t p = fork();
+
         if (p == 0)
         {
             for (size_t i = 1; i < argc; i++)
             {
                 struct ast_node *children = list_get(cmd->args, i - 1);
 
-                if (ast_eval(children, NULL, NULL) == 0)
+                if (ast_eval(children, NULL, ctx) == 0)
                     elt++;
-                logger("Nombre d\'argument: %lu\n", elt);
             }
 
-            logger("simple command : execute : %s\n", argv[0]);
-            for (size_t i = 0; i < argc; i++)
+            logger("simple_command.c : execute : %s\n", argv[0]);
+
+            /*for (size_t i = 0; i < argc; i++)
             {
                 logger("simple_command.c : %s\n", argv[i]);
-            }
-            logger("simple_command.c : eval execvp\n");
+            }*/
+
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
         }
         else
         {
             wait(&stat);
+
             int result = WEXITSTATUS(stat);
             if (result == 255)
             {
                 errx(127, "simple_command: command not found");
             }
-            free(argv);
-            return result;
         }
     }
 

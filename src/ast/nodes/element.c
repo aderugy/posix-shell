@@ -31,22 +31,12 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    if (token->type == TOKEN_WORD)
+    if (token->type == TOKEN_WORD || token->type == TOKEN_AWORD)
     {
         lexer_pop(lexer); // Valid token -> we consume it
-        node->value = token->value.c;
-        free(token->state);
-        free(token);
+        node->value = strdup(token->value.c);
+        node->token = token;
         logger("\tExit ELEMENT\n");
-        return node;
-    }
-    char *word = NULL;
-    if (word != NULL) // wtf c'est quoi ça ?
-    {
-        lexer_pop(lexer);
-        node->value = word;
-        free(token->state);
-        free(token);
         return node;
     }
 
@@ -64,7 +54,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 }
 
 int ast_eval_element(struct ast_element *node, void **out,
-                     __attribute((unused)) struct ast_eval_ctx *ctx)
+                     struct ast_eval_ctx *ctx)
 {
     if (node->redir)
     {
@@ -73,7 +63,7 @@ int ast_eval_element(struct ast_element *node, void **out,
             node->child = 1;
             return 1;
         }
-        ast_eval(node->redir, out, NULL);
+        ast_eval(node->redir, out, ctx);
         return 1;
     }
     else
@@ -101,11 +91,15 @@ void ast_free_element(struct ast_element *node)
     {
         ast_free(node->redir);
     }
+    if (node->token)
+    {
+        token_free(node->token);
+    }
 
     free(node);
 }
 
-void ast_print_element(__attribute((unused)) struct ast_element *node)
+void ast_print_element(struct ast_element *node)
 {
     if (node->value)
     {
@@ -115,4 +109,10 @@ void ast_print_element(__attribute((unused)) struct ast_element *node)
     {
         ast_print(node->redir);
     }
+    /*
+    if (node->token)
+    {
+        logger("%s", node->token->value.c);
+    }
+    */
 }

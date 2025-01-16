@@ -63,13 +63,14 @@ int main(int argc, char *argv[])
 
     register_commands();
     struct lexer *lexer = lexer_create(stream);
+    struct ast_eval_ctx *ctx = ctx_init();
 
     struct ast_node *node;
     int return_value = 0;
     while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
     {
         ast_print(node);
-        return_value = ast_eval(node, NULL, NULL);
+        return_value = ast_eval(node, NULL, ctx);
 
         ast_free(node);
     }
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
         return_value = 2;
     }
 
+    ast_eval_ctx_free(ctx);
     lexer_free(lexer);
     unregister_commands();
     return return_value;

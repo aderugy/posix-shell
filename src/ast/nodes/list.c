@@ -52,14 +52,13 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_list(__attribute((unused)) struct ast_list *node,
-                  __attribute((unused)) void **out,
-                  __attribute((unused)) struct ast_eval_ctx *ctx)
+int ast_eval_list(struct ast_list *node, __attribute((unused)) void **out,
+                  struct ast_eval_ctx *ctx)
 {
     int return_val = 0;
     for (size_t i = 0; i < node->list->size; i++)
     {
-        return_val = ast_eval(list_get(node->list, i), out, NULL);
+        return_val = ast_eval(list_get(node->list, i), out, ctx);
     }
     return return_val;
 }

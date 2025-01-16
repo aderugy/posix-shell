@@ -73,17 +73,17 @@ int ast_eval_and_or(struct ast_and_or_node *node, void **out,
 
     if (!node->right)
     {
-        return ast_eval(node->left, out, NULL);
+        return ast_eval(node->left, out, ctx);
     }
 
-    int ret_val = ast_eval_and_or(node->right, out, NULL);
+    int ret_val = ast_eval_and_or(node->right, out, ctx);
     if (node->type == AND && ret_val == EXIT_SUCCESS)
     {
-        return ast_eval(node->left, out, NULL);
+        return ast_eval(node->left, out, ctx);
     }
     if (node->type == OR && ret_val != EXIT_SUCCESS)
     {
-        return ast_eval(node->left, out, NULL);
+        return ast_eval(node->left, out, ctx);
     }
 
     return ret_val;

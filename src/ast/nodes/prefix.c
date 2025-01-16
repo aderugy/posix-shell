@@ -1,7 +1,10 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "prefix.h"
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "node.h"
 #include "redirection.h"
@@ -10,10 +13,26 @@
 struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 {
     logger("Parse PREFIX\n");
+
+    struct token *token = lexer_peek(lexer);
+    if (!token)
+    {
+        logger("\tExit PREFIX\n");
+        return NULL;
+    }
+
     struct ast_prefix *node = calloc(1, sizeof(struct ast_prefix));
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
+    }
+
+    if (token->type == TOKEN_AWORD)
+    {
+        lexer_pop(lexer);
+        node->data = token;
+        logger("\tExit PREFIX\n");
+        return node;
     }
 
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
@@ -29,15 +48,24 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 }
 
 int ast_eval_prefix(struct ast_prefix *node, void **out,
-                    __attribute((unused)) struct ast_eval_ctx *ctx)
+                    struct ast_eval_ctx *ctx)
 {
-    return ast_eval(node->redir, out, NULL);
+    if (node->data)
+    {
+        insert(ctx, node->data);
+        return EXIT_SUCCESS;
+    }
+    return ast_eval(node->redir, out, ctx);
 }
 
 void ast_free_prefix(struct ast_prefix *node)
 {
-    ast_free(node->redir);
-    free(node);
+    if (node)
+    {
+        token_free(node->data);
+        ast_free(node->redir);
+        free(node);
+    }
 }
 
 void ast_print_prefix(struct ast_prefix *node)

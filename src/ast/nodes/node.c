@@ -131,7 +131,7 @@ int ast_eval(struct ast_node *node, void **out,
         errx(AST_PARSE_ERROR, "eval NULL");
     }
 
-    return AST_FN[node->type].eval(node->value, out, NULL);
+    return AST_FN[node->type].eval(node->value, out, ctx);
 }
 
 void ast_free(struct ast_node *node)

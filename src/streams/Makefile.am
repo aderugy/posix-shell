@@ -2,7 +2,9 @@ lib_LIBRARIES = libstreams.a
 
 libstreams_a_SOURCES =  \
   streams.c \
-  streams.h
+  streams.h \
+  dstream.c \
+  dstream.h
 
 libstreams_a_CPPFLAGS = -I$(top_srcdir)/src
 

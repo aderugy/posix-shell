@@ -123,22 +123,27 @@ static struct token *lex(struct lexer *lexer)
     {
         char *first_occurence_of_chevron =
             strpbrk(shard->data, KEYWORDS[i].name);
+
         if (first_occurence_of_chevron
             && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
         {
+            logger("the shard is : %s\n", first_occurence_of_chevron);
             token->type = KEYWORDS[i].type;
             size_t s = first_occurence_of_chevron - shard->data;
             token->value.c = malloc((s + 1) * sizeof(char));
             strncpy(token->value.c, shard->data, s);
             token->value.c[s] = 0;
             logger("the value is : %s\n", token->value.c);
+            logger("the redir is : %s\n", KEYWORDS[i].name);
+            logger("the redit token is : %s\n", get_token_name(token->type));
 
             break;
         }
     }
     if (token->type == TOKEN_ERROR)
     {
-        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
+        // Code below is breaking the test -c "echo AA=AH"
+
         char *pos = NULL;
         // If the data contains a '=' and it does not come first
         if ((pos = strchr(shard->data, '=')) && pos != shard->data)
