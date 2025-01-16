@@ -55,10 +55,9 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         return node;
     }
 
-        ast_free_element(node);
-        logger("\tExit ELEMENT\n");
-        return NULL;
-
+    ast_free_element(node);
+    logger("\tExit ELEMENT\n");
+    return NULL;
 }
 
 int ast_eval_element(struct ast_element *node, void **out,
@@ -66,9 +65,15 @@ int ast_eval_element(struct ast_element *node, void **out,
 {
     if (node->token)
     {
+        if (node->child == 1)
+        {
+            return 0;
+        }
+        node->child = 1;
         struct mbt_str *str = expand(ctx, node->token);
         *out = strdup(str->data);
         mbt_str_free(str);
+        return 0;
     }
     else if (node->redir)
     {
