@@ -27,3 +27,8 @@ int dollar_valid(int state)
 {
     return state == SHARD_UNQUOTED || state == SHARD_DOUBLE_QUOTED;
 }
+
+int regular(int c)
+{
+    return isdigit(c) || strchr("@*#?$", c);
+}

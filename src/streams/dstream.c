@@ -30,7 +30,7 @@ static struct dstream *dstream_init(FILE *in, FILE *in_state)
     return dstream;
 }
 
-struct dstream *stream_from_str(char *str, char *str_state)
+struct dstream *dstream_from_str(char *str, char *str_state)
 {
     FILE *in = fmemopen(str, strlen(str), "r");
     FILE *in_state = fmemopen(str_state, strlen(str_state), "r");
@@ -65,6 +65,13 @@ char dstream_read(struct dstream *stream)
     stream->next = fgetc(stream->in);
     stream->next_state = fgetc(stream->in_state);
 
+    if (c == EOF)
+    {
+        stream->next = 0;
+        stream->next_state = 0;
+        return 0;
+    }
+
     return c;
 }
 
@@ -74,6 +81,10 @@ char dstream_read(struct dstream *stream)
  */
 char dstream_peek(struct dstream *stream)
 {
+    if (stream->next == EOF)
+    {
+        return 0;
+    }
     return stream->next;
 }
 

@@ -19,5 +19,6 @@ void dstream_close(struct dstream *stream);
 
 char dstream_read(struct dstream *stream);
 char dstream_peek(struct dstream *stream);
+char dstream_peek_state(struct dstream *stream);
 
 #endif // !DSTREAMS_H
