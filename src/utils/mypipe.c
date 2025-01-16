@@ -11,7 +11,7 @@
 #include "ast/nodes/node.h"
 #include "linked_list.h"
 
-int exec_pipeline(struct linked_list *linked_list)
+int exec_pipeline(struct linked_list *linked_list, struct ast_eval_ctx *ctx)
 {
     int status;
     size_t n = linked_list->size;
@@ -52,7 +52,7 @@ int exec_pipeline(struct linked_list *linked_list)
                 close(pipefds[k]);
             }
             struct ast_node *ast_node = list_get(linked_list, i);
-            int result = ast_eval(ast_node, NULL, NULL);
+            int result = ast_eval(ast_node, NULL, ctx);
             _exit(result);
         }
         else if (pid < 0)
