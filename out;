@@ -1,5 +1,0 @@
-Exit Eval Redir
-Nombre d'argument: 1
-Nombre d'argument: 2
-Nombre d'argument: 3
-simple_command.c : eval execvp
