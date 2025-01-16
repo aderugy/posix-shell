@@ -9,6 +9,7 @@
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
+#include "mbtstr/str.h"
 #include "streams/streams.h"
 #include "utils/hash_map.h"
 #include "utils/logger.h"
@@ -55,13 +56,28 @@ int main(int argc, char *argv[])
             char *path = argv[optind];
             stream = stream_from_file(path);
             int j = 1;
-            for (int i = optind + 1; i < argc; i++)
+            struct mbt_str *arobase = mbt_str_init(90);
+            for (int i = 2; i < argc; i++)
             {
                 char *number = calloc(1, 65);
                 char *alloc = strdup(argv[i]);
-                hash_map_insert(ctx->value, my_itoa(j, number), alloc);
+                struct mbt_str *str = mbt_str_init(8);
+                mbt_str_pushcstr(str, alloc);
+
+                //  FOR $@
+                mbt_str_pushcstr(arobase, alloc);
+                if (i < argc - 1)
+                {
+                    mbt_str_pushc(arobase, ' ');
+                }
+
+                hash_map_insert(ctx->value, my_itoa(j, number), str);
                 nb_arg++;
+                j++;
             }
+            char *karabose = calloc(1, 2);
+            karabose[0] = '@';
+            hash_map_insert(ctx->value, karabose, arobase);
         }
         else
         {
