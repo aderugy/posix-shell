@@ -128,12 +128,17 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
     if (cmd_runnable) // check if it is a builtin
     {
-        int *fd = calloc(3, sizeof(int)); // alloc in case of redirections
+        int *fd_ptr =
+            calloc(3 * argc, sizeof(int)); // alloc in case of redirections
+        int *fd_pointer = fd_ptr;
 
         for (size_t i = 1; i < argc; i++)
         {
             struct ast_node *children = list_get(cmd->args, i - 1);
-            ast_eval(children, (void **)&fd, ctx);
+            if (ast_eval(children, (void **)&fd_pointer, ctx) == 1)
+            {
+                fd_pointer += 3;
+            }
         }
 
         logger("simple command : execute : %s\n", argv[0]);
@@ -142,18 +147,26 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             logger("simple_command.c : %s\n", argv[i]);
         }
+        for (size_t j = 0; fd_ptr[j]; j++)
+        {
+            logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
+        }
 
         ret_value = run_command(elt, argv);
 
-        if (*fd != 0)
+        fd_pointer = fd_ptr;
+        while (*fd_pointer)
         {
-            close(*fd);
-            dup2(*(fd + 2), STDOUT_FILENO);
-            close(*(fd + 2));
-            fflush(stdout);
+            close(*fd_pointer);
+
+            dup2(fd_pointer[2], STDOUT_FILENO);
+
+            close(fd_pointer[2]);
+
+            fd_pointer += 3;
         }
 
-        free(fd);
+        free(fd_ptr);
     }
     else
     {

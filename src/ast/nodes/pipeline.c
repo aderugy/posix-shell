@@ -33,11 +33,13 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     if (token->type == TOKEN_WORD
         && (token->value.c[0] == '!' && strlen(token->value.c) == 1))
     {
+        logger("found a word\n");
         node->not = 1;
         lexer_pop(lexer);
         token_free(token);
         token = lexer_peek(lexer);
     }
+
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
@@ -72,7 +74,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
             logger("pipeline: second command did not match\n");
             ast_free_pipeline(node);
             logger("Exit PIPELINE\n");
-            return NULL;
+            errx(2, "ast_parse_ast_pipeline: error no command");
         }
 
         list_append(node->commands, command);

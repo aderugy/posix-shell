@@ -31,7 +31,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     {
         lexer_pop(lexer);
         node->data = token;
-        logger("\tExit PREFIX\n");
+        logger("\tExit PREFIX with AWORD\n");
         return node;
     }
 
@@ -39,11 +39,13 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     if (!redir)
     {
         free(node);
+
+        logger("Exit PREFIX with NULL\n");
         return NULL;
     }
 
     node->redir = redir;
-    logger("Exit PREFIX\n");
+    logger("Exit PREFIX with REDIR\n");
     return node;
 }
 
