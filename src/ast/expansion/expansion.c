@@ -98,8 +98,7 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
             }
             else
             {
-                // Pushes any character
-                mbt_str_pushc(str, dstream_read(dstream));
+                mbt_str_pushc(str, '$');
             }
         }
     }
