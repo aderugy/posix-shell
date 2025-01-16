@@ -244,10 +244,12 @@ int handle_quoting(struct stream *stream, struct mbt_str *str,
 int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
 {
     // Case 5: Expansions
+    /*
     if (strchr("$`", c))
     {
         errx(EXIT_FAILURE, "not implemented");
     }
+    */
     // Case 6: New operator
     bool is_op = false;
     for (size_t i = 0; OPERATORS[i]; i++)
