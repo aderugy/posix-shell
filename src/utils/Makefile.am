@@ -15,7 +15,9 @@ libutils_a_SOURCES =  \
 	naming.c \
 	stack.c \
 	stack.h \
-	err_utils.h
+	err_utils.h \
+	my_itoa.h \
+	my_itoa.c
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
