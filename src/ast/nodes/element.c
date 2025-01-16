@@ -75,8 +75,13 @@ int ast_eval_element(struct ast_element *node, void **out,
         mbt_str_free(str);
         return 0;
     }
-    else if (node->redir && ctx->check_redir)
+    else if (node->redir)
     {
+        if (node->child == 0)
+        {
+            node->child = 1;
+            return 1;
+        }
         ast_eval(node->redir, out, ctx);
         return 1;
     }
