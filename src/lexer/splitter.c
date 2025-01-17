@@ -259,7 +259,7 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
         stream_read(stream);
         return CONTINUE;
     }
-bool is_redir = false;
+    bool is_redir = false;
     for (size_t i = 0; REDIRS[i]; i++)
     {
         if (REDIRS[i][0] == c)

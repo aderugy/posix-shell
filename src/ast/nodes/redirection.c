@@ -70,12 +70,6 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    /*  int *number = ast_create(lexer, AST_IONUMBER);
-      if (number)
-      {
-          logger("get ionumber : %l\n", number->value);
-      }
-      */
     struct token *token = lexer_peek(lexer);
 
     if (!token || !is_redir(token))
