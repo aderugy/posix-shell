@@ -75,8 +75,8 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     if (number)
     {
         logger("get ionumber : %l\n", number->value);
-    }*/
-    struct token *token = lexer_peek(lexer);
+    }
+    * / struct token *token = lexer_peek(lexer);
 
     if (!token || !is_redir(token))
     {
@@ -140,13 +140,14 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
 int redir_stdout_file(struct ast_redir *node, void **out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file\n");
     int fd2 = 1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
+
+    int saved_stdout = dup(fd2);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
