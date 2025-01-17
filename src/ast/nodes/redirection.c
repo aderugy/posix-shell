@@ -84,7 +84,8 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
     redir->number = -1;
     char number = 1;
-    for (size_t i = 0; token->value.c[i]; i++)
+    size_t i = 0;
+    for (; token->value.c[i]; i++)
     {
         if (!strchr(DIGITS, token->value.c[i]))
         {
@@ -92,7 +93,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
             break;
         }
     }
-    if (number == 1)
+    if (number == 1 && i > 0)
     {
         redir->number = atoi(token->value.c);
     }
@@ -157,6 +158,7 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     {
         fd2 = node->number;
     }
+    logger("fd2 = %i\n", fd2);
 
     int saved_stdout = dup(fd2);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
