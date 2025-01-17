@@ -251,9 +251,9 @@ test_errs() {
 }
 testsuite() {
   test_pipeline
+  test_var
   test_neg_pipeline
   test_ops
-  test_var
   test_comment
   test_for
   test_while_loops

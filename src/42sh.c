@@ -1,17 +1,20 @@
+#define _POSIX_C_SOURCE 200809L
 #include <err.h>
 #include <getopt.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "ast/expansion/vars.h"
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
+#include "mbtstr/str.h"
 #include "streams/streams.h"
 #include "utils/hash_map.h"
 #include "utils/logger.h"
-#include "utils/my_itoa.h"
 
 static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "comput", required_argument, 0, 'c' },
@@ -25,7 +28,7 @@ int main(int argc, char *argv[])
     int opt_idx = 0;
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
-    int nb_arg = 0;
+    int nb_args = 0;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -53,13 +56,7 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
-            int j = 1;
-            for (int i = optind + 1; i < argc; i++)
-            {
-                char *number = calloc(1, 65);
-                hash_map_insert(ctx->value, my_itoa(j, number), argv[i]);
-                nb_arg++;
-            }
+            nb_args += init_args(argc, argv, ctx);
         }
         else
         {
@@ -72,10 +69,9 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
-    char *nb_arg_str = calloc(1, 64);
-    char *key = calloc(1, 2);
-    key[0] = '#';
-    hash_map_insert(ctx->value, key, my_itoa(nb_arg, nb_arg_str));
+    init_dollar(ctx);
+    init_hashtag(nb_args, ctx);
+
     register_commands();
     struct lexer *lexer = lexer_create(stream);
 

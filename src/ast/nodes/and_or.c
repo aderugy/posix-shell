@@ -64,7 +64,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 }
 
 int ast_eval_and_or(struct ast_and_or_node *node, void **out,
-                    __attribute((unused)) struct ast_eval_ctx *ctx)
+                    struct ast_eval_ctx *ctx)
 {
     if (!node)
     {

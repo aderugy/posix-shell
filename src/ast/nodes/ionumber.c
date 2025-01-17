@@ -20,6 +20,7 @@ struct ast_ionumber *ast_parse_ionumber(struct lexer *lexer)
     }
 
     char *val = token->value.c;
+    logger("ionumber.c : %s\n", val);
     for (size_t i = 0; val[i]; i++)
     {
         if (!strchr(DIGITS, val[i]))

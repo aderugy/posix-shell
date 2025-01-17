@@ -17,11 +17,11 @@ SCRIPT="script.sh"
 
 # bin name and path
 #BIN="42sh"
-F="$BIN_PATH"
+F=$BIN_PATH
 # for colors
-G="\033[0;32m"
-R="\033[0;31m"
-D="\033[0m"
+G=""
+R=""
+D=""
 
 TOTAL_TEST=0
 PASSED_TEST=0
@@ -122,6 +122,7 @@ output_test() {
         echo "$R$A$D"
     fi
 }
+
 test_echo_basic() {
     echo "========== ECHO BEGIN =========="
     tes "echo     "
@@ -260,7 +261,8 @@ if [ "$COVERAGE" = "yes" ]; then
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
 else
     testsuite
-    echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n" >"$OUTPUT_FILE"
+    res=$((100 * $PASSED_TEST / $TOTAL_TEST))
+    echo -e "$res" >"$OUTPUT_FILE"
 fi
 
 #================== making sure every file exists before deleting them

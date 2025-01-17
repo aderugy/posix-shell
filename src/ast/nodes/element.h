@@ -9,6 +9,8 @@ struct ast_element // can be produced with new_element_node
     char *value; // a word that will be an argument
     struct ast_node *redir;
     char child;
+    struct token *token;
+    char *expanded;
 };
 
 struct keywords

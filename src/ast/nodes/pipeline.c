@@ -33,11 +33,13 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     if (token->type == TOKEN_WORD
         && (token->value.c[0] == '!' && strlen(token->value.c) == 1))
     {
+        logger("found a word\n");
         node->not = 1;
         lexer_pop(lexer);
         token_free(token);
         token = lexer_peek(lexer);
     }
+
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
@@ -83,14 +85,14 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 }
 
 int ast_eval_pipeline(struct ast_pipeline *node, void **out,
-                      __attribute((unused)) struct ast_eval_ctx *ctx)
+                      struct ast_eval_ctx *ctx)
 {
     int result;
     if (node->commands->size == 1)
         result = ast_eval(list_get(node->commands, 0), out, ctx);
     else
-        result = exec_pipeline(node->commands);
-    if (node->not== 1)
+        result = exec_pipeline(node->commands, ctx);
+    if (node->not == 1)
         return !result;
     return result;
 }

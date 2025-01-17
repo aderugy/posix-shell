@@ -13,6 +13,6 @@ commands.h
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libbuiltins_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0
+libbuiltins_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 
 
 noinst_LIBRARIES = libbuiltins.a

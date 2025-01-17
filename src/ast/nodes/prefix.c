@@ -17,7 +17,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     struct token *token = lexer_peek(lexer);
     if (!token)
     {
-        logger("\tExit ELEMENT\n");
+        logger("\tExit PREFIX\n");
         return NULL;
     }
 
@@ -31,7 +31,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     {
         lexer_pop(lexer);
         node->data = token;
-        logger("\tExit ELEMENT\n");
+        logger("\tExit PREFIX with AWORD\n");
         return node;
     }
 
@@ -39,11 +39,13 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     if (!redir)
     {
         free(node);
+
+        logger("Exit PREFIX with NULL\n");
         return NULL;
     }
 
     node->redir = redir;
-    logger("Exit PREFIX\n");
+    logger("Exit PREFIX with REDIR\n");
     return node;
 }
 
@@ -53,6 +55,7 @@ int ast_eval_prefix(struct ast_prefix *node, void **out,
     if (node->data)
     {
         insert(ctx, node->data);
+        return EXIT_SUCCESS;
     }
     return ast_eval(node->redir, out, ctx);
 }
