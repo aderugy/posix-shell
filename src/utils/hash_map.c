@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "logger.h"
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
@@ -72,6 +73,8 @@ void hash_map_insert(struct hash_map *hash_map, char *key, void *value)
     }
     else
     {
+        mbt_str_free(p->value);
+        free(key);
         p->value = value;
     }
 }
