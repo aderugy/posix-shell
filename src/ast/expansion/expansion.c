@@ -129,6 +129,7 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
 
 int reserved_word_check(struct token *token)
 {
-    int valid = token && token->value.c && *token->state == SHARD_UNQUOTED;
-    return valid && token->type == TOKEN_WORD;
+    int valid = token && token->value.c && token->state
+        && *(token->state) == SHARD_UNQUOTED;
+    return valid && token && token->type == TOKEN_WORD;
 }
