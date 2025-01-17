@@ -6,7 +6,7 @@
 
 #include "lexer/splitter.h"
 
-// inits the number of args
+// $#
 void init_hashtag(int nb_arg, struct ast_eval_ctx *ctx)
 {
     char *nb_arg_str = calloc(1, 64);
@@ -18,6 +18,7 @@ void init_hashtag(int nb_arg, struct ast_eval_ctx *ctx)
     hash_map_insert(ctx->value, key, str_dieze);
 }
 
+// $$
 void init_dollar(struct ast_eval_ctx *ctx)
 {
     pid_t pid = getpid();
@@ -28,6 +29,21 @@ void init_dollar(struct ast_eval_ctx *ctx)
     mbt_str_pushcstr(str_dollar, my_itoa(pid, dollar_arg));
     free(dollar_arg);
     hash_map_insert(ctx->value, key_dollar, str_dollar);
+}
+
+// $?
+void update_qm(struct ast_eval_ctx *ctx, int ret_val)
+{
+    char *key_qm = calloc(1, 2);
+    key_qm[0] = '?';
+
+    char *qm_arg = calloc(1, 65);
+    struct mbt_str *str_qm = mbt_str_init(8);
+    mbt_str_pushcstr(str_qm, my_itoa(ret_val, qm_arg));
+
+    free(qm_arg);
+
+    hash_map_insert(ctx->value, key_qm, str_qm);
 }
 
 // inits the number of args

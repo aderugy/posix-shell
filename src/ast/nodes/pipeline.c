@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "expansion/vars.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
@@ -89,11 +90,19 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
 {
     int result;
     if (node->commands->size == 1)
+    {
         result = ast_eval(list_get(node->commands, 0), out, ctx);
+    }
     else
+    {
         result = exec_pipeline(node->commands, ctx);
+    }
     if (node->not == 1)
-        return !result;
+    {
+        result = !result;
+    }
+
+    update_qm(ctx, result);
     return result;
 }
 
