@@ -111,7 +111,7 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     // this will be freed by the hashmap
     struct mbt_str *value = mbt_str_init(32);
     mbt_str_pushcstr(value, ++eq);
-    free(expanded);
+    mbt_str_free(expanded);
 
     hash_map_insert(ctx->value, name, (void *)value);
 }
