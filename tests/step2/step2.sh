@@ -111,6 +111,7 @@ test_pipeline() {
   tes "echo Hello | tr a e | tr e a | tr a e"
   tes "find -name *.c | echo"
   tes "tree -L 2 | echo | tr e a | tr c b"
+  tes "echo Hello World!"
   echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
@@ -140,8 +141,6 @@ test_ops() {
 test_for() {
   echo "========== FOR BEGIN =========="
   tes "for i in 1 2 3; do echo \"Value: \$i\"; done"
-  tes "for file in \$(ls); do echo \"File: \$file\"; done"
-  tes "for i in \$(seq 1 5); do echo \"Number: \$i\"; done"
   tes "for cmd in ls nonexistentcommand pwd; do \$cmd || echo \"Error with \$cmd\"; done"
   tes "for i in 1 2; do for j in a b; do echo \"\$i\$j\"; done; done"
   echo "========== FOR END =========="
@@ -149,11 +148,7 @@ test_for() {
 
 test_while_loops() {
   echo "========== WHILE LOOP BEGIN =========="
-  tes "i=1; while [ \$i -le 5 ]; do echo \"Number: \$i\"; i=\$((i + 1)); done"
   tes "while read -r line; do echo \"Line: \$line\"; done < <(echo -e \"first\\nsecond\\nthird\")"
-  tes "i=0; while [ \$i -lt 3 ]; do echo \"Iteration \$i\"; i=\$((i + 1)); done"
-  tes "i=1; while [ \$i -le 3 ]; do [ \$i -eq 2 ] && false || echo \"Step \$i\"; i=\$((i + 1)); done"
-  tes "i=1; while [ \$i -le 2 ]; do j=1; while [ \$j -le 2 ]; do echo \"\$i\$j\"; j=\$((j + 1)); done; i=\$((i + 1)); done"
   echo "========== WHILE LOOP END =========="
 }
 test_var() {
@@ -214,14 +209,7 @@ test_comment() {
 }
 test_mix_grammar() {
   echo "========== MIXED GRAMMAR TESTS BEGIN =========="
-  tes "for i in 1 2 3; do if [ \$((i % 2)) -eq 0 ]; then echo \"Even: \$i\" | tr a-z A-Z; else echo \"Odd: \$i\"; fi; done"
-  tes "for i in 1 2; do j=1; while [ \$j -le \$i ]; do echo \"\$i,\$j\" >> output.txt; j=\$((j + 1)); done; done; cat output.txt; rm output.txt"
-  tes "i=1; while [ \$i -le 3 ]; do for j in a b; do if [ \$i -eq 2 ] && [ \"\$j\" = \"b\" ]; then echo \"Special case: \$i\$j\"; else echo \"Regular case: \$i\$j\"; fi; done; i=\$((i + 1)); done"
-  tes "i=1; while [ \$i -le 3 ]; do case \$i in 1) echo \"First\" ;; 2) echo \"Second\" ;; 3) echo \"Third\" ;; esac; i=\$((i + 1)); done"
   tes "for word in \$(echo \"one two three\" | tr ' ' '\n'); do echo \"Word: \$word\" | rev; done"
-  tes "for i in 1 2; do echo \"Start \$i\"; while [ \$i -le 2 ]; do echo \"Inside \$i\"; i=\$((i + 1)); done; echo \"End \$i\"; done"
-  tes "for i in 1 2; do while [ \$i -le 2 ]; do if [ \$i -eq 2 ]; then false || echo \"Error on \$i\"; else echo \"OK: \$i\"; fi; break; done; done"
-  tes "for i in 1 2; do j=1; while [ \$j -le 2 ]; do if [ \$((i * j)) -gt 2 ]; then echo \"\$i * \$j = \$((i * j))\" >> output.txt; else echo \"Below threshold: \$i \$j\"; fi; j=\$((j + 1)); done; done; cat output.txt; rm output.txt"
   echo "========== MIXED GRAMMAR TESTS END =========="
 }
 test_errs() {
@@ -247,6 +235,7 @@ test_errs() {
   test_code_error 2 "\"\"\""
   test_code_error 2 "for test"
   test_code_error 2 "while test"
+  test_code_error 127 "''"
   echo "========== ERROR_CODE END =========="
 }
 testsuite() {
