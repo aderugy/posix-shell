@@ -57,12 +57,14 @@ test_from_direct_input() {
 
 # @params: err code and then a list of strings
 test_code_error() {
+    TOTAL_TEST=$((TOTAL_TEST + 1))
   ERR="$1"
   shift
   "$F" -c "$@"
   ACTUAL_ERR="$?"
   if [ $ACTUAL_ERR -eq $ERR ]; then
     echo "$G[OK]$D $BIN -c \""$@"\"$D"
+    PASSED_TEST=$((PASSED_TEST + 1))
   else
     echo "COMMAND RUN : $R$F -c \""$@"\"$D"
     echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
@@ -80,6 +82,7 @@ test_redirections() {
 # @params the command that was run
 # @remark change the options of diff as u like eg. try -y (column), -u, -q
 output_test() {
+    TOTAL_TEST=$((TOTAL_TEST + 1))
   FA=$1
   shift
   diff -y --color="always" "$EXPECTED_OUT" "$ACTUAL_OUT" >"$DIFF_OUT" 2>&1
@@ -87,6 +90,7 @@ output_test() {
     diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" >"$DIFF_ERR" 2>&1
     if [ $? -eq 0 ]; then
       echo "$G[OK]$D $FA \""$@"\""
+      PASSED_TEST=$((PASSED_TEST + 1))
     else
       echo "$R[KO]$D"
       echo "$FA \""$@"\""
@@ -269,6 +273,9 @@ testsuite() {
 }
 
 testsuite
+echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
+res=$((100 * $PASSED_TEST / $TOTAL_TEST))
+echo "COVERAGE : $res%"
 #================== making sure every file exists before deleting them
 touch $EXPECTED_OUT
 touch $ACTUAL_OUT
