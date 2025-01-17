@@ -1,0 +1,5 @@
+Exit Eval Redir
+simple command : execute : echo
+simple_command.c : echo
+simple_command.c : a
+simple_command.c : (null)
