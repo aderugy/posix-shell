@@ -13,6 +13,7 @@
 */
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
+    errx(AST_PARSE_ERROR, "Unimplemented ast_parse_for");
     struct token *tok = lexer_peek(lexer);
     if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "for") != 0)
     {
@@ -28,7 +29,6 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     }
 
     ast_free_for(ast);
-    errx(AST_PARSE_ERROR, "Unimplemented ast_parse_for");
 }
 
 int ast_eval_for(__attribute((unused)) struct ast_for_node *node,

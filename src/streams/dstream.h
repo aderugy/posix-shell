@@ -1,5 +1,5 @@
-#ifndef DSTREAMS_H
-#define DSTREAMS_H
+#ifndef DSTREAM_H
+#define DSTREAM_H
 
 #define _POSIX_C_SOURCE 200809L
 
@@ -21,4 +21,4 @@ char dstream_read(struct dstream *stream);
 char dstream_peek(struct dstream *stream);
 char dstream_peek_state(struct dstream *stream);
 
-#endif // !DSTREAMS_H
+#endif // !DSTREAM_H

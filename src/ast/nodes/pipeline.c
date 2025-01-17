@@ -24,6 +24,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
+
     struct token *token = lexer_peek(lexer);
     if (!token)
     {
@@ -32,12 +33,9 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         logger("Exit PIPELINE\n");
         return NULL;
     }
+
     if (token->type == TOKEN_WORD
         && (token->value.c[0] == '!' && strlen(token->value.c) == 1))
-    /*
-if (reserved_word_check(token) && (token->value.c[0] == '!'
-    && strlen(token->value.c) == 1))
-    */
     {
         logger("found a word\n");
         node->not = 1;
@@ -86,6 +84,7 @@ if (reserved_word_check(token) && (token->value.c[0] == '!'
         list_append(node->commands, command);
         token = lexer_peek(lexer);
     }
+
     logger("Exit PIPELINE\n");
     return node;
 }
@@ -102,7 +101,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not == 1)
+    if (node->not== 1)
     {
         result = !result;
     }
