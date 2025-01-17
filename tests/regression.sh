@@ -57,12 +57,14 @@ test_from_direct_input() {
 
 # @params: err code and then a list of strings
 test_code_error() {
+  TOTAL_TEST=$((TOTAL_TEST + 1))
   ERR="$1"
   shift
   "$F" -c "$@"
   ACTUAL_ERR="$?"
   if [ $ACTUAL_ERR -eq $ERR ]; then
     echo "$G[OK]$D $BIN -c \""$@"\"$D"
+    PASSED_TEST=$((PASSED_TEST + 1))
   else
     echo "COMMAND RUN : $R$F -c \""$@"\"$D"
     echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
