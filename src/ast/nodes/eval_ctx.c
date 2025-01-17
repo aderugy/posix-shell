@@ -3,10 +3,13 @@
 #include <err.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/my_itoa.h"
 
 struct ast_eval_ctx *ctx_init(void)
 {
@@ -30,9 +33,54 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
     }
 }
 
+struct mbt_str *env_vars(char *name)
+{
+    struct mbt_str *value = NULL;
+
+    if (strcmp("OLDPWD", name) == 0)
+    {
+        value = mbt_str_init(8);
+        mbt_str_pushcstr(value, getenv(name));
+    }
+    else if (strcmp("RANDOM", name) == 0)
+    {
+        value = mbt_str_init(8);
+        int rand = 49;
+        char *buffer = calloc(3, sizeof(char));
+        mbt_str_pushcstr(value, my_itoa(rand, buffer));
+        free(buffer);
+    }
+    else if (strcmp("PWD", name) == 0)
+    {
+        value = mbt_str_init(8);
+        mbt_str_pushcstr(value, getenv(name));
+    }
+    else if (strcmp("IFS", name) == 0)
+    {
+        value = mbt_str_init(8);
+        mbt_str_pushcstr(value, getenv(name));
+    }
+    else if (strcmp("UID", name) == 0)
+    {
+        value = mbt_str_init(8);
+        uid_t uid = getuid();
+        char *buffer = calloc(32, sizeof(char));
+        mbt_str_pushcstr(value, my_itoa(uid, buffer));
+        free(buffer);
+    }
+
+    return value;
+}
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
-    struct mbt_str *value = hash_map_get(ctx->value, name->data);
+    // env vars
+    struct mbt_str *value = env_vars(name->data);
+
+    // local vars
+    if (!value)
+    {
+        value = hash_map_get(ctx->value, name->data);
+    }
 
     if (value)
     {

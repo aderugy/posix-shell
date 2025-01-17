@@ -7,5 +7,6 @@
 void init_hashtag(int nb_arg, struct ast_eval_ctx *ctx);
 int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx);
 void init_dollar(struct ast_eval_ctx *ctx);
+void update_qm(struct ast_eval_ctx *ctx, int ret_val);
 
 #endif // !VARS_H

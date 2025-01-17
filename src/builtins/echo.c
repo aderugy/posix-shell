@@ -44,7 +44,16 @@ void print_echo(struct echo_options *opts, int argc)
         }
         if (j != argc - 1)
         {
-            putchar(' ');
+            int k = j + 1;
+            while (k < argc - 1 && *opts->str[k] == 0)
+            {
+                ++k;
+            }
+            int exist_next = (i > 0) && (*opts->str[k] != 0);
+            if (exist_next)
+            {
+                putchar(' ');
+            }
         }
     }
     if (!opts->not_newline)

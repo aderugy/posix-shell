@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
 
     init_dollar(ctx);
     init_hashtag(nb_args, ctx);
+    update_qm(ctx, 0);
 
     register_commands();
     struct lexer *lexer = lexer_create(stream);

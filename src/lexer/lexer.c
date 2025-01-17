@@ -116,7 +116,7 @@ static struct token *lex(struct lexer *lexer)
     int condition = !strchr(shard->data, SHARD_DOUBLE_QUOTED);
     condition = condition && !strchr(shard->data, SHARD_SINGLE_QUOTED);
     condition = condition && !strchr(shard->data, SHARD_BACKSLASH_QUOTED);
-for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
+    for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
     {
         char *first_occurence_of_chevron =
             strpbrk(shard->data, KEYWORDS[i].name);
@@ -137,7 +137,6 @@ for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
             break;
         }
     }
-    
 
     if (token->type == TOKEN_ERROR)
     {
