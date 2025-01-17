@@ -12,7 +12,7 @@
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";", "&&", "&", "|", "||",  NULL };
+static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", NULL };
 static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", "!", NULL };
 static struct shard *shard_init(char *data, char *state)
 {
