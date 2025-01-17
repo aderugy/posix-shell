@@ -21,7 +21,7 @@ libutils_a_SOURCES =  \
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libutils_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 -fsanitize=address
+libutils_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 
 
 
 noinst_LIBRARIES = libutils.a

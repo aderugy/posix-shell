@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 
                 //  FOR $@
                 mbt_str_pushcstr(arobase, alloc);
+                free(alloc);
                 if (i < argc - 1)
                 {
                     mbt_str_pushc(arobase, ' ');
@@ -93,7 +95,20 @@ int main(int argc, char *argv[])
     char *nb_arg_str = calloc(1, 64);
     char *key = calloc(1, 2);
     key[0] = '#';
-    hash_map_insert(ctx->value, key, my_itoa(nb_arg, nb_arg_str));
+    struct mbt_str *str_dieze = mbt_str_init(8);
+    mbt_str_pushcstr(str_dieze, my_itoa(nb_arg, nb_arg_str));
+    free(nb_arg_str);
+    hash_map_insert(ctx->value, key, str_dieze);
+
+    pid_t pid = getpid();
+    char *key_dollar = calloc(1, 2);
+    key_dollar[0] = '$';
+    char *dollar_arg = calloc(1, 65);
+    struct mbt_str *str_dollar = mbt_str_init(8);
+    mbt_str_pushcstr(str_dollar, my_itoa(pid, dollar_arg));
+    free(dollar_arg);
+    hash_map_insert(ctx->value, key_dollar, str_dollar);
+
     register_commands();
     struct lexer *lexer = lexer_create(stream);
 
