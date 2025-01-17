@@ -93,8 +93,8 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     redir->pipe = token->type;
-
-    free(lexer_pop(lexer));
+    lexer_pop(lexer);
+    token_free(token);
     token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
@@ -102,9 +102,9 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         goto error;
     }
 
-    redir->file = token->value.c;
-    free(token->state);
-    free(lexer_pop(lexer));
+    redir->file = strdup(token->value.c);
+    lexer_pop(lexer);
+    token_free(token);
 
     return redir;
 
