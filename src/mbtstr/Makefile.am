@@ -1,9 +1,6 @@
 lib_LIBRARIES = libmbtstr.a
 
 libmbtstr_a_SOURCES = \
-    mbt_cview_cmp.c \
-    mbt_cview_contains.c \
-    mbt_cview_fprint.c \
     mbt_str_ctor.c \
     mbt_str_dtor.c \
     mbt_str_free.c \
@@ -14,8 +11,7 @@ libmbtstr_a_SOURCES = \
 	mbt_str_fill.c \
 	mbt_str_merge.c \
 	utils.h \
-	str.h \
-	view.h
+	str.h 
 
 libmbtstr_a_CPPFLAGS = -I$(top_srcdir)/src
 

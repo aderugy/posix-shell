@@ -58,13 +58,8 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 int ast_eval_element(struct ast_element *node, void **out,
                      struct ast_eval_ctx *ctx)
 {
-    if (node->token)
+    if (node->token && !ctx->check_redir)
     {
-        if (node->child == 1)
-        {
-            return 0;
-        }
-        node->child = 1;
         struct mbt_str *str = expand(ctx, node->token);
 
         // Recycling the node->expanded
@@ -73,29 +68,18 @@ int ast_eval_element(struct ast_element *node, void **out,
         *out = node->expanded;
 
         mbt_str_free(str);
-
-        return 0;
     }
     else if (node->redir)
     {
-        if (node->child == 0)
+        if (ctx->check_redir)
         {
-            node->child = 1;
-            return 1;
+            ast_eval(node->redir, out, ctx);
         }
-        ast_eval(node->redir, out, ctx);
         return 1;
     }
-    else
+    else if (!ctx->check_redir)
     {
-        if (node->child == 1)
-        {
-            return 0;
-        }
-        node->child = 1;
-
-        *out = node->token->value.c;
-        return 0;
+        *out = node->value;
     }
 
     return 0;

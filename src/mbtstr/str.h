@@ -7,9 +7,9 @@
 
 // mbtutils
 #include "utils.h"
-#include "view.h"
 // libc
 #include <stdbool.h>
+#include <stddef.h>
 
 struct mbt_str
 {
