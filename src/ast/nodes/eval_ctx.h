@@ -7,6 +7,7 @@
 struct ast_eval_ctx
 {
     struct hash_map *value;
+    bool check_redir;
 };
 
 struct ast_eval_ctx *ctx_init(void);

@@ -7,6 +7,7 @@
 
 #include "splitter.h"
 #include "token.h"
+#include "utils/err_utils.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
 
@@ -58,12 +59,10 @@ static const struct keyword KEYWORDS[] = { { ";", TOKEN_SEMICOLON },
 struct lexer *lexer_create(struct stream *stream)
 {
     struct lexer *res = calloc(1, sizeof(struct lexer));
-    if (!res)
-    {
-        return NULL;
-    }
+    CHECK_MEMORY_ERROR(res);
 
     res->stream = stream;
+    res->tokens = stack_init((void (*)(void *))token_free);
     return res;
 }
 
@@ -87,7 +86,7 @@ void token_free(struct token *token)
 
 void lexer_free(struct lexer *lexer)
 {
-    token_free(lexer->next);
+    stack_free(lexer->tokens);
     if (lexer->stream)
     {
         stream_close(lexer->stream);
@@ -124,6 +123,7 @@ static struct token *lex(struct lexer *lexer)
         {
             logger("found keyword : %s\n", shard->data);
             token->type = KEYWORDS[i].type;
+
             break;
         }
     }
@@ -169,15 +169,18 @@ struct token *lexer_peek(struct lexer *lexer)
         return NULL;
     }
 
-    if (!lexer->next)
+    struct token *token = stack_peek(lexer->tokens);
+    if (!token)
     {
-        lexer->next = lex(lexer);
-    }
-    // logger("PEEKED TOKEN: %s\n", get_token_name(lexer->next->type));
-    // if (lexer->next->value.c)
-    // logger("\tValue: %s\n", lexer->next->value.c);
+        token = lex(lexer);
 
-    return lexer->next;
+        if (token)
+        {
+            stack_push(lexer->tokens, token);
+        }
+    }
+
+    return token;
 }
 
 struct token *lexer_pop(struct lexer *lexer)
@@ -187,15 +190,9 @@ struct token *lexer_pop(struct lexer *lexer)
         return NULL;
     }
 
-    struct token *token = lexer->next ? lexer->next : lex(lexer);
-    lexer->next = (token->type != TOKEN_EOF && token->type != TOKEN_NEW_LINE)
-        ? lex(lexer)
-        : NULL;
-    /*if (lexer->next)
-    {
-         logger("lexer.c: next token is set with %s\n",
-               get_token_name(lexer->next->type));
-    }*/
+    struct token *token =
+        lexer->tokens->size ? stack_pop(lexer->tokens) : lex(lexer);
+
     if (token->type == TOKEN_EOF)
     {
         stream_close(lexer->stream);
