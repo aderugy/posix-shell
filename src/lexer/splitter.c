@@ -1,6 +1,6 @@
+#include "double_backslash.h"
+#include "split_comments.h"
 #define _POSIX_C_SOURCE 200809L
-
-#include "splitter.h"
 
 #include <ctype.h>
 #include <err.h>
@@ -10,10 +10,11 @@
 #include <string.h>
 
 #include "mbtstr/str.h"
+#include "split_operator.h"
+#include "split_redir.h"
+#include "splitter.h"
 #include "utils/logger.h"
 
-static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", NULL };
-static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", NULL };
 static struct shard *shard_init(char *data, char *state)
 {
     struct shard *shard = calloc(1, sizeof(struct shard));
@@ -33,37 +34,6 @@ void shard_free(struct shard *shard)
     free(shard->state);
     free(shard);
 }
-static int is_redir(struct mbt_str *str)
-{
-    for (size_t i = 0; REDIRS[i]; i++)
-    {
-        char *sub = strstr(str->data, REDIRS[i]);
-        if (!sub)
-        {
-            continue;
-        }
-        logger("testing : %s for sub %s\n", REDIRS[i], sub);
-        if (strcmp(sub, REDIRS[i]) == 0)
-        {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-static int is_operator(struct mbt_str *str)
-{
-    for (size_t i = 0; OPERATORS[i]; i++)
-    {
-        if (strcmp(OPERATORS[i], str->data) == 0)
-        {
-            return 1;
-        }
-    }
-
-    return 0;
-}
 
 struct shard *splitter_next(struct stream *stream)
 {
@@ -75,91 +45,35 @@ struct shard *splitter_next(struct stream *stream)
     while ((c = stream_peek(stream)) != EOF)
     {
         // Case 1: EOF handled by exiting the loop
-
         // Case 2-3: Operators
+        int ret_val = -1;
         if (is_operator(str))
         {
-            mbt_str_pushc(str, c);
-            if (is_operator(str)) // Case 2
-            {
-                stream_read(stream);
-                continue;
-            }
-            else // Case 3
-            {
-                mbt_str_pop(str); // Not an operator -> We delimit
-                break;
-            }
+            ret_val = split_operator(stream, str, c);
         }
         if (is_redir(str))
         {
-            mbt_str_pushc(str, c);
-            if (is_redir(str)) // Case 2
-            {
-                logger("found token redir in splitter\n");
-                stream_read(stream);
-                continue;
-            }
-            else // Case 3
-            {
-                logger("not found token redir in splitter ");
-                for (size_t i = 0; i < str->size; i++)
-                {
-                    logger(" %c", str->data[i]);
-                }
-                logger("\n");
-                mbt_str_pop(str); // Not an operator -> We delimit
-                break;
-            }
+            ret_val = split_redir(stream, str, c);
         }
 
-        if (c == '\\')
+        if (c == '\\' || strchr("\\\"\'", c))
         {
-            stream_read(stream);
-            char next = stream_read(stream);
-            if (next == EOF)
-            {
-                break;
-            }
-            logger("next : %c", c);
-
-            mbt_str_fill(str, str_state, SHARD_UNQUOTED);
-            mbt_str_pushc(str, next);
-            mbt_str_pushc(str_state, SHARD_BACKSLASH_QUOTED);
-
-            // logger("splitter.c : will stream peek\n");
-            continue;
-        }
-
-        // Case 4: Quoting
-        int ret_val;
-        if (strchr("\\\"\'", c))
-        {
-            ret_val = handle_quoting(stream, str, str_state, c);
-            if (ret_val == BREAK)
-            {
-                break;
-            }
-            else if (ret_val == CONTINUE)
-            {
-                // logger("splitter.c : will stream peek\n");
-                continue;
-            }
+            ret_val = split_double_backslash(stream, str, c, str_state);
         }
 
         // Case 5 to 11 included
-        ret_val = handle_5_to_11(stream, str, c);
+        if (ret_val == -1)
+        {
+            ret_val = handle_5_to_11(stream, str, c);
+        }
         if (ret_val == BREAK)
         {
             break;
         }
         else if (ret_val == CONTINUE)
         {
-            // logger("splitter.c : will stream peek\n");
             continue;
         }
-
-        // logger("splitter.c : will stream peek\n");
     }
 
     char *data = NULL;
@@ -269,8 +183,6 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     }
     if (is_redir) // Case 6: matched
     {
-        logger("splitter : %c\n", c);
-
         mbt_str_pushc(str, c);
         stream_read(stream);
         return CONTINUE;
@@ -313,14 +225,7 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     // Case 10: comments
     if (c == '#')
     {
-        while ((c = stream_peek(stream)) != '\n' && c != 0 && c != -1)
-        {
-            stream_read(stream); // Discard every char until \n 0 and -1
-                                 // (check with numeric value)
-        }
-        logger("\n");
-
-        return CONTINUE;
+        return split_comments(stream, c);
     }
 
     // Case 11: new word: keep looping

@@ -2,6 +2,7 @@
 
 #include <err.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,6 +46,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     }
 
     struct ast_node *command = ast_create(lexer, AST_COMMAND);
+
     if (!command)
     {
         logger("%i", token->type);
