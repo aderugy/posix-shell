@@ -79,6 +79,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     redir->number = -1;
     char number = 1;
     size_t i = 0;
+
     for (; token->value.c[i]; i++)
     {
         if (!strchr(DIGITS, token->value.c[i]))
@@ -87,11 +88,11 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
             break;
         }
     }
+
     if (number == 1 && i > 0)
     {
         redir->number = atoi(token->value.c);
     }
-
     redir->pipe = token->type;
     lexer_pop(lexer);
     token_free(token);
