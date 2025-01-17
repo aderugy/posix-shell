@@ -23,6 +23,9 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
     // ${ NB }
     if (bracket && isdigit(c))
     {
+        mbt_str_pushc(name, c);
+        c = dstream_peek(dstream);
+
         while (isdigit(c))
         {
             mbt_str_pushc(name, dstream_read(dstream));
@@ -33,6 +36,8 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
         {
             errx(EXIT_FAILURE, "bad substitution");
         }
+
+        return get(ctx, name);
     }
 
     // $0, $1, etc, $n, $@, $*, $#, etc

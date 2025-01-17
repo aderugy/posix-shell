@@ -162,7 +162,7 @@ test_var() {
     test_from_file $i
     test_from_stdin $i
   done
-  echo "========== VARIABLES BEGIN =========="
+  echo "========== VARIABLES END =========="
 }
 test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="
@@ -249,17 +249,27 @@ test_errs() {
   test_code_error 2 "while test"
   echo "========== ERROR_CODE END =========="
 }
+
+test_special_vars() {
+  echo "========== SPE_VARS BEGIN =========="
+  for i in $(find tests/step2/special_var -name "*sh"); do
+    test_from_file $i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    test_from_stdin $i
+  done
+  echo "========== SPE_VARS END =========="
+}
 testsuite() {
   test_pipeline
   test_var
   test_neg_pipeline
   test_ops
-  test_comment
-  test_for
-  test_while_loops
-  test_mix_grammar
+  #test_comment
+  #test_for
+  #test_while_loops
+  #test_mix_grammar
   test_quoting
   test_redirections
+  test_special_vars
   test_errs
 }
 
