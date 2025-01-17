@@ -222,7 +222,14 @@ test_redirections() {
     echo "========== REDIRECTION END =========="
 
 }
-
+test_quoting() {
+  echo "========== QUOTING BEGIN =========="
+  for i in $(find step2/quoting -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
+  echo "========== QUOTING END =========="
+}
 test_errs() {
     echo "========== ERROR_CODE BEGIN =========="
     # PARSER ERRS
@@ -253,6 +260,7 @@ testsuite() {
     test_neg_pipeline
     test_pipeline
     test_redirections
+    test_quoting
     test_errs
 }
 
