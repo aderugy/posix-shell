@@ -13,7 +13,7 @@
 #include "utils/logger.h"
 
 static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", NULL };
-static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", "!", NULL };
+static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", NULL };
 static struct shard *shard_init(char *data, char *state)
 {
     struct shard *shard = calloc(1, sizeof(struct shard));

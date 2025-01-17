@@ -115,9 +115,12 @@ test_pipeline() {
   tes "echo Hello | tr a e"
   tes "echo Hello | tr a e | tr e a"
   tes "echo Hello | tr a e | tr e a | tr a e"
+  tes "echo Hello '|' tr a e"
   tes "find -name *.c | echo"
   tes "tree -L 2 | echo | tr e a | tr c b"
   tes "echo Hello World!"
+  tes "'echo' hello 'my' dream"
+  tes "'ls'"
   echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
@@ -235,6 +238,8 @@ test_errs() {
   test_code_error 1 "true | false"
   test_code_error 0 "false | true"
   test_code_error 1 "false | true | false | false | false | false"
+  test_code_error 2 "'if' true; then echo a; fi"
+  test_code_error 127 "'if' 'true'; 'then' echo a; 'fi'"
   # LEXER ERRS
   test_code_error 2 "if true; then echo a; \"fi"
   test_code_error 2 "\""
@@ -242,6 +247,7 @@ test_errs() {
   test_code_error 2 "for test"
   test_code_error 2 "while test"
   test_code_error 127 "''"
+  test_code_error 2 "'"
   echo "========== ERROR_CODE END =========="
 }
 

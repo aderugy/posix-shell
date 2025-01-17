@@ -137,6 +137,9 @@ test_echo_basic() {
   tes 'echo' 'a'
   tes "echo foo; echo 'a'"
   tes "echo foo echo 'a'"
+  tes "echo hello!"
+  tes "echo hello!hello"
+  tes "echo !heelo"
   echo "========== ECHO END =========="
 }
 test_non_builtin() {
