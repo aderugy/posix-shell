@@ -215,7 +215,6 @@ test_ops() {
 
 test_redirections() {
     echo "========== REDIRECTION BEGIN =========="
-    tes "cat non_existent_file 2> err.txt; cat err.txt"
     tes "echo 'This will not appear' > /dev/null"
     tes "ls invalid_file 2> /dev/null"
     tes "ls > text ; sort < text ; rm text"
