@@ -100,7 +100,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     return redir;
 
 error:
-    
+
     if (redir)
     {
         ast_free_redir(redir);

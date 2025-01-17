@@ -96,14 +96,12 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
                                    struct ast_eval_ctx *ctx)
 
 {
-
     size_t element_count = cmd->args->size + 1;
 
     int *fd_ptr =
         calloc(3 * element_count, sizeof(int)); // alloc in case of redirections
 
     int *fd_pointer = fd_ptr;
-
 
     int ret_value = 0;
 
