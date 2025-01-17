@@ -42,13 +42,8 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 
     if (token->type == TOKEN_WORD || token->type == TOKEN_AWORD)
     {
-        lexer_pop(lexer); // Valid token -> we consume it
-        node->value = strdup(token->value.c);
-
-        // Adding zero at the end
-        // char *dump = token->value.c;
-        // token->value.c = strdup(token->value.c);
-        // free(dump);
+        // Valid token -> we consume it
+        lexer_pop(lexer);
 
         node->token = token;
         logger("\tExit ELEMENT\n");
@@ -71,8 +66,14 @@ int ast_eval_element(struct ast_element *node, void **out,
         }
         node->child = 1;
         struct mbt_str *str = expand(ctx, node->token);
-        *out = strdup(str->data);
+
+        // Recycling the node->expanded
+        free(node->expanded);
+        node->expanded = strdup(str->data);
+        *out = node->expanded;
+
         mbt_str_free(str);
+
         return 0;
     }
     else if (node->redir)
@@ -93,30 +94,32 @@ int ast_eval_element(struct ast_element *node, void **out,
         }
         node->child = 1;
 
-        *out = node->value;
+        *out = node->token->value.c;
         return 0;
     }
-    
 
     return 0;
 }
 
 void ast_free_element(struct ast_element *node)
 {
-    if (node->value)
+    if (node)
     {
-        free(node->value);
-    }
-    if (node->redir)
-    {
-        ast_free(node->redir);
-    }
-    if (node->token)
-    {
-        token_free(node->token);
-    }
+        if (node->expanded)
+        {
+            free(node->expanded);
+        }
+        if (node->redir)
+        {
+            ast_free(node->redir);
+        }
+        if (node->token)
+        {
+            token_free(node->token);
+        }
 
-    free(node);
+        free(node);
+    }
 }
 
 void ast_print_element(struct ast_element *node)

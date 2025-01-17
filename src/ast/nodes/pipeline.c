@@ -85,7 +85,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 }
 
 int ast_eval_pipeline(struct ast_pipeline *node, void **out,
-                       struct ast_eval_ctx *ctx)
+                      struct ast_eval_ctx *ctx)
 {
     int result;
     if (node->commands->size == 1)

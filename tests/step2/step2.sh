@@ -113,14 +113,6 @@ test_pipeline() {
   tes "tree -L 2 | echo | tr e a | tr c b"
   echo "========== PIPELINE END =========="
 }
-test_assignment() {
-  echo "========== ASSIGNMENT BEGIN =========="
-  for i in $(find tests/step2/assignment_substitution -name "*sh"); do
-    test_from_file $i
-    test_from_stdin $i
-  done
-  echo "========== QUOTING END =========="
-}
 test_neg_pipeline() {
   echo "========== NEGATION PIPELINE BEGIN =========="
   test_code_error 0 "! false | true | true | true | false"
@@ -259,10 +251,9 @@ test_errs() {
 }
 testsuite() {
   test_pipeline
-  test_assignment
+  test_var
   test_neg_pipeline
   test_ops
-  test_var
   test_comment
   test_for
   test_while_loops

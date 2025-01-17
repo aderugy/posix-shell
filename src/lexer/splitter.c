@@ -75,7 +75,6 @@ struct shard *splitter_next(struct stream *stream)
             }
         }
 
-
         if (c == '\\')
         {
             stream_read(stream);
@@ -161,6 +160,7 @@ int handle_quoting(struct stream *stream, struct mbt_str *str,
             {
                 break;
             }
+            mbt_str_pushc(str, c);
         }
         mbt_str_pushc(str, c);
     }

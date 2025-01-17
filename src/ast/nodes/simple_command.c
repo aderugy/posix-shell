@@ -164,7 +164,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     >>>>>>> main
             }*/
 
-            ret_value = run_command(elt, argv);
+        ret_value = run_command(elt, argv);
 
         fd_pointer = fd_ptr;
         while (*fd_pointer)
