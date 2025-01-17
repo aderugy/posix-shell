@@ -118,5 +118,6 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
         }
     }
 
+    dstream_close(dstream);
     return str;
 }

@@ -10,7 +10,7 @@ bin_PROGRAMS = 42sh
 
 42sh_CPPFLAGS = -I%D%
 
-42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 -fsanitize=address
+42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0
 
 42sh_LDADD =  \
 	ast/libast.a \

@@ -10,6 +10,7 @@ struct ast_element // can be produced with new_element_node
     struct ast_node *redir;
     char child;
     struct token *token;
+    char *expanded;
 };
 
 struct keywords
