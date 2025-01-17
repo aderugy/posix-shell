@@ -71,7 +71,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     char *file = NULL;
-    /*struct ast_node *number = ast_create(lexer, AST_IONUMBER);
+    int *number = ast_create(lexer, AST_IONUMBER);
     if (number)
     {
         logger("get ionumber : %l\n", number->value);
@@ -117,7 +117,7 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -143,7 +143,7 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     int saved_stdout = dup(STDOUT_FILENO);
     logger("Eval redir_stdout_file\n");
     int fd2 = 1;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -176,7 +176,7 @@ int redir_stdout_file_a(struct ast_redir *node,
 {
     logger("Eval redir_stdout_file_a\n");
     int fd2 = 1;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -212,7 +212,7 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
 
     int fd2 = 1;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -245,7 +245,7 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     }
 
     int fd2 = 1;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -269,7 +269,7 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -294,7 +294,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
-    if (node->number)
+    if (node->number != -1)
     {
         fd2 = node->number;
     }
@@ -340,7 +340,7 @@ void ast_free_redir(struct ast_redir *node)
 void ast_print_redir(struct ast_redir *node)
 {
     logger("redir ");
-    if (node->number)
+    if (node->number != -1)
     {
         ast_print(node->number);
     }
