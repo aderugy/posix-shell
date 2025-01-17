@@ -109,11 +109,12 @@ test_pipeline() {
   tes "echo Hello | tr a e"
   tes "echo Hello | tr a e | tr e a"
   tes "echo Hello | tr a e | tr e a | tr a e"
+  tes "echo Hello '|' tr a e"
   tes "find -name *.c | echo"
   tes "tree -L 2 | echo | tr e a | tr c b"
   tes "echo Hello World!"
   tes "'echo' hello 'my' dream"
-  echo "'ls'"
+  tes "'ls'"
   echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
