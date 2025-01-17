@@ -9,7 +9,7 @@
 
 struct ast_redir
 {
-    size_t number;
+    int number;
     enum token_type pipe;
     char *file;
 };

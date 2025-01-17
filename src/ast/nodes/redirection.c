@@ -119,7 +119,7 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
     int fd2 = 0;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
     char *file = node->file;
 
@@ -145,7 +145,7 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
@@ -178,7 +178,7 @@ int redir_stdout_file_a(struct ast_redir *node,
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -214,7 +214,7 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
 
     int fd = atoi(val);
@@ -247,7 +247,7 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
 
     int fd = atoi(val);
@@ -271,7 +271,7 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
     int fd2 = 0;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
     char *file = node->file;
 
@@ -296,7 +296,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     int fd2 = 1;
     if (node->number)
     {
-        fd2 = ast_eval(node->number, NULL, NULL);
+        fd2 = node->number;
     }
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
