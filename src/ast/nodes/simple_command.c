@@ -127,23 +127,13 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     {
         logger("simple_command.c : %s\n", argv[i]);
     }
-    /*for (size_t j = 0; fd_ptr[j]; j++)
-            {
-                logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
-                // logger("fd : %i\n", *fd);
-                // logger("fd2 : %i\n", *(fd + 1));
-                // logger("fd3 : %i\n", *(fd + 2));
-                close(*fd);
-                dup2(*(fd + 2), STDOUT_FILENO);
-                close(*(fd + 1));
-                fflush(stdout);
-            }*/
 
     ret_value = run_command(argc, argv);
 
     fd_pointer = fd_ptr;
     while (*fd_pointer)
     {
+        logger("simple_command ; fd to close : %i\n", *fd_pointer);
         close(*fd_pointer);
 
         dup2(fd_pointer[2], STDOUT_FILENO);
@@ -151,6 +141,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
         close(fd_pointer[2]);
 
         fd_pointer += 3;
+        logger("simple_command ; fd end : %i\n", *fd_pointer);
     }
 
     free(fd_ptr);

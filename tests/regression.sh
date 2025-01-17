@@ -138,6 +138,7 @@ test_echo_basic() {
   tes "echo hello!"
   tes "echo hello!hello"
   tes "echo !heelo"
+  tes "echo !heelo; echo yooo!o!!o!o!!!o"
   echo "========== ECHO END =========="
 }
 test_non_builtin() {
@@ -238,6 +239,7 @@ test_redirections() {
   tes "echo 'This will not appear' > /dev/null"
   tes "ls invalid_file 2> /dev/null"
   tes "ls > text ; sort < text ; rm text"
+  tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out"
   echo "========== REDIRECTION END =========="
 
 }
@@ -290,6 +292,7 @@ else
   testsuite
   res=$((100 * $PASSED_TEST / $TOTAL_TEST))
   echo -e "$res" >"$OUTPUT_FILE"
+  echo "$res%"
 fi
 
 #================== making sure every file exists before deleting them
