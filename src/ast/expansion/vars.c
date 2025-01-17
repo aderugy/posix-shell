@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "lexer/splitter.h"
 
@@ -81,4 +82,16 @@ int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
     hash_map_insert(ctx->value, glob, glob_val);
 
     return 2 - argc;
+}
+
+//$UID
+void init_UID(struct ast_eval_ctx *ctx)
+{
+    uid_t uid = getuid();
+    char *key_uid = strdup("UID");
+    char *uid_arg = calloc(1, 65);
+    struct mbt_str *str_uid = mbt_str_init(8);
+    mbt_str_pushcstr(str_uid, my_itoa(uid, uid_arg));
+    free(uid_arg);
+    hash_map_insert(ctx->value, key_uid, str_uid);
 }
