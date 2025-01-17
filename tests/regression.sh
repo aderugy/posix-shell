@@ -211,6 +211,22 @@ test_ops() {
   tes "echo a && ls || echo h"
   tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
   echo "========== OPS END =========="
+=======
+    echo "========== OPS BEGIN =========="
+    tes "true && false && false || echo a"
+    tes "true && echo b && true || echo a"
+    tes "true && ls && echo b || echo a"
+    tes "true && false && echo b || echo a"
+    tes "false && false && echo b || echo a"
+    tes "false && false && echo b; echo c && ls || echo a"
+    tes "false && false || echo b; echo c && ls || echo a"
+    tes "false && echo b || echo a && true && false || true"
+    tes "echo a && false || echo h"
+    tes "echo a && ls || echo h"
+    tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
+    tes "echo &&! false"
+    tes "true &&! false"
+    echo "========== OPS END =========="
 }
 
 test_redirections() {
