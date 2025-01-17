@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "ast/ast.h"
+#include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
@@ -14,7 +15,7 @@
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *tok = lexer_peek(lexer);
-    if (!tok || !tok->value.c || strcmp(tok->value.c, "if") != 0)
+    if (!reserved_word_check(tok) || strcmp(tok->value.c, "if") != 0)
     {
         return NULL;
     }
@@ -36,7 +37,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     logger("\tif.c : SUCCESSFULLY found IF\n");
 
     tok = lexer_pop(lexer);
-    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "then") != 0)
+    if (!reserved_word_check(tok) || strcmp(tok->value.c, "then") != 0)
     {
         errx(2, "missing then token");
     }
@@ -63,7 +64,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     }
     tok = lexer_pop(lexer);
 
-    if (!tok || !tok->value.c || strcmp(tok->value.c, "fi") != 0)
+    if (!reserved_word_check(tok) || strcmp(tok->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }

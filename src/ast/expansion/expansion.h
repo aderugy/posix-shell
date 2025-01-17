@@ -14,4 +14,6 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
 
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token);
 
+int reserved_word_check(struct token *token);
+
 #endif /* ! EXPANSION_H */

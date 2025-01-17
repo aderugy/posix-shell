@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "expansion/expansion.h"
 #include "expansion/vars.h"
 #include "lexer/lexer.h"
 #include "node.h"
@@ -33,6 +34,10 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     }
     if (token->type == TOKEN_WORD
         && (token->value.c[0] == '!' && strlen(token->value.c) == 1))
+    /*
+if (reserved_word_check(token) && (token->value.c[0] == '!'
+    && strlen(token->value.c) == 1))
+    */
     {
         logger("found a word\n");
         node->not = 1;
