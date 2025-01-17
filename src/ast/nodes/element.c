@@ -69,10 +69,11 @@ int ast_eval_element(struct ast_element *node, void **out,
         *out = strdup(str->data);
         mbt_str_free(str);
     }
-    else if (node->redir )
+    else if (node->redir)
     {
-        if (ctx->check_redir) {
-        ast_eval(node->redir, out, ctx);
+        if (ctx->check_redir)
+        {
+            ast_eval(node->redir, out, ctx);
         }
         return 1;
     }

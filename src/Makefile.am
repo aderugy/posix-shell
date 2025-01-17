@@ -15,7 +15,7 @@ bin_PROGRAMS = 42sh
 42sh_LDADD =  \
 	ast/libast.a \
 	lexer/liblex.a \
+	mbtstr/libmbtstr.a \
 	utils/libutils.a \
 	streams/libstreams.a \
-	builtins/libbuiltins.a \
-	mbtstr/libmbtstr.a 
+	builtins/libbuiltins.a

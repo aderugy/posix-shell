@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mbtstr/str.h"
 #include "utils/logger.h"
 
 // returns a 64bits hash_key for a null terminated string
@@ -80,7 +81,7 @@ void pair_list_free(struct pair_list *pl)
     if (pl)
     {
         free(pl->key);
-        free(pl->value);
+        mbt_str_free(pl->value);
         free(pl);
     }
 }
