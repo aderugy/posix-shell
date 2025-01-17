@@ -130,6 +130,7 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
     {
         errx(EXIT_FAILURE, "expansion: unclosed brackets");
     }
+    dstream_close(dstream);
 
     return str;
 }

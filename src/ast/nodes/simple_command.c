@@ -151,9 +151,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
         /*for (size_t j = 0; fd_ptr[j]; j++)
             {
-    <<<<<<< HEAD
                 logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
-    =======
                 // logger("fd : %i\n", *fd);
                 // logger("fd2 : %i\n", *(fd + 1));
                 // logger("fd3 : %i\n", *(fd + 2));
@@ -161,10 +159,9 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                 dup2(*(fd + 2), STDOUT_FILENO);
                 close(*(fd + 1));
                 fflush(stdout);
-    >>>>>>> main
             }*/
 
-            ret_value = run_command(elt, argv);
+        ret_value = run_command(elt, argv);
 
         fd_pointer = fd_ptr;
         while (*fd_pointer)
@@ -202,11 +199,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
             }
 
             logger("simple_command.c : execute : %s\n", argv[0]);
-
-            /*for (size_t i = 0; i < argc; i++)
-            {
-                logger("simple_command.c : %s\n", argv[i]);
-            }*/
 
             ret_value = execvp(argv[0], argv);
             exit(ret_value);
