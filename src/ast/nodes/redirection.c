@@ -70,13 +70,13 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    char *file = NULL;
-    int *number = ast_create(lexer, AST_IONUMBER);
-    if (number)
-    {
-        logger("get ionumber : %l\n", number->value);
-    }
-    * / struct token *token = lexer_peek(lexer);
+    /*  int *number = ast_create(lexer, AST_IONUMBER);
+      if (number)
+      {
+          logger("get ionumber : %l\n", number->value);
+      }
+      */
+    struct token *token = lexer_peek(lexer);
 
     if (!token || !is_redir(token))
     {
@@ -119,10 +119,7 @@ error:
     {
         ast_free_redir(redir);
     }
-    if (file)
-    {
-        free(file);
-    }
+
     logger("Exit REDIRECTION\n");
     return NULL;
 }
@@ -348,7 +345,6 @@ int ast_eval_redir(struct ast_redir *node, void **out,
 void ast_free_redir(struct ast_redir *node)
 {
     free(node->file);
-    ast_free(node->number);
     free(node);
 }
 
@@ -357,7 +353,7 @@ void ast_print_redir(struct ast_redir *node)
     logger("redir ");
     if (node->number != -1)
     {
-        ast_print(node->number);
+        logger("%i ", node->number);
     }
     if (node->pipe)
     {
