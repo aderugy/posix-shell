@@ -71,11 +71,11 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     char *file = NULL;
-    struct ast_node *number = ast_create(lexer, AST_IONUMBER);
+    /*struct ast_node *number = ast_create(lexer, AST_IONUMBER);
     if (number)
     {
         logger("get ionumber : %l\n", number->value);
-    }
+    }*/
     struct token *token = lexer_peek(lexer);
 
     if (!token || !is_redir(token))
@@ -92,7 +92,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         goto error;
     }
 
-    redir->number = number;
+    redir->number = NULL;
     redir->file = token->value.c;
     free(token->state);
     free(lexer_pop(lexer));
@@ -100,10 +100,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     return redir;
 
 error:
-    if (number)
-    {
-        ast_free(number);
-    }
+    
     if (redir)
     {
         ast_free_redir(redir);

@@ -73,7 +73,6 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         ast_free_simple_cmd(cmd);
         return NULL;
     }
-    logger(" SIMPLE_COMMAND : found cmd : %s\n", token->value.c);
 
     cmd->cmd = token->value.c;
     free(token->state);
@@ -91,6 +90,73 @@ error:
     ast_free_simple_cmd(cmd);
     logger("Exit SIMPLE_COMMAND\n");
     return NULL;
+}
+
+int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
+                                   struct ast_eval_ctx *ctx)
+
+{
+
+    size_t element_count = cmd->args->size + 1;
+
+    int *fd_ptr =
+        calloc(3 * element_count, sizeof(int)); // alloc in case of redirections
+
+    int *fd_pointer = fd_ptr;
+
+
+    int ret_value = 0;
+
+    size_t argc = 1;
+
+    for (size_t i = 1; i < element_count; i++)
+    {
+        ctx->check_redir = true;
+        struct ast_node *children = list_get(cmd->args, i - 1);
+        if (ast_eval(children, (void **)&fd_pointer, ctx) == 1)
+        {
+            fd_pointer += 3; // for the 3 files descriptor that we need to close
+        }
+        else
+        {
+            argc++;
+        }
+    }
+
+    logger("simple command : execute : %s\n", argv[0]);
+
+    for (size_t i = 0; i < argc; i++)
+    {
+        logger("simple_command.c : %s\n", argv[i]);
+    }
+    /*for (size_t j = 0; fd_ptr[j]; j++)
+            {
+                logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
+                // logger("fd : %i\n", *fd);
+                // logger("fd2 : %i\n", *(fd + 1));
+                // logger("fd3 : %i\n", *(fd + 2));
+                close(*fd);
+                dup2(*(fd + 2), STDOUT_FILENO);
+                close(*(fd + 1));
+                fflush(stdout);
+            }*/
+
+    ret_value = run_command(argc, argv);
+
+    fd_pointer = fd_ptr;
+    while (*fd_pointer)
+    {
+        close(*fd_pointer);
+
+        dup2(fd_pointer[2], STDOUT_FILENO);
+
+        close(fd_pointer[2]);
+
+        fd_pointer += 3;
+    }
+
+    free(fd_ptr);
+    return ret_value;
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
@@ -129,53 +195,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
     if (cmd_runnable) // check if it is a builtin
     {
-        int *fd_ptr =
-            calloc(3 * argc, sizeof(int)); // alloc in case of redirections
-        int *fd_pointer = fd_ptr;
-
-        for (size_t i = 1; i < argc; i++)
-        {
-            ctx->check_redir = true;
-            struct ast_node *children = list_get(cmd->args, i - 1);
-            if (ast_eval(children, (void **)&fd_pointer, ctx) == 1)
-            {
-                fd_pointer += 3;
-            }
-        }
-
-        logger("simple command : execute : %s\n", argv[0]);
-
-        for (size_t i = 0; i < argc; i++)
-        {
-            logger("simple_command.c : %s\n", argv[i]);
-        }
-        /*for (size_t j = 0; fd_ptr[j]; j++)
-            {
-                logger("simple_command.c : found a fd : %i\n", fd_ptr[j]);
-                // logger("fd : %i\n", *fd);
-                // logger("fd2 : %i\n", *(fd + 1));
-                // logger("fd3 : %i\n", *(fd + 2));
-                close(*fd);
-                dup2(*(fd + 2), STDOUT_FILENO);
-                close(*(fd + 1));
-                fflush(stdout);
-            }*/
-
-        ret_value = run_command(elt, argv);
-
-        fd_pointer = fd_ptr;
-        while (*fd_pointer)
-        {
-            close(*fd_pointer);
-
-            dup2(fd_pointer[2], STDOUT_FILENO);
-
-            close(fd_pointer[2]);
-
-            fd_pointer += 3;
-        }
-
-        free(fd_ptr);
+        ret_value = simple_command_execute_builtin(cmd, argv, ctx);
     }
     else
     {
