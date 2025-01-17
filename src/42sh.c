@@ -1,3 +1,4 @@
+#include "ast/nodes/eval_ctx.h"
 #define _POSIX_C_SOURCE 200809L
 #include <err.h>
 #include <getopt.h>
@@ -21,6 +22,34 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
                                   { "test-token", no_argument, 0, 't' },
 
                                   { 0, 0, 0, 0 } };
+
+static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
+                    int nb_args)
+{
+    init_dollar(*ctx);
+    init_hashtag(nb_args, *ctx);
+    update_qm(*ctx, 0);
+    register_commands();
+    struct lexer *lexer = lexer_create(*stream);
+    struct ast_node *node;
+    int return_value = 0;
+    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    {
+        ast_print(node);
+        return_value = ast_eval(node, NULL, *ctx);
+
+        ast_free(node);
+    }
+
+    if (!node && lexer->stream)
+    {
+        return_value = 2;
+    }
+    ast_eval_ctx_free(*ctx);
+    lexer_free(lexer);
+    unregister_commands();
+    return return_value;
+}
 
 int main(int argc, char *argv[])
 {
@@ -69,31 +98,5 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
-    init_dollar(ctx);
-    init_hashtag(nb_args, ctx);
-    update_qm(ctx, 0);
-    init_UID(ctx);
-
-    register_commands();
-    struct lexer *lexer = lexer_create(stream);
-
-    struct ast_node *node;
-    int return_value = 0;
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
-    {
-        ast_print(node);
-        return_value = ast_eval(node, NULL, ctx);
-
-        ast_free(node);
-    }
-
-    if (!node && lexer->stream)
-    {
-        return_value = 2;
-    }
-
-    ast_eval_ctx_free(ctx);
-    lexer_free(lexer);
-    unregister_commands();
-    return return_value;
+    return sub_main(&stream, &ctx, nb_args);
 }
