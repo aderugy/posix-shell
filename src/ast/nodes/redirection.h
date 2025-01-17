@@ -9,7 +9,7 @@
 
 struct ast_redir
 {
-    struct ast_node *number;
+    int number;
     enum token_type pipe;
     char *file;
 };
