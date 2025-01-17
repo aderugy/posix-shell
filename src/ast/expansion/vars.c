@@ -72,5 +72,13 @@ int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
 
     hash_map_insert(ctx->value, karabose, arobase);
 
+    // Temporary for $*
+    char *glob = calloc(1, 2);
+    glob[0] = '*';
+    struct mbt_str *glob_val = mbt_str_init(8);
+    mbt_str_pushcstr(glob_val, arobase->data);
+
+    hash_map_insert(ctx->value, glob, glob_val);
+
     return 2 - argc;
 }
