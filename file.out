@@ -1,9 +1,0 @@
-Exit Eval Redir
-simple command : execute : echo
-simple_command.c : echo
-simple_command.c : Hello
-simple_command.c : (null)
-simple_command.c : found a fd : 4
-simple_command.c : found a fd : 1
-simple_command.c : found a fd : 3
-Hello
