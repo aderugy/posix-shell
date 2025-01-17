@@ -60,7 +60,7 @@ int ast_eval_until(struct ast_until_node *node, void **out,
                    struct ast_eval_ctx *ctx)
 {
     int ret_val;
-    while (!ast_eval(node->condition, out, ctx) == EXIT_SUCCESS)
+    while (!(ast_eval(node->condition, out, ctx) == EXIT_SUCCESS))
     {
         ret_val = ast_eval(node->body, out, ctx);
         if (ret_val != EXIT_SUCCESS)
