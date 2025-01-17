@@ -82,6 +82,21 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     {
         goto error;
     }
+    redir->number = -1;
+    char number = 1;
+    for (size_t i = 0; token->value.c[i]; i++)
+    {
+        if (!strchr(DIGITS, token->value.c[i]))
+        {
+            number = 0;
+            break;
+        }
+    }
+    if (number == 1)
+    {
+        redir->number = atoi(token->value.c);
+    }
+
     redir->pipe = token->type;
 
     free(lexer_pop(lexer));
@@ -92,7 +107,6 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         goto error;
     }
 
-    redir->number = NULL;
     redir->file = token->value.c;
     free(token->state);
     free(lexer_pop(lexer));
