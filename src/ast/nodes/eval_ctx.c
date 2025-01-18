@@ -71,6 +71,7 @@ struct mbt_str *env_vars(char *name)
 
     return value;
 }
+
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
     // env vars

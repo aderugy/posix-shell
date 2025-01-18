@@ -3,12 +3,13 @@
 
 #include "lexer/lexer.h"
 #include "node.h"
+#include "utils/linked_list.h"
 
 struct ast_for_node
 {
-    struct ast_node *elt; // word
-    struct ast_node *in; // word
-    struct ast_node *body; // clist
+    char *name;
+    struct linked_list *items;
+    struct ast_node *body;
 };
 
 struct ast_for_node *ast_parse_for(struct lexer *lexer);

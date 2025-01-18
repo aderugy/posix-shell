@@ -6,6 +6,8 @@
 
 #include "ast/ast.h"
 #include "lexer/lexer.h"
+#include "node.h"
+#include "utils/err_utils.h"
 #include "utils/logger.h"
 /*
    rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
@@ -13,22 +15,106 @@
 */
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
-    errx(AST_PARSE_ERROR, "Unimplemented ast_parse_for");
+    struct ast_node *clist = NULL;
+    struct ast_for_node *ast = calloc(1, sizeof(struct ast_for_node));
+    CHECK_MEMORY_ERROR(ast);
+    ast->items = list_init();
+
+    // "for" keyword
     struct token *tok = lexer_peek(lexer);
     if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "for") != 0)
     {
-        return NULL;
+        goto error;
     }
-    lexer_pop(lexer);
-    free(tok);
+    token_free(lexer_pop(lexer));
 
-    struct ast_for_node *ast = calloc(1, sizeof(struct ast_for_node));
-    if (!ast)
+    // Contains word
+    tok = lexer_peek(lexer);
+    if (!tok || tok->type != TOKEN_WORD)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        goto error;
+    }
+    ast->name = strdup(tok->value.c);
+
+    tok = lexer_peek(lexer);
+    // [ ; ]
+    if (tok && tok->type == TOKEN_SEMICOLON)
+    {
+        while (tok && tok->type == TOKEN_SEMICOLON)
+        {
+            token_free(lexer_pop(lexer));
+            tok = lexer_peek(lexer);
+        }
+
+        list_append(ast->items, strdup("$@"));
+    }
+    else
+    {
+        // { \n }
+        while (tok && tok->type == TOKEN_NEW_LINE)
+        {
+            token_free(lexer_pop(lexer));
+            tok = lexer_peek(lexer);
+        }
+
+        // 'in'
+        if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "in"))
+        {
+            goto error;
+        }
+        token_free(lexer_pop(lexer));
+
+        // { WORD }
+        while ((tok = lexer_peek(lexer)) && tok->type == TOKEN_WORD)
+        {
+            list_append(ast->items, strdup(tok->value.c));
+            token_free(lexer_pop(lexer));
+        }
+
+        if (!tok
+            || !(tok->type == TOKEN_NEW_LINE || tok->type == TOKEN_SEMICOLON))
+        {
+            goto error;
+        }
+
+        free(lexer_pop(lexer));
     }
 
+    // { '\n' }
+    while ((tok = lexer_peek(lexer)) && tok->type == TOKEN_NEW_LINE)
+    {
+        free(lexer_pop(lexer));
+    }
+
+    // 'do'
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "do"))
+    {
+        goto error;
+    }
+    token_free(lexer_pop(lexer));
+
+    clist = ast_create(lexer, AST_CLIST);
+    if (!clist)
+    {
+        goto error;
+    }
+
+    tok = lexer_peek(lexer);
+    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "done"))
+    {
+        goto error;
+    }
+
+    return ast;
+
+error:
     ast_free_for(ast);
+    if (clist)
+    {
+        ast_free(clist);
+    }
+
+    return NULL;
 }
 
 int ast_eval_for(__attribute((unused)) struct ast_for_node *node,
@@ -42,21 +128,34 @@ void ast_free_for(struct ast_for_node *node)
 {
     if (node)
     {
-        ast_free(node->elt);
-        ast_free(node->in);
-        ast_free(node->body);
+        if (node->name)
+        {
+            free(node->name);
+        }
+
+        if (node->items)
+        {
+            list_free(node->items, free);
+        }
+
+        if (node->body)
+        {
+            ast_free(node->body);
+        }
+
         free(node);
     }
 }
 
 void ast_print_for(struct ast_for_node *node)
 {
-    logger("for ");
-    ast_print(node->elt);
-
-    logger("in ");
-    ast_print(node->in);
-
-    logger("do ");
+    logger("for %s in", node->name);
+    for (struct linked_list_element *elt = node->items->head; elt;
+         elt = elt->next)
+    {
+        logger(" %s", elt->data);
+    }
+    logger("; do ");
     ast_print(node->body);
+    logger("; done");
 }
