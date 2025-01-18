@@ -38,7 +38,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     {
         errx(2, "while: missing do token");
     }
-    free(tok);
+    token_free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
@@ -51,7 +51,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     {
         errx(AST_PARSE_ERROR, "while: missing done token");
     }
-    free(tok);
+    token_free(tok);
 
     return ast;
 }
