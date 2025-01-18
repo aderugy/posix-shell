@@ -49,6 +49,11 @@ libast_a_SOURCES =  \
   nodes/redirection_stdin.c \
   nodes/redirection_stdout.c \
   nodes/redirection_stdout.h \
+	nodes/simple_command_execute_builtin.c \
+	nodes/simple_command_execute_builtin.h \
+	nodes/simple_command_execute_non_builtin.c \
+	nodes/simple_command_execute_non_builtin.h \
+	nodes/ast_simple_cmd.h \
   nodes/node.h 
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
