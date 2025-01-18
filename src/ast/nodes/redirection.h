@@ -6,20 +6,7 @@
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "node.h"
-
-struct ast_redir
-{
-    int number;
-    enum token_type pipe;
-    char *file;
-};
-
-struct redirection
-{
-    enum token_type type;
-    int (*redir)(struct ast_redir *, void **, struct ast_eval_ctx *);
-    char *token;
-};
+#include "redirection_stdin.h"
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer);
 int ast_eval_redir(struct ast_redir *node, void **out,
