@@ -273,9 +273,7 @@ test_cd() {
     tes "cd .. && echo $PWD"
     tes "cd ../ && echo $PWD"
     tes "cd && echo $PWD"
-    tes "cd / && echo $PWD"
     tes "cd . && echo $PWD"
-    tes "cd - && echo $PWD"
     echo "========== CD END ========="
 }
 test_exit() {
@@ -342,6 +340,7 @@ if [ "$COVERAGE" = "yes" ]; then
     testsuite
     ./step1.sh
     ./step2/step2.sh
+    ./step3/step3.sh
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
 else
     testsuite

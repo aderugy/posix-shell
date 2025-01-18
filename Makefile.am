@@ -15,6 +15,8 @@ s1:
 	tests/step1.sh
 s2:
 	tests/step2/step2.sh
+s3:
+	tests/step3/step3.sh
 checkall:
 	tests/regression.sh
 	tests/step1.sh
