@@ -247,7 +247,18 @@ test_errs() {
     test_code_error 2 "'"
     echo "========== ERROR_CODE END =========="
 }
-
+test_cd() {
+    echo "========== CD ========="
+    tes "cd .. && echo $PWD"
+    tes "cd ../ && echo $PWD"
+    tes "cd && echo $PWD"
+    echo "========== CD END ========="
+}
+test_exit() {
+    echo "========== exit ========="
+    test_code_error 1 "exit 1"
+    echo "========== exit END ========="
+}
 test_special_vars() {
     echo "========== SPE_VARS BEGIN =========="
     for i in $(find tests/step2/special_var -name "*sh"); do
@@ -269,6 +280,8 @@ testsuite() {
     test_redirections
     test_special_vars
     test_errs
+    test_cd
+    test_exit
 }
 
 testsuite
