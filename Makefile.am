@@ -28,6 +28,8 @@ clean:
 	rm -rf test-driver tests/atconfig tests/token_tests
 	find \( -name *.log -o -name *.trs -o -name *.Po -o -name Makefile \) -delete
 	find \( -name *.dirstamp \) -delete
+	find . -type f \( -name "*.gcno" -o -name "*.gcda" \) -delete
+	find . -type f -name "*.html" -delete
 	rm -rf src/ast/.deps *.txt
 	find \( -name *.deps -o -name *.[oa] -o -name *.in \) -delete
 	rm 42sh-1.0.tar.gz
