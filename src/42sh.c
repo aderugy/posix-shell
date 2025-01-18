@@ -68,12 +68,9 @@ int main(int argc, char *argv[])
         {
         case 'v':
             logger(NULL, NULL);
-            logger("--verbose is activated\n");
             break;
         case 'c':
             stream = stream_from_str(optarg);
-            break;
-        case 't':
             break;
         case '?':
             exit(1);

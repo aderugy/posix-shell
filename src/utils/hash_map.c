@@ -112,26 +112,6 @@ void hash_map_free(struct hash_map *hash_map)
     }
 }
 // prints the hashmap
-void hash_map_dump(struct hash_map *hash_map)
-{
-    for (size_t i = 0; i < hash_map->size; i++)
-    {
-        struct pair_list *p = hash_map->data[i];
-        if (p)
-        {
-            printf("%s: %p", p->key, p->value);
-            p = p->next;
-
-            while (p)
-            {
-                printf(", %s: %p", p->key, p->value);
-                p = p->next;
-            }
-
-            printf("\n");
-        }
-    }
-}
 
 void *hash_map_get(struct hash_map *hash_map, char *key)
 {
@@ -159,43 +139,4 @@ void *hash_map_get(struct hash_map *hash_map, char *key)
     }
 
     return p->value;
-}
-bool hash_map_remove(struct hash_map *hash_map, char *key)
-{
-    if (hash_map == NULL || hash_map->size == 0)
-    {
-        errx(EXIT_FAILURE, "hash map not initialized");
-    }
-
-    size_t index = hash(key);
-    if (index >= hash_map->size)
-    {
-        index %= hash_map->size;
-    }
-
-    struct pair_list *prev;
-    struct pair_list *p = hash_map->data[index];
-    if (p && strcmp(p->key, key) == 0)
-    {
-        hash_map->data[index] = p->next;
-        free(p);
-        return true;
-    }
-
-    while (p && strcmp(p->key, key))
-    {
-        prev = p;
-        p = p->next;
-    }
-
-    if (p == NULL)
-    {
-        perror("HASH_MAP: removing non-existant parameter");
-        return false;
-    }
-
-    prev->next = p->next;
-    free(p);
-
-    return true;
 }

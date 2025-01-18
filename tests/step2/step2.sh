@@ -159,10 +159,16 @@ test_while_loops() {
 }
 test_var() {
     echo "========== VARIABLES BEGIN =========="
-    for i in $(find tests/step2/assignement_substitution -name "*sh"); do
+    for i in $(find step2/assignement_substitution -name "*sh"); do
         test_from_file $i
         test_from_stdin $i
     done
+    echo "========== VARIABLES END =========="
+}
+test_var_local() {
+    echo "========== VARIABLES BEGIN =========="
+    tes "A=2; echo $A"
+    tes "A=42; B=55; echo $A $B"
     echo "========== VARIABLES END =========="
 }
 test_non_builtin() {
@@ -282,6 +288,7 @@ testsuite() {
     test_errs
     test_cd
     test_exit
+    test_var_local
 }
 
 testsuite

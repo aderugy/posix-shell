@@ -144,6 +144,7 @@ test_echo_basic() {
     tes "echo -e !heelo;echo yooo!o!!o!o!!!o"
     tes "echo -n !heelo;echo yooo!o!!o!o!!!o"
     tes "echo -E !heelo;echo yooo!o!!o!o!!!o"
+    tes "echo jepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
     echo "========== ECHO END =========="
 }
 test_non_builtin() {
