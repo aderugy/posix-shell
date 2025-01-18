@@ -209,6 +209,8 @@ test_redirections() {
     tes "echo 'This will not appear' > /dev/null"
     tes "ls invalid_file 2> /dev/null"
     tes "ls > text ; sort < text ; rm text"
+    tes "echo Salut |> text; rm text"
+    tes "echo Salut >| text; rm text"
 
     echo "========== REDIRECTIONS END =========="
 }
