@@ -145,6 +145,10 @@ test_echo_basic() {
     tes "echo -n !heelo;echo yooo!o!!o!o!!!o"
     tes "echo -E !heelo;echo yooo!o!!o!o!!!o"
     tes "echo jepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
+    tes "echo j\epeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
+    tes "echo -e j\\epeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
+    tes "echo -E j\\epeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
+    tes "echo -n j\\e\peuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbrojepeuxecrirecombiendecharbro"
     echo "========== ECHO END =========="
 }
 test_non_builtin() {
@@ -221,22 +225,6 @@ test_ops() {
     tes "echo a && ls || echo h"
     tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
     echo "========== OPS END =========="
-    =======
-    echo "========== OPS BEGIN =========="
-    tes "true && false && false || echo a"
-    tes "true && echo b && true || echo a"
-    tes "true && ls && echo b || echo a"
-    tes "true && false && echo b || echo a"
-    tes "false && false && echo b || echo a"
-    tes "false && false && echo b; echo c && ls || echo a"
-    tes "false && false || echo b; echo c && ls || echo a"
-    tes "false && echo b || echo a && true && false || true"
-    tes "echo a && false || echo h"
-    tes "echo a && ls || echo h"
-    tes "echo afasfag && echo asfbfhsafbs && tree || echo h"
-    tes "echo &&! false"
-    tes "true &&! false"
-    echo "========== OPS END =========="
 }
 
 test_redirections() {
@@ -250,6 +238,56 @@ test_redirections() {
     rm dum.out
     echo "========== REDIRECTION END =========="
 
+}
+test_quoting() {
+    echo "========== QUOTING BEGIN =========="
+    for i in $(find step2/quoting -name "*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========== QUOTING END =========="
+}
+test_pipeline() {
+    echo "========== PIPELINE BEGIN =========="
+    tes "echo Hello | tr a e"
+    tes "echo Hello | tr a e | tr e a"
+    tes "echo Hello | tr a e | tr e a | tr a e"
+    tes "find -name *.c | echo"
+    tes "tree -L 2 | echo | tr e a | tr c b"
+    tes "echo Hello World!"
+    tes "'echo' hello 'my' dream"
+    tes "'ls'"
+    echo "========== PIPELINE END =========="
+}
+test_neg_pipeline() {
+    echo "========== NEGATION PIPELINE BEGIN =========="
+    test_code_error 0 "! false | true | true | true | false"
+    test_code_error 0 "! false | true | false | false | false | false"
+    test_code_error 0 "! true | false"
+    test_code_error 1 "! false | true"
+    test_code_error 1 "! ls | echo"
+    echo "========== NEGATION PIPELINE END =========="
+}
+test_cd() {
+    echo "========== CD ========="
+    tes "cd .. && echo $PWD"
+    tes "cd ../ && echo $PWD"
+    tes "cd && echo $PWD"
+    tes "cd / && echo $PWD"
+    tes "cd . && echo $PWD"
+    tes "cd - && echo $PWD"
+    echo "========== CD END ========="
+}
+test_exit() {
+    echo "========== exit ========="
+    test_code_error 1 "exit 1"
+    echo "========== exit END ========="
+}
+test_var_local() {
+    echo "========== VARIABLES BEGIN =========="
+    tes "A=2; echo $A"
+    tes "A=42; B=55; echo $A $B"
+    echo "========== VARIABLES END =========="
 }
 test_quoting() {
     echo "========== QUOTING BEGIN =========="
@@ -276,8 +314,10 @@ test_errs() {
     # LEXER ERRS
     test_pars_lex_error 2 "if true; then echo a; \"fi"
     test_pars_lex_error 2 "\""
+    test_pars_lex_error 2 "cd a a"
     echo "========== ERROR_CODE END =========="
 }
+
 testsuite() {
     test_echo_basic
     test_non_builtin
@@ -291,6 +331,11 @@ testsuite() {
     test_redirections
     test_quoting
     test_errs
+    test_cd
+    test_exit
+    test_var_local
+    test_quoting
+
 }
 
 if [ "$COVERAGE" = "yes" ]; then

@@ -95,28 +95,7 @@ output_test() {
     echo "$R$A$D"
   fi
 }
-test_echo_basic() {
-  echo "========== ECHO BEGIN =========="
-  tes "echo     "
-  tes 'echo     a'
-  tes echo 'a'
-  tes 'echo "a"'
-  tes echo aaa bbb ccc
-  tes echo echo
-  tes echo if
-  tes echo "\nouaaaaa\n\n\nla dinguerie\\\n\t"
-  tes 'echo' 'a'
-  tes "echo foo; echo 'a'"
-  tes "echo Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Egestas purus viverra accumsan in nisl nisi. At quis risus sed vulputate. Neque laoreet suspendisse interdum consectetur libero. Et molestie ac feugiat sed lectus vestibulum mattis. Tristique nulla aliquet enim tortor at auctor. Aliquet porttitor lacus luctus accumsan tortor. Tellus cras adipiscing enim eu turpis. Mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Nec sagittis aliquam malesuada bibendum arcu vitae elementum. Consequat id porta nibh venenatis cras. Dolor magna eget est lorem ipsum. Vivamus at augue eget arcu dictum varius duis. Aliquam eleifend mi in nulla. Cursus risus at ultrices mi tempus imperdiet nulla malesuada. Adipiscing elit ut aliquam purus sit amet luctus venenatis. Risus at ultrices mi tempus imperdiet nulla malesuada pellentesque elit. Mauris cursus mattis molestie a iaculis at erat pellentesque adipiscing."
-  echo "========== ECHO END =========="
-}
-test_non_builtin() {
-  echo "========== NON_BUILTIN BEGIN =========="
-  tes "ls -a"
-  tes "tree -L 2"
-  tes "find -name *.c"
-  echo "========== NON_BUILTIN END =========="
-}
+
 test_echo_options() {
   echo "========== ECHO OPTIONS BEGINING =========="
   tes echo -n "just a chill line\n"
@@ -134,37 +113,7 @@ test_echo_options() {
   tes echo -Ee "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
   echo "========== ECHO OPTIONS END =========="
 }
-test_if() {
-  echo "========== IF BEGIN =========="
-  tes "if true; then echo a; fi"
-  tes "if false; then echo a; fi"
-  tes "if false; then echo a; echo b; fi"
-  tes "if true; then if true; then if true; then echo a; fi fi fi"
-  tes "if echo if; then echo then; else echo else; fi"
-  echo "========== IF END =========="
-}
-test_elif() {
-  echo "========== ELIF BEGIN =========="
-  tes "if false; then echo a; elif true; then echo b; fi"
-  tes "if false; then echo a; elif false; then echo b;
-                        elif true; then echo c; fi"
-  echo "========== ELIF END =========="
-}
-test_else() {
-  echo "========== ELSE BEGIN =========="
-  tes "if false; then echo a; else echo b; fi"
-  tes "if true; then echo a; else echo b; fi"
-  tes "if false; then echo a; elif false; then echo b; else echo c; fi"
-  tes "if false; then echo a; elif false; then echo b; else echo c; fi"
-  echo "========== ELSE END =========="
-}
-test_comment() {
-  echo "========== COMMENT BEGIN =========="
-  tes echo "Ya un commentaire m c chill #de ouf c chill"
-  tes echo "Ya un commentaire m c chill \# mais moi je suis pas un comment"
-  tes 'echo \escaped \#escaped "#"quoted not#first #commented'
-  echo "========== COMMENT END =========="
-}
+
 test_mix() {
   echo "========== MIX BEGIN =========="
   tes 'echo -e \escaped \#escaped "#"quoted not#first #commented'
@@ -173,37 +122,10 @@ test_mix() {
     #commented"; fi'
   echo "========== MIX END =========="
 }
-test_errs() {
-  echo "========== ERROR_CODE BEGIN =========="
-  # PARSER ERRS
-  test_pars_lex_error 2 "fi fi"
-  test_pars_lex_error 2 "then fi"
-  test_pars_lex_error 2 "if fi"
-  test_pars_lex_error 2 "else fi"
-  test_pars_lex_error 2 "if true; then if fi"
-  test_pars_lex_error 2 "if true; then if fi"
-  test_pars_lex_error 2 "elif true; then if fi"
-  test_pars_lex_error 2 "if true; then if fi"
-  test_pars_lex_error 2 "if if; then if fi"
-  test_pars_lex_error 2 "then true; then if fi"
-  test_pars_lex_error 2 "true; then if fi"
-  # LEXER ERRS
-  test_pars_lex_error 2 "if true; then echo a; \"fi"
-  test_pars_lex_error 127 "ech res\n"
-  test_pars_lex_error 2 "\""
-  test_pars_lex_error 2 "\"\"\""
-  echo "========== ERROR_CODE END =========="
-}
+
 testsuite() {
-  test_echo_basic
   #test_echo_options
-  test_non_builtin
-  test_if
-  test_elif
-  test_else
-  test_comment
   test_mix
-  test_errs
 }
 
 testsuite

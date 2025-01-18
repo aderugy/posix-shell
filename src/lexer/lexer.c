@@ -44,14 +44,15 @@ static const struct keyword KEYWORDS[] = { { ";", TOKEN_SEMICOLON },
                                            { "|", TOKEN_PIPE },
                                            { "&&", TOKEN_AND },
                                            { "||", TOKEN_OR },
-                                           { ">", TOKEN_REDIR_STDOUT_FILE },
-                                           { "<", TOKEN_REDIR_FILE_STDIN },
+                                           { "<>", TOKEN_REDIR_FOPEN_RW },
                                            { ">>", TOKEN_REDIR_STDOUT_FILE_A },
                                            { ">&", TOKEN_REDIR_STDOUT_FD },
                                            { "<&", TOKEN_REDIR_STDIN_FD },
-                                           { ">|",
+{ ">|",
                                              TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
-                                           { "<>", TOKEN_REDIR_FOPEN_RW },
+                                           { ">", TOKEN_REDIR_STDOUT_FILE },
+                                           { "<", TOKEN_REDIR_FILE_STDIN },
+                                           
                                            { NULL, TOKEN_EOF } };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
@@ -125,6 +126,7 @@ static struct token *lex(struct lexer *lexer)
             && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
         {
             token->type = KEYWORDS[i].type;
+            logger("type found : %s\n", get_token_name(token->type));
             if (token->type > 9)
             {
                 size_t s = first_occurence_of_chevron - shard->data;

@@ -42,16 +42,5 @@ char *my_itoa(int value, char *s)
         str_revert(s);
         return s;
     }
-    value = -value;
-    int i = 1;
-    while (value != 0)
-    {
-        s[i] = (value % 10 + '0');
-        value = value / 10;
-        i++;
-    }
-    s[i] = 0;
-    str_revert(s + 1);
-    s[0] = '-';
     return s;
 }
