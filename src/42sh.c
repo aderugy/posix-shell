@@ -30,9 +30,11 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     init_hashtag(nb_args, *ctx);
     update_qm(*ctx, 0);
     register_commands();
+
     struct lexer *lexer = lexer_create(*stream);
     struct ast_node *node;
     int return_value = 0;
+    // boucle while ???
     while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
     {
         ast_print(node);
@@ -48,7 +50,9 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     ast_eval_ctx_free(*ctx);
     lexer_free(lexer);
     unregister_commands();
-    return return_value;
+
+    // return return_value;
+    exit(return_value);
 }
 
 int main(int argc, char *argv[])
