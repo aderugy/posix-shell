@@ -75,3 +75,6 @@ out
 a.sh
 vgcore*
 
+*.gcno
+coverage*
+*.gcda
