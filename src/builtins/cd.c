@@ -47,17 +47,19 @@ char *get_current_path(void)
 
 char *normalize_path(const char *path)
 {
-    // Buffer pour stocker le chemin absolu final
     static char resolved_path[MAX_PATH];
     char temp_path[MAX_PATH];
-    char *token, *resolved;
+    char *token;
+    char *resolved;
 
-    if (path[0] == '/')
+    if (path[0] == '/') // On verifie si le chemin commence à la racine sinon on
+                        // le rajoute
     {
         resolved = resolved_path;
         resolved[0] = '/';
         resolved[1] = '\0';
     }
+
     else
     {
         if (!getcwd(resolved_path, sizeof(resolved_path)))
@@ -74,20 +76,22 @@ char *normalize_path(const char *path)
     token = strtok(temp_path, "/");
     while (token)
     {
-        if (strcmp(token, ".") == 0)
+        if (strcmp(token, ".") == 0) // s'il y a seulement . on ignore
         {
             token = strtok(NULL, "/");
             continue;
         }
-        else if (strcmp(token, "..") == 0)
+
+        else if (strcmp(token, "..") == 0) // On met le chemin d'avant
         {
             if (resolved > resolved_path + 1)
             {
-                resolved--; // Ignore le dernier '/'
+                resolved--;
                 while (resolved > resolved_path && resolved[-1] != '/')
                     resolved--;
             }
         }
+
         else
         {
             if (resolved > resolved_path + 1)
@@ -97,8 +101,19 @@ char *normalize_path(const char *path)
         }
         token = strtok(NULL, "/");
     }
+
     *resolved = '\0';
     return resolved_path;
+}
+
+void move_cd(char *oldpwd, char *pwd)
+{
+    if (setenv("OLDPWD", oldpwd, 1) != 0)
+        errx(1, "cd: setenv: error");
+    if (setenv("PWD", pwd, 1) != 0)
+        errx(1, "cd: setenv: error");
+    if (chdir(pwd) != 0)
+        errx(1, "cd: chdir: error");
 }
 
 int cd(int argc, char **argv)
@@ -114,11 +129,8 @@ int cd(int argc, char **argv)
         if (home == NULL || strlen(home) == 0) // RULE 1
             errx(2, "cd: empty or unddefined HOME environment");
         char *current_path = get_current_path(); // RULE 2
-        setenv("OLDPWD", current_path, 1);
+        move_cd(current_path, home);
         free(current_path);
-        setenv("PWD", home, 1);
-        if (chdir(home) != 0)
-            errx(1, "cd: chdir: error");
         return 0;
     }
 
@@ -126,12 +138,7 @@ int cd(int argc, char **argv)
     {
         char *oldpwd = getenv("OLDPWD");
         char *current_path = get_current_path(); // RULE 2
-        if (setenv("OLDPWD", current_path, 1) != 0)
-            errx(1, "cd: setenv: error");
-        if (setenv("PWD", oldpwd, 1) != 0)
-            errx(1, "cd: setenv: error");
-        if (chdir(oldpwd) != 0)
-            errx(1, "cd: chdir: error");
+        move_cd(current_path, oldpwd);
         free(current_path);
         return 0;
     }
@@ -154,14 +161,8 @@ int cd(int argc, char **argv)
     }
 
     char *current_path = get_current_path(); // RULE 2
-    if (setenv("OLDPWD", current_path, 1) != 0)
-        errx(1, "cd: setenv: error");
+    move_cd(current_path, resolved_path);
     free(current_path);
-    if (setenv("PWD", resolved_path, 1) != 0)
-        errx(1, "cd: setenv: error");
-    if (chdir(resolved_path) != 0)
-        errx(1, "cd: chdir: error");
 
-    logger("Finish cd\n");
     return 0;
 }
