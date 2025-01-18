@@ -4,11 +4,13 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "node.h"
+
 struct ast_redir
 {
     int number;
@@ -24,5 +26,7 @@ struct redirection
 };
 int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
                      __attribute((unused)) struct ast_eval_ctx *ctx);
+int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
+                   __attribute((unused)) struct ast_eval_ctx *ctx);
 
 #endif // !REDIRECTION_STDIN_H
