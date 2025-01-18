@@ -47,6 +47,8 @@ libast_a_SOURCES =  \
   nodes/for.h \
   nodes/redirection_stdin.h \
   nodes/redirection_stdin.c \
+  nodes/redirection_stdout.c \
+  nodes/redirection_stdout.h \
   nodes/node.h 
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
