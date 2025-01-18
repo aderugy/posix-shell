@@ -103,7 +103,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not== 1)
+    if (node->not == 1)
     {
         result = !result;
     }

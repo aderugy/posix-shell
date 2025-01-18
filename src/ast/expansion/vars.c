@@ -64,11 +64,11 @@ int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
             mbt_str_pushc(arobase, ' ');
         }
 
-        char *number = calloc(1, 65);
+        char *number = calloc(20, sizeof(char));
         hash_map_insert(ctx->value, my_itoa(i - 1, number), str);
     }
 
-    char *karabose = calloc(1, 2);
+    char *karabose = calloc(2, sizeof(char));
     karabose[0] = '@';
 
     hash_map_insert(ctx->value, karabose, arobase);

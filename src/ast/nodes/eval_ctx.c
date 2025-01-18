@@ -77,7 +77,7 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
     struct mbt_str *value = env_vars(name->data);
 
     // local vars
-    if (!value)
+    if (value == NULL)
     {
         value = hash_map_get(ctx->value, name->data);
     }
