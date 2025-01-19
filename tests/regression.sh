@@ -369,6 +369,14 @@ test_export()
     tes 'export ABC=5; echo $ABC;'
     echo "========== EXPORT END ====="
 }
+test_unset()
+{
+{
+    echo "========== UNSET BEGIN ==="
+    tes 'export ABC=5; echo $ABC; unset ABC; echo $ABC'
+    echo "========== UNSET END ====="
+}
+}
 testsuite() {
     test_echo_basic
     test_non_builtin
@@ -390,7 +398,7 @@ testsuite() {
     test_while
     test_until
     test_export
-
+    test_unset
 }
 
 if [ "$COVERAGE" = "yes" ]; then
