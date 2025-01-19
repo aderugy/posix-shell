@@ -26,6 +26,10 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", CD);
     }
+    if (add_command(EXPORT, export_builtin))
+    {
+        errx(1, "%s: Couldn't register command", EXPORT);
+    }
 
     return 0;
 }
@@ -51,6 +55,10 @@ int unregister_commands(void)
     if (del_command(CD))
     {
         errx(1, "%s: Couldn't delete command", CD);
+    }
+    if (del_command(EXPORT)) {
+    
+        errx(1, "%s: Couldn't delete command", EXPORT);
     }
 
     return 0;

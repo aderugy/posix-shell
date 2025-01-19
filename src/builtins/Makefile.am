@@ -9,6 +9,7 @@ run_command.h \
 commands.c \
 exit.c \
 cd.c \
+export.c \
 commands.h 
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src

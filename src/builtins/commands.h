@@ -6,6 +6,7 @@
 #define FALSE "false"
 #define EXIT "exit"
 #define CD "cd"
+#define EXPORT "export"
 
 int register_commands(void);
 int unregister_commands(void);
@@ -15,5 +16,6 @@ int true_builtin(int argc, char **argv);
 int false_builtin(int argc, char **argv);
 int exit_builtin(int argc, char **argv);
 int cd(int argc, char **argv);
+int export_builtin(int argc, char *argv[]);
 
 #endif // !COMMANDS_H
