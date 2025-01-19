@@ -234,10 +234,31 @@ test_redirections() {
     tes "cat non_existent_file 2> err.txt; cat err.txt; rm err.txt"
     tes "echo 'This will not appear' > /dev/null"
     tes "ls invalid_file 2> /dev/null"
-    tes "ls > text ; sort < text ; rm text"
-    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out"
+    tes "ls > text ; sort < text ; cat text;rm text"
+    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
+    tes "echo Salut |> text; cat text;rm text"
+    tes "echo Salut >| text; cat text;rm text"
+    tes "cat non_existent_file 2> err.txt; cat err.txt"
+    tes "echo 'This will not appear' > /dev/null"
+    tes "ls invalid_file 2> /dev/null"
+    tes "ls > text ; sort < text ; cat text;rm text"
+    tes "ls 1> dum.out; cat dum.out"
+    tes "echo 'Hello, World!' > file1; cat file1"
+    tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1;"
+    tes "cat < file1"
+    tes "cat < file1 > out.txt 2>&1; cat out.txt"
+    tes "ls | echo > dum.out; echo < dum.out"
+    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
+    tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
+
     touch dum.out
     rm dum.out
+    touch file1
+    rm file1
+    touch err.txt
+    rm err.txt
+    touch out.txt
+    rm out.txt
     echo "========== REDIRECTION END =========="
 
 }
