@@ -18,21 +18,19 @@
 
 struct ast_element *ast_parse_element(struct lexer *lexer)
 {
-    logger("\tParse ELEMENT\n");
     struct token *token = lexer_peek(lexer); // We check if the token is valid
     if (!token)
     {
-        logger("\tExit ELEMENT\n");
         return NULL;
     }
 
     struct ast_element *node = calloc(1, sizeof(struct ast_element));
-
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
 
+    logger("Parse ELEMENT\n");
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
     if (redir)
     {
@@ -46,12 +44,12 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
         lexer_pop(lexer);
 
         node->token = token;
-        logger("\tExit ELEMENT\n");
+        logger("Exit ELEMENT (SUCCESS)\n");
         return node;
     }
 
     ast_free_element(node);
-    logger("\tExit ELEMENT\n");
+    logger("Exit ELEMENT (ERROR)\n");
     return NULL;
 }
 

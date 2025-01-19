@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "ast/ast.h"
+#include "eval_ctx.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/err_utils.h"
@@ -15,7 +16,8 @@
 */
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
-    struct ast_node *clist = NULL;
+    logger("PARSE FOR\n");
+
     struct ast_for_node *ast = calloc(1, sizeof(struct ast_for_node));
     CHECK_MEMORY_ERROR(ast);
     ast->items = list_init();
@@ -32,20 +34,17 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     tok = lexer_peek(lexer);
     if (!tok || tok->type != TOKEN_WORD)
     {
+        warnx("Syntax error: Bad for loop variable");
         goto error;
     }
     ast->name = strdup(tok->value.c);
+    token_free(lexer_pop(lexer));
 
     tok = lexer_peek(lexer);
     // [ ; ]
     if (tok && tok->type == TOKEN_SEMICOLON)
     {
-        while (tok && tok->type == TOKEN_SEMICOLON)
-        {
-            token_free(lexer_pop(lexer));
-            tok = lexer_peek(lexer);
-        }
-
+        token_free(lexer_pop(lexer));
         list_append(ast->items, strdup("$@"));
     }
     else
@@ -93,8 +92,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     }
     token_free(lexer_pop(lexer));
 
-    clist = ast_create(lexer, AST_CLIST);
-    if (!clist)
+    ast->body = ast_create(lexer, AST_CLIST);
+    if (!ast->body)
     {
         goto error;
     }
@@ -104,24 +103,36 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     {
         goto error;
     }
+    token_free(lexer_pop(lexer));
 
+    logger("EXIT FOR (SUCCESS)\n");
     return ast;
 
 error:
     ast_free_for(ast);
-    if (clist)
-    {
-        ast_free(clist);
-    }
-
+    logger("EXIT FOR (ERROR)\n");
     return NULL;
 }
 
-int ast_eval_for(__attribute((unused)) struct ast_for_node *node,
-                 __attribute((unused)) void **out,
-                 __attribute((unused)) struct ast_eval_ctx *ctx)
+int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
+                 struct ast_eval_ctx *ctx)
 {
-    errx(EXIT_FAILURE, "Unimplemented ast_eval_for");
+    /*
+     * Note: to handle for loops properly, we need to work on field splitting
+     * ie: for each character in IFS, the expansion of a parameter, arithmetic
+     * expression, subshell or globbing must be separated by the character
+     */
+
+    int status = AST_EVAL_SUCCESS;
+    struct linked_list_element *item = node->items->head;
+    while (item)
+    {
+        ast_eval_ctx_set_local_var(ctx, node->name, item->data);
+        status = ast_eval(node->body, NULL, ctx);
+        item = item->next;
+    }
+
+    return status;
 }
 
 void ast_free_for(struct ast_for_node *node)

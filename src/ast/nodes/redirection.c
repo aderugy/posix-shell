@@ -67,23 +67,23 @@ static int is_redir(struct token *token)
 
 struct ast_redir *ast_parse_redir(struct lexer *lexer)
 {
-    logger("Parse REDIRECTION\n");
+    struct token *token = lexer_peek(lexer);
+    if (!token || !is_redir(token))
+    {
+        return NULL;
+    }
+
     struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
     if (!redir)
     {
         errx(EXIT_FAILURE, "out of memory");
     }
 
-    struct token *token = lexer_peek(lexer);
+    logger("PARSE REDIR\n");
 
-    if (!token || !is_redir(token))
-    {
-        goto error;
-    }
     redir->number = -1;
     char number = 1;
     size_t i = 0;
-
     for (; token->value.c[i]; i++)
     {
         if (!strchr(DIGITS_CHARS, token->value.c[i]))
@@ -100,10 +100,10 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     redir->pipe = token->type;
     lexer_pop(lexer);
     token_free(token);
+
     token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
     {
-        token = NULL;
         goto error;
     }
 
@@ -111,16 +111,16 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     lexer_pop(lexer);
     token_free(token);
 
+    logger("PARSE REDIR (SUCCESS)\n");
     return redir;
 
 error:
-
     if (redir)
     {
+        logger("Exit REDIR (ERROR)\n");
         ast_free_redir(redir);
     }
 
-    logger("Exit REDIRECTION\n");
     return NULL;
 }
 

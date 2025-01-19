@@ -1,3 +1,6 @@
+#include <err.h>
+#include <stdlib.h>
+
 #include "str.h"
 
 void mbt_str_merge(struct mbt_str *str1, struct mbt_str *str2)

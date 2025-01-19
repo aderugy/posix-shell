@@ -10,17 +10,13 @@
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/my_itoa.h"
+#include "utils/xalloc.h"
 
+// @RENAME
 struct ast_eval_ctx *ctx_init(void)
 {
-    struct ast_eval_ctx *ctx = calloc(1, sizeof(struct ast_eval_ctx));
-    if (!ctx)
-    {
-        errx(EXIT_FAILURE, "ctx_init: not enough memory");
-    }
-
+    struct ast_eval_ctx *ctx = xcalloc(1, sizeof(struct ast_eval_ctx));
     ctx->value = hash_map_init(64);
-    ctx->check_redir = false;
     return ctx;
 }
 
@@ -28,50 +24,56 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
 {
     if (ctx)
     {
-        hash_map_free(ctx->value);
+        if (ctx->value)
+        {
+            hash_map_free(ctx->value);
+        }
+
         free(ctx);
     }
 }
 
+// @RENAME
+// @REFACTOR: n'est pas censé calloc la return value.
 struct mbt_str *env_vars(char *name)
 {
-    struct mbt_str *value = NULL;
+    struct mbt_str *value = mbt_str_init(8);
 
     if (strcmp("OLDPWD", name) == 0)
     {
-        value = mbt_str_init(8);
         mbt_str_pushcstr(value, getenv(name));
     }
     else if (strcmp("RANDOM", name) == 0)
     {
-        value = mbt_str_init(8);
-        int rand = 49;
-        char *buffer = calloc(3, sizeof(char));
+        int rand = 49; // ??
+        char buffer[3];
         mbt_str_pushcstr(value, my_itoa(rand, buffer));
-        free(buffer);
     }
     else if (strcmp("PWD", name) == 0)
     {
-        value = mbt_str_init(8);
         mbt_str_pushcstr(value, getenv(name));
     }
     else if (strcmp("IFS", name) == 0)
     {
-        value = mbt_str_init(8);
         mbt_str_pushcstr(value, getenv(name));
     }
     else if (strcmp("UID", name) == 0)
     {
-        value = mbt_str_init(8);
         uid_t uid = getuid();
-        char *buffer = calloc(32, sizeof(char));
+        char buffer[32];
         mbt_str_pushcstr(value, my_itoa(uid, buffer));
-        free(buffer);
+    }
+    else
+    {
+        mbt_str_free(value);
+        value = NULL;
     }
 
     return value;
 }
 
+// @RENAME
+// @REFACTOR: env_vars renvoie une valeur a free, et pas hash_map_get.
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
     // env vars
@@ -83,30 +85,25 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
         value = hash_map_get(ctx->value, name->data);
     }
 
-    if (value)
-    {
-        logger("Retreived the value of %s : %s\n", name->data, value->data);
-    }
-
-    mbt_str_free(name);
-
     return value;
 }
 
+// @RENAME
+// @REFACTOR
+// Pourquoi prend il un token ? Pourquoi il expand a l'insertion et pas à
+// l'evaluation ?
 void insert(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct mbt_str *expanded = expand(ctx, token);
 
     char *data = expanded->data;
-    char *eq = data;
-    while (*eq != '=')
+    char *eq = strchr(data, '=');
+    if (!eq)
     {
-        ++eq;
+        errx(EXIT_FAILURE, "insert: no '=' in token");
     }
 
     char *name = strndup(expanded->data, eq - data);
-    logger("eval_ctx.c : found name : %s\n", name);
-    logger("eval_ctx.c : found expansion : %s\n", expanded);
 
     // Basically the value after '='
     // this will be freed by the hashmap
@@ -115,4 +112,16 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     mbt_str_free(expanded);
 
     hash_map_insert(ctx->value, name, (void *)value);
+}
+
+/*
+ * Updates the value for 'name' variable
+ */
+void ast_eval_ctx_set_local_var(struct ast_eval_ctx *ctx, char *name,
+                                char *value)
+{
+    struct mbt_str *str = mbt_str_init(strlen(value) + 1);
+    mbt_str_pushcstr(str, value);
+
+    hash_map_insert(ctx->value, name, str);
 }

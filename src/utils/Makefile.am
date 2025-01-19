@@ -7,6 +7,8 @@ libutils_a_SOURCES =  \
   fill_input.c  \
   linked_list.c \
   linked_list.h \
+  xalloc.c \
+  xalloc.h \
 	mypipe.c \
 	mypipe.h \
 	hash_map.h \

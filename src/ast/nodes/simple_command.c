@@ -26,7 +26,6 @@ bool is_keyword(char *word)
     {
         if (strcmp(keywords[i], word) == 0)
         {
-            logger("simple command : found keyword %s\n", word);
             return true;
         }
     }
@@ -35,7 +34,6 @@ bool is_keyword(char *word)
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    logger("Parse SIMPLE_COMMAND\n");
     struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
     if (!cmd)
     {
@@ -54,24 +52,20 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         list_append(cmd->prefixes, prefix);
     }
 
+    logger("Parse SIMPLE_COMMAND\n");
     if (cmd->prefix)
     {
         // prefix { prefix }
-        logger("Exit SIMPLE_COMMAND: RULE 1\n");
+        logger("Exit SIMPLE_COMMAND (SUCCESS)\n");
         return cmd;
     }
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-
-    if (token->type != TOKEN_WORD)
+    if (!token || token->type != TOKEN_WORD
+        || (token->value.c && is_keyword(token->value.c)))
     {
         goto error;
-    }
-    if (token->value.c && is_keyword(token->value.c))
-    {
-        ast_free_simple_cmd(cmd);
-        return NULL;
     }
 
     cmd->cmd = token->value.c;
@@ -84,11 +78,11 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         list_append(cmd->args, element);
     }
 
-    logger("Exit SIMPLE_COMMAND: RULE 2\n");
+    logger("Exit SIMPLE_COMMAND (SUCCESS)\n");
     return cmd;
 error:
     ast_free_simple_cmd(cmd);
-    logger("Exit SIMPLE_COMMAND\n");
+    logger("Exit SIMPLE_COMMAND (ERROR)\n");
     return NULL;
 }
 

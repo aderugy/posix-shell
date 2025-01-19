@@ -5,23 +5,20 @@
 
 #include "lexer/token.h"
 #include "node.h"
+#include "utils/err_utils.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
 struct ast_list *ast_parse_list(struct lexer *lexer)
 {
-    logger("parse LIST\n");
+    struct ast_list *node = calloc(1, sizeof(struct ast_list));
+    CHECK_MEMORY_ERROR(node);
+
+    logger("PARSE LIST\n");
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
-        logger("Exit LIST with NULL\n");
-        return NULL;
-    }
-
-    struct ast_list *node = calloc(1, sizeof(struct ast_list));
-    if (!node)
-    {
-        errx(2, "out of memory");
+        goto error;
     }
 
     node->list = list_init();
@@ -38,6 +35,7 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         {
             lexer_pop(lexer);
             free(token);
+
             and_or = ast_create(lexer, AST_AND_OR);
             if (!and_or)
             {
@@ -48,8 +46,12 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         }
     }
 
-    logger("Exit LIST\n");
+    logger("Exit LIST (SUCCESS)\n");
     return node;
+error:
+    ast_free_list(node);
+    logger("Exit LIST (ERROR)\n");
+    return NULL;
 }
 
 int ast_eval_list(struct ast_list *node, __attribute((unused)) void **out,
@@ -65,7 +67,10 @@ int ast_eval_list(struct ast_list *node, __attribute((unused)) void **out,
 
 void ast_free_list(struct ast_list *node)
 {
-    list_free(node->list, (void (*)())ast_free);
+    if (node->list)
+    {
+        list_free(node->list, (void (*)(void *))ast_free);
+    }
     free(node);
 }
 

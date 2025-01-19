@@ -34,15 +34,12 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing if condition");
     }
 
-    logger("\tif.c : SUCCESSFULLY found IF\n");
-
+    logger("PARSE IF\n");
     tok = lexer_pop(lexer);
     if (!reserved_word_check(tok) || strcmp(tok->value.c, "then") != 0)
     {
         errx(2, "missing then token");
     }
-
-    logger("\tif.c : SUCCESSFULLY found THEN\n");
     token_free(tok);
 
     struct ast_node *body = ast_create(lexer, AST_CLIST);
@@ -51,26 +48,17 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         errx(2, "missing if body");
     }
     ast->body = body;
-    logger("\tif.c : SUCCESSFULLY create body\n");
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
-    if (ast->else_clause)
-    {
-        logger("\tSUCCESSFULLY create else clause\n");
-    }
-    else
-    {
-        logger("\tSUCCESSFULLY NOT create else clause\n");
-    }
-    tok = lexer_pop(lexer);
 
+    tok = lexer_pop(lexer);
     if (!reserved_word_check(tok) || strcmp(tok->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }
-    logger("\tSUCCESSFULLY found FI\n");
-    token_free(tok);
 
+    token_free(tok);
+    logger("PARSE IF (SUCCESS)\n");
     return ast;
 }
 

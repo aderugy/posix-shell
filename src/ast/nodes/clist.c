@@ -75,11 +75,17 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
 int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
                    struct ast_eval_ctx *ctx)
 {
+    if (!node->list->size)
+    {
+        return 0;
+    }
+
     for (size_t i = 0; i < node->list->size - 1; i++)
     {
         struct ast_node *children = list_get(node->list, i);
         ast_eval(children, NULL, ctx);
     }
+
     struct ast_node *children = list_get(node->list, node->list->size - 1);
     return ast_eval(children, NULL, ctx);
 }

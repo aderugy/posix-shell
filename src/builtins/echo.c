@@ -6,7 +6,7 @@
 
 #include "builtins.h"
 #include "commands.h"
-#include "unistd.h"
+#include "utils/xalloc.h"
 
 static struct option l_opts[] = { { "e", no_argument, 0, 'e' },
                                   { "n", no_argument, 0, 'n' },
@@ -66,12 +66,7 @@ int echo(int argc, char *argv[])
     int c;
     int opt_idx = 0;
 
-    struct echo_options *echo_opts = malloc(sizeof(struct echo_options));
-    if (!echo_opts)
-    {
-        perror("malloc");
-        return 1;
-    }
+    struct echo_options *echo_opts = xmalloc(sizeof(struct echo_options));
     echo_opts->interpret_backslash = false;
     echo_opts->not_newline = false;
     echo_opts->str = NULL;
@@ -93,9 +88,8 @@ int echo(int argc, char *argv[])
             echo_opts->not_interpret_backslash_default = true;
             break;
         case '?':
-            return 1;
         default:
-            errx(1, "echo: unkown option %c", c);
+            goto error;
         }
     }
     echo_opts->str = argv + optind;
@@ -103,5 +97,9 @@ int echo(int argc, char *argv[])
 
     free(echo_opts);
 
-    return 0;
+    return EXIT_SUCCESS;
+
+error:
+    free(echo_opts);
+    return EXIT_FAILURE;
 }
