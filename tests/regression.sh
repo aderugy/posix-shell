@@ -317,6 +317,12 @@ test_errs() {
     test_pars_lex_error 2 "cd a a"
     echo "========== ERROR_CODE END =========="
 }
+test_for()
+{
+    echo "========= FOR LOOP BEGIN =========="
+    tes 'for i in a b; do echo $i; done'
+    echo "========= FOR LOOP END =========="
+}
 
 testsuite() {
     test_echo_basic
@@ -335,6 +341,7 @@ testsuite() {
     test_exit
     test_var_local
     test_quoting
+    test_for
 
 }
 
