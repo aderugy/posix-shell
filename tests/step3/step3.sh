@@ -105,7 +105,7 @@ test_cd() {
 test_export()
 {
     echo "========== EXPORT BEGIN ==="
-    tes "export abcde=5"
+    tes 'export ABC=5; echo $ABC'
     echo "========== EXPORT END ====="
 }
 testsuite() {

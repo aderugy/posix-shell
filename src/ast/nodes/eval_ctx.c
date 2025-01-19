@@ -39,29 +39,10 @@ struct mbt_str *env_vars(char *name)
 {
     struct mbt_str *value = mbt_str_init(8);
 
-    if (strcmp("OLDPWD", name) == 0)
+    char *env_var;
+    if ((env_var = getenv(name)) != NULL)
     {
-        mbt_str_pushcstr(value, getenv(name));
-    }
-    else if (strcmp("RANDOM", name) == 0)
-    {
-        int rand = 49; // ??
-        char buffer[3];
-        mbt_str_pushcstr(value, my_itoa(rand, buffer));
-    }
-    else if (strcmp("PWD", name) == 0)
-    {
-        mbt_str_pushcstr(value, getenv(name));
-    }
-    else if (strcmp("IFS", name) == 0)
-    {
-        mbt_str_pushcstr(value, getenv(name));
-    }
-    else if (strcmp("UID", name) == 0)
-    {
-        uid_t uid = getuid();
-        char buffer[32];
-        mbt_str_pushcstr(value, my_itoa(uid, buffer));
+        mbt_str_pushcstr(value, env_var);
     }
     else
     {
