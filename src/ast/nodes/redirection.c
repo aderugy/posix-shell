@@ -144,7 +144,8 @@ int redir_stdout_file(struct ast_redir *node, void **out,
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd == -1)
     {
-        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+        fprintf(stderr, "eval_redir: no such file: %s", node->file);
+        // errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");

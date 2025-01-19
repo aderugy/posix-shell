@@ -73,9 +73,13 @@ int ast_eval_element(struct ast_element *node, void **out,
     {
         if (ctx->check_redir)
         {
-            ast_eval(node->redir, out, ctx);
+            int redir_eval_result = ast_eval(node->redir, out, ctx);
+            if (redir_eval_result != 0)
+            {
+                return redir_eval_result;
+            }
         }
-        return 1;
+        return -1;
     }
     else if (!ctx->check_redir)
     {

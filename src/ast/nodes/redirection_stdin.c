@@ -1,5 +1,7 @@
 #include "redirection_stdin.h"
 
+#include <stdio.h>
+
 static const char *DIGITS = "0123456789";
 int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
@@ -20,7 +22,8 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
     int fd = open(file, O_RDONLY);
     if (fd == -1)
     {
-        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+        fprintf(stderr, "eval_redir: no such file: %s\n", node->file);
+        return 1;
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");

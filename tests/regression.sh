@@ -185,6 +185,8 @@ test_else() {
 test_comment() {
     echo "========== COMMENT BEGIN =========="
     tes echo "Ya un commentaire m c chill #de ouf c chill"
+    tes echo "echo #yo"
+    tes echo "#yo"
     tes echo "Ya un commentaire m c chill # mais moi je suis pas un comment"
     tes echo "Ya un autre commentaire m c chill # mais moi je suis pas comment"
     tes echo "Ya un commentaire m c chill # mais moi je suis pas un comment"
