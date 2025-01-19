@@ -102,9 +102,15 @@ test_cd() {
   tes "cd && echo $PWD"
   echo "========== CD END =========="
 }
-
+test_export()
+{
+    echo "========== EXPORT BEGIN ==="
+    tes "export abcde=5"
+    echo "========== EXPORT END ====="
+}
 testsuite() {
     test_cd
+    test_export
 }
 
 testsuite

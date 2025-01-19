@@ -250,6 +250,7 @@ test_redirections() {
     tes "ls | echo > dum.out; echo < dum.out"
     tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
     tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
+    tes "echo aads 1<&2 cat coverage.sh"
 
     touch dum.out
     rm dum.out
