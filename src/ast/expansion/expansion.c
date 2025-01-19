@@ -13,10 +13,12 @@
 #include "utils/naming.h"
 
 // retrieves the longest valid name from a '$' or a ${
+/*
+ * @RENAME (dans quel contexte ?)
+ */
 struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
                               int bracket)
 {
-    // will be freed in a call to 'get'
     struct mbt_str *name = mbt_str_init(8);
     int c = dstream_read(dstream);
 
@@ -44,7 +46,10 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
     if (isdigit(c) || strchr("@*#?$", c))
     {
         mbt_str_pushc(name, c);
-        return get(ctx, name);
+
+        struct mbt_str *out = get(ctx, name);
+        mbt_str_free(name);
+        return out;
     }
 
     mbt_str_pushc(name, c);
@@ -69,9 +74,15 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
     }
 
     // no special parameter
-    return get(ctx, name);
+    struct mbt_str *out = get(ctx, name);
+    mbt_str_free(name);
+    return out;
 }
 
+/*
+ * @RENAME
+ * Expand ? Expand dollar ? Qui fait quoi ?
+ */
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct dstream *dstream = dstream_from_str(token->value.c, token->state);
@@ -101,14 +112,18 @@ struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
                 // Just a chill $A, $1, $$, $A_B,  etc
                 if (regular(c))
                 {
-                    mbt_str_merge(str, expand_dollar(ctx, dstream, 0));
+                    struct mbt_str *to_merge = expand_dollar(ctx, dstream, 0);
+                    mbt_str_merge(str, to_merge);
                 }
 
                 // ${ } AND { is not escaped nor in single_quote
                 else if (c == '{' && valid)
                 {
                     dstream_read(dstream);
-                    mbt_str_merge(str, expand_dollar(ctx, dstream, 1));
+
+                    struct mbt_str *to_merge = expand_dollar(ctx, dstream, 1);
+                    mbt_str_merge(str, to_merge);
+
                     dstream_read(dstream);
                 }
                 else
@@ -131,5 +146,6 @@ int reserved_word_check(struct token *token)
 {
     int valid = token && token->value.c && token->state
         && *(token->state) == SHARD_UNQUOTED;
+
     return valid && token && token->type == TOKEN_WORD;
 }

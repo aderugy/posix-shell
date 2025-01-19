@@ -5,34 +5,32 @@
 
 #include "ast/ast.h"
 #include "lexer/token.h"
+#include "utils/err_utils.h"
 #include "utils/logger.h"
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {
+    struct ast_and_or_node *root = calloc(1, sizeof(struct ast_and_or_node));
+    CHECK_MEMORY_ERROR(root);
+    root->type = NONE;
+
     logger("Parse AND_OR\n");
     struct ast_node *pipeline = ast_create(lexer, AST_PIPELINE);
     if (!pipeline)
     {
-        logger("Exit AND_OR\n");
-        return NULL;
+        goto error;
     }
-
-    struct ast_and_or_node *root = calloc(1, sizeof(struct ast_and_or_node));
-    if (!root)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
-
-    root->type = NONE;
     root->left = pipeline;
 
     struct ast_and_or_node *node = NULL;
-
     struct token *tok = lexer_peek(lexer);
     while (tok->type == TOKEN_AND || tok->type == TOKEN_OR)
     {
         node = root;
+
         root = calloc(1, sizeof(struct ast_and_or_node));
+        CHECK_MEMORY_ERROR(root);
+
         root->right = node;
 
         if (tok->type == TOKEN_AND)
@@ -53,14 +51,20 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         root->left = ast_create(lexer, AST_PIPELINE);
         if (node->left == NULL)
         {
-            errx(AST_PARSE_ERROR, "and_or: 2nd pipeline did not match");
+            warnx("ast_parse_and_or: second pipeline didnt match");
+            goto error;
         }
 
         tok = lexer_peek(lexer);
     }
 
-    logger("Exit AND_OR\n");
+    logger("Exit AND_OR (SUCCESS)\n");
     return root;
+
+error:
+    ast_free_and_or(root);
+    logger("Exit AND_OR (ERROR)\n");
+    return NULL;
 }
 
 int ast_eval_and_or(struct ast_and_or_node *node, void **out,
@@ -93,15 +97,26 @@ void ast_free_and_or(struct ast_and_or_node *node)
 {
     if (node)
     {
-        ast_free(node->left);
-        ast_free_and_or(node->right);
+        if (node->left)
+        {
+            ast_free(node->left);
+        }
+
+        if (node->right)
+        {
+            ast_free_and_or(node->right);
+        }
+
         free(node);
     }
 }
 
 void ast_print_and_or(struct ast_and_or_node *node)
 {
-    ast_print(node->left);
+    if (node->left)
+    {
+        ast_print(node->left);
+    }
 
     if (!node->right)
     {

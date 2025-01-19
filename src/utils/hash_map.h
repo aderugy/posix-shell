@@ -7,10 +7,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "mbtstr/str.h"
+
 struct pair_list
 {
     char *key;
-    void *value;
+    struct mbt_str *value;
     struct pair_list *next;
 };
 
@@ -20,11 +22,10 @@ struct hash_map
     size_t size;
 };
 
-size_t hash(char *str);
 struct hash_map *hash_map_init(size_t size);
 
-void hash_map_insert(struct hash_map *hm, char *key, void *value);
-void *hash_map_get(struct hash_map *hash_map, char *key);
+void hash_map_insert(struct hash_map *hm, char *key, struct mbt_str *value);
+struct mbt_str *hash_map_get(struct hash_map *hash_map, char *key);
 
 void hash_map_free(struct hash_map *hash_map);
 

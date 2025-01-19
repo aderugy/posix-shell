@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "hash_map.h"
 
 #include <err.h>
@@ -7,13 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "logger.h"
 #include "mbtstr/str.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 // returns a 64bits hash_key for a null terminated string
 // https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
-size_t hash(char *key)
+static size_t hash(char *key)
 {
     size_t hash_key = FNV_OFFSET;
     for (char *p = key; *p; p++)
@@ -25,21 +26,27 @@ size_t hash(char *key)
     return hash_key;
 }
 
+static void hash_map_pair_list_free(struct pair_list *pl)
+{
+    if (pl)
+    {
+        free(pl->key);
+        mbt_str_free(pl->value);
+        free(pl);
+    }
+}
+
 struct hash_map *hash_map_init(size_t size)
 {
-    struct hash_map *hm = calloc(1, sizeof(struct hash_map));
-    if (!hm)
-    {
-        errx(EXIT_FAILURE, "hash_map_init: not enough memory");
-    }
-
+    struct hash_map *hm = xcalloc(1, sizeof(struct hash_map));
     hm->size = size;
-    hm->data = calloc(size, sizeof(struct pair_list *));
+    hm->data = xcalloc(size, sizeof(struct pair_list *));
 
     return hm;
 }
 
-void hash_map_insert(struct hash_map *hash_map, char *key, void *value)
+void hash_map_insert(struct hash_map *hash_map, char *key,
+                     struct mbt_str *value)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
@@ -60,13 +67,9 @@ void hash_map_insert(struct hash_map *hash_map, char *key, void *value)
     // An empty slot was found
     if (p == NULL)
     {
-        p = calloc(1, sizeof(struct pair_list));
-        if (p == NULL)
-        {
-            errx(EXIT_FAILURE, "Not enough memory");
-        }
+        p = xcalloc(1, sizeof(struct pair_list));
 
-        p->key = key;
+        p->key = strdup(key);
         p->value = value;
         p->next = hash_map->data[index];
         hash_map->data[index] = p;
@@ -74,22 +77,10 @@ void hash_map_insert(struct hash_map *hash_map, char *key, void *value)
     else
     {
         mbt_str_free(p->value);
-        free(key);
         p->value = value;
     }
 }
 
-void pair_list_free(struct pair_list *pl)
-{
-    if (pl)
-    {
-        free(pl->key);
-        mbt_str_free(pl->value);
-        free(pl);
-    }
-}
-
-// free the entire hashmap
 void hash_map_free(struct hash_map *hash_map)
 {
     if (hash_map)
@@ -100,7 +91,7 @@ void hash_map_free(struct hash_map *hash_map)
             while (hash_map->data[i])
             {
                 hash_map->data[i] = hash_map->data[i]->next;
-                pair_list_free(p);
+                hash_map_pair_list_free(p);
                 p = hash_map->data[i];
             }
 
@@ -113,7 +104,7 @@ void hash_map_free(struct hash_map *hash_map)
 }
 // prints the hashmap
 
-void *hash_map_get(struct hash_map *hash_map, char *key)
+struct mbt_str *hash_map_get(struct hash_map *hash_map, char *key)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
@@ -134,7 +125,6 @@ void *hash_map_get(struct hash_map *hash_map, char *key)
 
     if (p == NULL)
     {
-        logger("HASH_MAP: asking for non-existant parameter");
         return NULL;
     }
 
