@@ -338,6 +338,24 @@ test_errs() {
     test_pars_lex_error 2 "cd a a"
     echo "========== ERROR_CODE END =========="
 }
+test_while()
+{
+    echo "========= WHILE BEGIN ============="
+    for i in $(find step2/loops -name "while*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========= WHILE END ============="
+}
+test_until()
+{
+    echo "========= UNTIL BEGIN ============="
+    for i in $(find step2/loops -name "until*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========= WHILE END ============="
+}
 test_for()
 {
     echo "========= FOR LOOP BEGIN =========="
@@ -363,6 +381,8 @@ testsuite() {
     test_var_local
     test_quoting
     test_for
+    test_while
+    test_until
 
 }
 
