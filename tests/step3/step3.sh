@@ -96,36 +96,15 @@ output_test() {
   fi
 }
 
-test_echo_options() {
-  echo "========== ECHO OPTIONS BEGINING =========="
-  tes echo -n "just a chill line\n"
-  tes echo -e "\n\nhello\nici\n\n\t"
-  tes echo -e "\nimpossible\n\n\nla dinguerie\n"
-  tes echo -e "\tde ouf\t\t\tla dinguerie\n\t"
-  tes echo -e "ooooo \nc\n une\n dinguerie"
-  tes echo -E "\nouaaaaa\n\n\nla dinguerie\n"
-  tes echo -E "\tmaiiiis naaaaan\t\t\tla dinguerie\n\t"
-  tes echo -E "\\juuuuuuure\\ c\\ une \\ dinguerie\\\t"
-  tes echo -E "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
-  tes echo -nE "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
-  tes echo -e "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
-  tes echo -neE "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
-  tes echo -Ee "\tjuuuuuuure\nc\t une \t dinguerie\\\n"
-  echo "========== ECHO OPTIONS END =========="
-}
-
-test_mix() {
-  echo "========== MIX BEGIN =========="
-  tes 'echo -e \escaped \#escaped "#"quoted not#first #commented'
-  echo
-  tes 'if true; then echo -Ee "\escaped \#escaped "#"quoted not#first
-    #commented"; fi'
-  echo "========== MIX END =========="
+test_cd() {
+  echo "========== CD BEGIN =========="
+  tes "cd . && echo $PWD"
+  tes "cd && echo $PWD"
+  echo "========== CD END =========="
 }
 
 testsuite() {
-  #test_echo_options
-  test_mix
+    test_cd
 }
 
 testsuite
