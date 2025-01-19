@@ -8,37 +8,30 @@
 
 #include "commands.h"
 #include "utils/logger.h"
-/*static struct option l_opts[] = { { "p", no_argument, 0, 'p' },
-                                  { 0, 0, 0, 0 } };*/
+
 int export_builtin(int argc, char *argv[])
 {
     if (argc != 2)
     {
         fprintf(stderr, "export must take 1 argument\n");
+        return 1;
     }
-    /*int c;
 
-    int opt_idx = 0;
-    optind = 1;
-    while ((c = getopt_long(argc, argv, "p", l_opts, &opt_idx)) != -1)
-    {
-        switch (c)
-        {
-        case 'p':
-            break;
-        case '?':
-            return 1;
-        default:
-            errx(1, "echo: unkown option %c", c);
-        }
-    }*/
     char *name = argv[1];
+
     char *equal_sign = strchr(argv[1], '=');
-    char *word = equal_sign + 1;
+    char *word;
+    if (!equal_sign)
+    {
+        errx(2,
+             "export : faut que j'investigue cette histoire de export sans =");
+    }
+
+    word = equal_sign + 1;
+
     *equal_sign = 0;
 
     logger("setenv %s=%s\n", name, word);
-    setenv(name, word, 0);
 
-    return 0;
+    return setenv(name, word, 0);
 }

@@ -363,7 +363,12 @@ test_for()
     tes 'for i in a b; do echo $i; done'
     echo "========= FOR LOOP END =========="
 }
-
+test_export()
+{
+    echo "========== EXPORT BEGIN ==="
+    tes 'export ABC=5; echo $ABC;'
+    echo "========== EXPORT END ====="
+}
 testsuite() {
     test_echo_basic
     test_non_builtin
@@ -384,6 +389,7 @@ testsuite() {
     test_for
     test_while
     test_until
+    test_export
 
 }
 
