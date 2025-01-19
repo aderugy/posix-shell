@@ -5,7 +5,8 @@
 #include "mbtstr/str.h"
 #include "streams/streams.h"
 
-static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">", "<", NULL };
+static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">|",
+                                "|>", ">",  "<",  NULL };
 int is_redir(struct mbt_str *str);
 
 int split_redir(struct stream *stream, struct mbt_str *str, char c);

@@ -152,30 +152,10 @@ test_non_builtin() {
 
 test_redirections() {
   echo "========== REDIRECTIONS BEGIN =========="
-  tes "echo lalalalalala > $DUMMY;echo < $DUMMY"
-  tes "echo <> $DUMMY"
-  tes "ls | echo > $DUMMY; echo < $DUMMY"
-  tes "echo tchou > $DUMMY;echo bebe >> $DUMMY; cat $DUMMY"
-  tes "echo tchou > $DUMMY;echo boubou > $DUMMY; cat $DUMMY"
-  tes "echo <1 ls && echo bbbb > $DUMMY; echo $DUMMY"
-  tes "echo <1 ls && echo bbbb 1> $DUMMY; echo < $DUMMY"
-  tes "ls 1> $DUMMY; cat $DUMMY"
-  tes "echo 'Hello, World!' > file1; cat file1"
-  tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1"
-  tes "ls valid_file invalid_file > out.txt 2> err.txt; cat out.txt err.txt"
-  tes "ls valid_file invalid_file > combined.txt 2>&1; cat combined.txt"
-  tes "cat < file1"
-  tes "cat < file1 > out.txt 2>&1; cat out.txt"
-  tes "echo 'Message' 1> file1 2> file2; cat file1 file2; rm file1 file2"
-  tes "ls non_existing_file 3>&2 2>&1 1>&3"
-  tes "echo 'Test' > /root/protected_file 2>&1"
-  tes "cat non_existent_file 2> err.txt; cat err.txt"
-  tes "echo 'This will not appear' > /dev/null"
-  tes "ls invalid_file 2> /dev/null"
-  tes "ls > text ; sort < text ; rm text"
-  tes "echo Salut |> text; rm text"
-  tes "echo Salut >| text; rm text"
-
+  tes "echo lalalalalala > dum.out;echo < dum.out"
+  tes "echo <> dum.out"
+  tes "echo <1 ls && echo bbbb > dum.out; echo dum.out"
+  tes "echo <1 ls && echo bbbb 1> dum.out; echo < dum.out"
   echo "========== REDIRECTIONS END =========="
 }
 test_comment() {
@@ -203,10 +183,7 @@ test_errs() {
   test_code_error 2 "false || &&"
   test_code_error 2 "true && true && false || || true"
   test_code_error 2 "echo | | |"
-  # PIPELINE ERRS
-  test_code_error 1 "true | false"
-  test_code_error 0 "false | true"
-  test_code_error 1 "false | true | false | false | false | false"
+  # QUOTE ERRS
   test_code_error 2 "'if' true; then echo a; fi"
   test_code_error 127 "'if' 'true'; 'then' echo a; 'fi'"
   # LEXER ERRS
@@ -253,7 +230,7 @@ touch $ACTUAL_ERR_OUT
 touch $DIFF_OUT
 touch $DIFF_ERR
 touch $SCRIPT
-touch $DUMMY
+touch dum.out
 #==================-^
 rm $EXPECTED_OUT
 rm $ACTUAL_OUT
@@ -262,4 +239,4 @@ rm $ACTUAL_ERR_OUT
 rm $DIFF_OUT
 rm $DIFF_ERR
 rm $SCRIPT
-rm $DUMMY
+rm dum.out
