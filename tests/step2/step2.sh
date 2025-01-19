@@ -183,6 +183,9 @@ test_errs() {
   test_code_error 2 "false || &&"
   test_code_error 2 "true && true && false || || true"
   test_code_error 2 "echo | | |"
+  test_code_error 2 "if then echo a"
+  test_code_error 2 "if ;then echo a"
+  test_code_error 2 "until test"
   # QUOTE ERRS
   test_code_error 2 "'if' true; then echo a; fi"
   test_code_error 127 "'if' 'true'; 'then' echo a; 'fi'"
