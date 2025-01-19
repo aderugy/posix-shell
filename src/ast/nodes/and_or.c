@@ -51,7 +51,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         root->left = ast_create(lexer, AST_PIPELINE);
         if (node->left == NULL)
         {
-            warnx("ast_parse_and_or: second pipeline didnt match");
+            errx(2, "ast_parse_and_or: second pipeline did not match");
             goto error;
         }
 
