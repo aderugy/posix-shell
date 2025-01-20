@@ -28,13 +28,21 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     {
         ctx->check_redir = true;
         struct ast_node *children = list_get(cmd->args, i - 1);
-        if (ast_eval(children, (void **)&fd_pointer, ctx) == 1)
+        int element_eval_result;
+        if ((element_eval_result =
+                 ast_eval(children, (void **)&fd_pointer, ctx))
+            == -1)
         {
             fd_pointer += 3; // for the 3 files descriptor that we need to close
         }
-        else
+        else if (element_eval_result == 0)
         {
             argc++;
+        }
+        else
+        {
+            ret_value = element_eval_result;
+            goto error;
         }
     }
 
@@ -57,5 +65,14 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     }
 
     free(fd_ptr);
+    return ret_value;
+error:
+
+    if (fd_ptr)
+    {
+        free(fd_ptr);
+    }
+
+    logger("Exit SIMPLE_COMMAND with error\n");
     return ret_value;
 }

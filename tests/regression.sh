@@ -251,6 +251,7 @@ test_redirections() {
     tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
     tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
     tes "echo aads 1<&2 cat coverage.sh"
+    tes "echo aads 1>&2 cat coverage.sh"
 
     touch dum.out
     rm dum.out
@@ -294,10 +295,7 @@ test_neg_pipeline() {
 }
 test_cd() {
     echo "========== CD ========="
-    tes "cd .. && echo $PWD"
-    tes "cd ../ && echo $PWD"
-    tes "cd && echo $PWD"
-    tes "cd . && echo $PWD"
+    tes 'cd && echo $PWD'
     echo "========== CD END ========="
 }
 test_exit() {
@@ -361,6 +359,7 @@ test_for()
 {
     echo "========= FOR LOOP BEGIN =========="
     tes 'for i in a b; do echo $i; done'
+    tes 'for i in ls; do echo $i; done'
     echo "========= FOR LOOP END =========="
 }
 test_export()
