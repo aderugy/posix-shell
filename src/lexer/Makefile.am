@@ -3,6 +3,8 @@ lib_LIBRARIES = liblex.a
 liblex_a_SOURCES =  \
   lexer.c \
   splitter.c \
+  splitter_ctx.c \
+  shard.c \
   splitter.h \
   lexer.h \
   token.h 
