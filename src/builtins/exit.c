@@ -23,7 +23,8 @@ static int is_valid_number(const char *str)
     return 1;
 }
 
-int exit_builtin(int argc, char **argv)
+int exit_builtin(int argc, char **argv,
+                 __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc == 1)
     {

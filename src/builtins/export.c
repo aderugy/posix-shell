@@ -1,4 +1,3 @@
-
 #define _POSIX_C_SOURCE 200809L
 #include <err.h>
 #include <getopt.h>
@@ -9,7 +8,8 @@
 #include "commands.h"
 #include "utils/logger.h"
 
-int export_builtin(int argc, char *argv[])
+int export_builtin(int argc, char **argv,
+                   __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc != 2)
     {

@@ -40,7 +40,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
 
     logger("simple command : execute : %s\n", argv[0]);
 
-    ret_value = run_command(argc, argv);
+    ret_value = run_command(argc, argv, ctx);
 
     fd_pointer = fd_ptr;
     while (*fd_pointer)
