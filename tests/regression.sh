@@ -359,6 +359,7 @@ test_for()
 {
     echo "========= FOR LOOP BEGIN =========="
     tes 'for i in a b; do echo $i; done'
+    tes 'for i in ls; do echo $i; done'
     echo "========= FOR LOOP END =========="
 }
 test_export()
