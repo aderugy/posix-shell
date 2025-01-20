@@ -32,5 +32,6 @@ int export_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int unset_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int dot(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int break_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
+int continue_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 
 #endif // !BUILTINS_H

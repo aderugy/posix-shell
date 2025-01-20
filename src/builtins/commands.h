@@ -14,6 +14,7 @@
 #define UNSET "unset"
 #define DOT "."
 #define BREAK_BUILTIN "break"
+#define CONTINUE_BUILTIN "continue"
 
 int register_commands(void);
 int unregister_commands(void);

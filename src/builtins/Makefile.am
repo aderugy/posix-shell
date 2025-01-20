@@ -3,6 +3,7 @@ lib_LIBRARIES = libbuiltins.a
 libbuiltins_a_SOURCES =  \
   builtins.h \
   echo.c \
+  continue.c \
   break.c \
   true_and_false_builtin.c \
   run_command.c \

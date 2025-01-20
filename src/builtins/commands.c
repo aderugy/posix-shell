@@ -39,9 +39,13 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", DOT);
     }
-    if (add_command(BREAK, break_builtin))
+    if (add_command(BREAK_BUILTIN, break_builtin))
     {
-        errx(1, "%s: Couldn't register command", BREAK);
+        errx(1, "%s: Couldn't register command", BREAK_BUILTIN);
+    }
+    if (add_command(CONTINUE_BUILTIN, continue_builtin))
+    {
+        errx(1, "%s: Couldn't register command", CONTINUE_BUILTIN);
     }
 
     return 0;
@@ -81,9 +85,13 @@ int unregister_commands(void)
     {
         errx(1, "%s: Couldn't delete command", DOT);
     }
-    if (del_command(BREAK))
+    if (del_command(BREAK_BUILTIN))
     {
         errx(1, "%s: Couldn't delete command", BREAK_BUILTIN);
+    }
+    if (del_command(CONTINUE_BUILTIN))
+    {
+        errx(1, "%s: Couldn't delete command", CONTINUE_BUILTIN);
     }
 
     return 0;
