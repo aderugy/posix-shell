@@ -81,6 +81,7 @@ struct splitter_ctx
     struct shard *cache;
 };
 
+// clang-tidy 'max 10 functions per file.h'
 struct shard *splitter_peek(struct splitter_ctx *ctx);
 struct shard *splitter_pop(struct splitter_ctx *ctx);
 
