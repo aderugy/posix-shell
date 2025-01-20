@@ -33,5 +33,5 @@ int export_builtin(int argc, char **argv,
 
     logger("setenv %s=%s\n", name, word);
 
-    return setenv(name, word, 0);
+    return setenv(name, word, 1);
 }
