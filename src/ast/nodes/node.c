@@ -10,6 +10,7 @@
 #include "element.h"
 #include "else.h"
 #include "for.h"
+#include "fundec.h"
 #include "if.h"
 #include "input.h"
 #include "ionumber.h"
@@ -95,6 +96,10 @@ static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_prefix,
       (int (*)(void *, void **, void *))ast_eval_prefix,
       (void (*)(void *))ast_free_prefix, (void (*)(void *))ast_print_prefix },
+
+    { (void *(*)(struct lexer *))ast_parse_fundec,
+      (int (*)(void *, void **, void *))ast_eval_fundec,
+      (void (*)(void *))ast_free_fundec, (void (*)(void *))ast_print_fundec },
 };
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {

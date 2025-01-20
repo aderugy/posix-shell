@@ -8,6 +8,13 @@
 #include "node.h"
 #include "utils/logger.h"
 
+/*
+    command =
+            | simple_command
+            | simple_command { redirection }
+            | fundec { redirection }
+            ;
+*/
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
     logger("Parse COMMAND\n");
@@ -15,6 +22,15 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
     if (!node)
     {
         errx(EXIT_FAILURE, "out of memory");
+    }
+
+    struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
+    if (simple_cmd)
+    {
+        node->type = SIMPLE_CMD;
+        node->cmd = simple_cmd;
+        logger("Exit COMMAND (SUCCESS)\n");
+        return node;
     }
 
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
@@ -32,16 +48,22 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         logger("Exit COMMAND (SUCCESS)\n");
         return node;
     }
-    else
+
+    // @Remark : redundant code, could be merged
+    struct ast_node *fundec = ast_create(lexer, AST_FUNDEC);
+    if (fundec)
     {
-        struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
-        if (simple_cmd)
+        node->redirs = list_init();
+        struct ast_node *redir;
+        while ((redir = ast_create(lexer, AST_REDIRECTION)))
         {
-            node->type = SIMPLE_CMD;
-            node->cmd = simple_cmd;
-            logger("Exit COMMAND (SUCCESS)\n");
-            return node;
+            list_append(node->redirs, redir);
         }
+
+        node->type = FUNDEC;
+        node->cmd = fundec;
+        logger("Exit COMMAND (SUCCESS)\n");
+        return node;
     }
 
     logger("Exit COMMAND (ERROR)\n");
