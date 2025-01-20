@@ -2,6 +2,7 @@
 
 #include <err.h>
 
+#include "builtins.h"
 #include "run_command.h"
 
 int register_commands(void)

@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtins.h"
 #include "commands.h"
 #include "utils/logger.h"
-#include "utils/myatoi.h"
 
 int break_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
 {

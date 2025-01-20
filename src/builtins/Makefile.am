@@ -1,8 +1,9 @@
 lib_LIBRARIES = libbuiltins.a
 
 libbuiltins_a_SOURCES =  \
-  echo.c \
   builtins.h \
+  echo.c \
+  break.c \
   true_and_false_builtin.c \
   run_command.c \
   run_command.h \
