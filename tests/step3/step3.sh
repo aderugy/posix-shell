@@ -106,8 +106,10 @@ output_test() {
 
 test_cd() {
   echo "========== CD BEGIN =========="
-  tes "cd . && echo $PWD"
-  tes "cd && echo $PWD"
+  tes 'cd . && echo $PWD'
+  tes 'cd && echo $PWD'
+  tes 'cd .. && echo $PWD'
+  tes 'cd ../ && echo $PWD'
   echo "========== CD END =========="
 }
 
