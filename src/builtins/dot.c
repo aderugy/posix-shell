@@ -8,7 +8,8 @@
 #include "commands.h"
 #include "utils/logger.h"
 
-int dot(int argc, char **argv)
+int dot(__attribute__((unused)) int argc, __attribute__((unused)) char **argv,
+        __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     return 0;
 }

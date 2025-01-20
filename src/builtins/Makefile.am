@@ -11,6 +11,7 @@ exit.c \
 cd.c \
 export.c \
 unset.c \
+dot.c \
 commands.h 
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
