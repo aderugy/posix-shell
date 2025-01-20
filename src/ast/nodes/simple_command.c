@@ -68,7 +68,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     return cmd;
 error:
     ast_free_simple_cmd(cmd);
-    logger("Exit SIMPLE_COMMAND (ERROR)\n");
+    logger("Exit SIMPLE_COMMAND (EXIT)\n");
     return NULL;
 }
 

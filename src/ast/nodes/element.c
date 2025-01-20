@@ -10,6 +10,7 @@
 #include "mbtstr/str.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 
 /**
  * element = WORD
@@ -40,16 +41,19 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
 
     if (token->type == TOKEN_WORD || token->type == TOKEN_AWORD)
     {
-        // Valid token -> we consume it
-        lexer_pop(lexer);
+        if (!(is_keyword(token->value.c)))
+        {
+            // Valid token -> we consume it
+            lexer_pop(lexer);
 
-        node->token = token;
-        logger("Exit ELEMENT (SUCCESS)\n");
-        return node;
+            node->token = token;
+            logger("Exit ELEMENT (SUCCESS)\n");
+            return node;
+        }
     }
 
     ast_free_element(node);
-    logger("Exit ELEMENT (ERROR)\n");
+    logger("Exit ELEMENT (EXIT)\n");
     return NULL;
 }
 

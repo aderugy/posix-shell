@@ -60,6 +60,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
                     logger("Exit FUNDEC (FAILED)\n");
                     return NULL;
                 }
+                logger("Exit FUNDEC (SUCCESS)\n");
                 node->ast_node = shell_cmd;
                 return node;
             }
@@ -70,6 +71,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
         logger("Exit FUNDEC (FAILED)\n");
         return NULL;
     }
+    logger("Exit FUNDEC (EXIT)\n");
     ast_free_fundec(node);
     return NULL;
 }
