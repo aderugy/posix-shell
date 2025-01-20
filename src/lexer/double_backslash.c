@@ -16,7 +16,7 @@ int split_double_backslash(struct stream *stream, struct mbt_str *str, char c,
 
         if (next == EOF)
         {
-            return BREAK;
+            return SPLIT_BREAK;
         }
         logger("next : %c", c);
 
@@ -24,7 +24,7 @@ int split_double_backslash(struct stream *stream, struct mbt_str *str, char c,
         mbt_str_pushc(str, next);
         mbt_str_pushc(str_state, SHARD_BACKSLASH_QUOTED);
 
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
 
     int double_quoting_context;
@@ -33,13 +33,13 @@ int split_double_backslash(struct stream *stream, struct mbt_str *str, char c,
     if (strchr("\\\"\'", c))
     {
         double_quoting_context = handle_quoting(stream, str, str_state, c);
-        if (double_quoting_context == BREAK)
+        if (double_quoting_context == SPLIT_BREAK)
         {
-            return CONTINUE;
+            return SPLIT_CONTINUE;
         }
-        else if (double_quoting_context == CONTINUE)
+        else if (double_quoting_context == SPLIT_CONTINUE)
         {
-            return CONTINUE;
+            return SPLIT_CONTINUE;
         }
     }
     return -1;

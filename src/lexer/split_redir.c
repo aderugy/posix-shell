@@ -32,7 +32,7 @@ int split_redir(struct stream *stream, struct mbt_str *str, char c)
     {
         logger("found token redir in splitter\n");
         stream_read(stream);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
     else // Case 3
     {
@@ -43,6 +43,6 @@ int split_redir(struct stream *stream, struct mbt_str *str, char c)
         }
         logger("\n");
         mbt_str_pop(str); // Not an operator -> We delimit
-        return BREAK;
+        return SPLIT_BREAK;
     }
 }

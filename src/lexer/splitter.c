@@ -66,11 +66,11 @@ struct shard *splitter_next(struct stream *stream)
         {
             ret_val = handle_5_to_11(stream, str, c);
         }
-        if (ret_val == BREAK)
+        if (ret_val == SPLIT_BREAK)
         {
             break;
         }
-        else if (ret_val == CONTINUE)
+        else if (ret_val == SPLIT_CONTINUE)
         {
             continue;
         }
@@ -120,10 +120,10 @@ int handle_quoting(struct stream *stream, struct mbt_str *str,
     {
     case '\"':
         mbt_str_fill(str, str_state, SHARD_DOUBLE_QUOTED);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     case '\'':
         mbt_str_fill(str, str_state, SHARD_SINGLE_QUOTED);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     case '\\':
         stream_read(stream);
         c = stream_peek(stream);
@@ -146,8 +146,8 @@ int handle_quoting(struct stream *stream, struct mbt_str *str,
         errx(EXIT_FAILURE, "wtf");
     }
 
-    // return BREAK;
-    return CONTINUE;
+    // return SPLIT_BREAK;
+    return SPLIT_CONTINUE;
 }
 
 int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
@@ -166,12 +166,12 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     {
         if (str->size)
         {
-            return BREAK;
+            return SPLIT_BREAK;
         }
 
         mbt_str_pushc(str, c);
         stream_read(stream);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
     bool is_redir = false;
     for (size_t i = 0; REDIRS[i]; i++)
@@ -185,7 +185,7 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     {
         mbt_str_pushc(str, c);
         stream_read(stream);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
 
     // Case 7: Newlines
@@ -196,7 +196,7 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
             mbt_str_pushc(str, c);
             stream_read(stream);
         }
-        return BREAK;
+        return SPLIT_BREAK;
     }
 
     // Case 8: delimiter
@@ -206,11 +206,11 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
 
         if (str->size)
         {
-            return BREAK;
+            return SPLIT_BREAK;
         }
         else
         {
-            return CONTINUE;
+            return SPLIT_CONTINUE;
         }
     }
 
@@ -219,7 +219,7 @@ int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c)
     {
         mbt_str_pushc(str, c);
         stream_read(stream);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
 
     // Case 10: comments

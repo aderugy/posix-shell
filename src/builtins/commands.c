@@ -38,7 +38,7 @@ int register_commands(void)
     {
         errx(1, "%s: Couldn't register command", DOT);
     }
-    if (add_command(BREAK, break_bultin))
+    if (add_command(BREAK, break_builtin))
     {
         errx(1, "%s: Couldn't register command", BREAK);
     }

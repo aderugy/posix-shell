@@ -10,5 +10,5 @@ int split_comments(struct stream *stream, char c)
                              // (check with numeric value)
     }
 
-    return CONTINUE;
+    return SPLIT_CONTINUE;
 }

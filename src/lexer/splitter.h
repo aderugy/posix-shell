@@ -9,8 +9,8 @@
 #define SHARD_DOUBLE_QUOTED 4
 #define SHARD_BACKSLASH_QUOTED 8
 
-#define CONTINUE 0
-#define BREAK 1
+#define SPLIT_CONTINUE 0
+#define SPLIT_BREAK 1
 #define SPLIT_ERROR 2
 #define DO_NOTHING 3
 

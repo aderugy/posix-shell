@@ -25,11 +25,11 @@ int split_operator(struct stream *stream, struct mbt_str *str, char c)
     if (is_operator(str)) // Case 2
     {
         stream_read(stream);
-        return CONTINUE;
+        return SPLIT_CONTINUE;
     }
     else // Case 3
     {
         mbt_str_pop(str); // Not an operator -> We delimit
-        return BREAK;
+        return SPLIT_BREAK;
     }
 }

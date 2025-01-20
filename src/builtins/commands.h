@@ -24,6 +24,6 @@ int cd(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int export_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int unset_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int dot(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
-int break_bultin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
+int break_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 
 #endif // !COMMANDS_H
