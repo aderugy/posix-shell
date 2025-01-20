@@ -11,6 +11,12 @@
 /*
  * fundec = WORD '(' ')' { '\n' } shell_command ;
  */
+/*
+SCL: case 8 [ NAME in function]
+When the TOKEN is exactly a reserved word, the token identifier for that
+reserved word shall result. Otherwise, when the TOKEN meets the requirements
+for a name, the token identifier NAME shall result. Otherwise, rule 7 applies.
+*/
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 {
     logger("Parse FUNDEC\n");
