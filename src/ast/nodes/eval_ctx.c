@@ -12,8 +12,7 @@
 #include "utils/my_itoa.h"
 #include "utils/xalloc.h"
 
-// @RENAME
-struct ast_eval_ctx *ctx_init(void)
+struct ast_eval_ctx *ast_eval_ctx_init(void)
 {
     struct ast_eval_ctx *ctx = xcalloc(1, sizeof(struct ast_eval_ctx));
     ctx->value = hash_map_init(64);
