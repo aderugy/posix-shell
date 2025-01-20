@@ -12,6 +12,7 @@
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
+#include "lexer/splitter.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -21,49 +22,12 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 
                                   { 0, 0, 0, 0 } };
 
-static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
-                    int nb_args)
-{
-    init_dollar(*ctx);
-    init_hashtag(nb_args, *ctx);
-    update_qm(*ctx, 0);
-    register_commands();
-
-    struct lexer *lexer = lexer_create(*stream);
-    struct ast_node *node;
-    int return_value = 0;
-
-    /*
-     * Process input line by line (AST_INPUT after AST_INPUT)
-     */
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
-    {
-        ast_print(node);
-        return_value = ast_eval(node, NULL, *ctx);
-
-        ast_free(node);
-    }
-
-    if (!node && lexer->stream)
-    {
-        warnx("Syntax error");
-        return_value = 2;
-    }
-    ast_eval_ctx_free(*ctx);
-    lexer_free(lexer);
-    unregister_commands();
-
-    // return return_value;
-    exit(return_value);
-}
-
 int main(int argc, char *argv[])
 {
     int c;
     int opt_idx = 0;
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
-    int nb_args = 0;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -88,7 +52,7 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
-            nb_args = init_args(argc, argv, ctx);
+            init_args(argc, argv, ctx);
         }
         else
         {
@@ -101,5 +65,14 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
-    return sub_main(&stream, &ctx, nb_args);
+    struct lexer *lexer = lexer_create(stream);
+    struct token *token;
+    while ((token = lexer_pop(lexer)))
+    {
+        token_print(token);
+        token_free(token);
+    }
+
+    lexer_free(lexer);
+    ast_eval_ctx_free(ctx);
 }

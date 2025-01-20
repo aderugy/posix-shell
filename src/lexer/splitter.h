@@ -1,30 +1,50 @@
 #ifndef SPLITTER_H
 #define SPLITTER_H
 
-#include "mbtstr/str.h"
+#include <stdbool.h>
+
 #include "streams/streams.h"
+#include "utils/stack.h"
 
-#define SHARD_UNQUOTED 1
-#define SHARD_SINGLE_QUOTED 2
-#define SHARD_DOUBLE_QUOTED 4
-#define SHARD_BACKSLASH_QUOTED 8
+#define SHARD_ERROR -1
 
-#define CONTINUE 0
-#define BREAK 1
-#define SPLIT_ERROR 2
-#define DO_NOTHING 3
+#define SHARD_UNQUOTED 0
+#define SHARD_SINGLE_QUOTED 1
+#define SHARD_DOUBLE_QUOTED 2
+#define SHARD_BACKSLASH_QUOTED 3
+
+#define SHARD_EXPANSION_VARIABLE 4
+#define SHARD_EXPANSION_SUBSHELL 5
+#define SHARD_EXPANSION_ARITH 6
+
+#define SHARD_CONTEXT_DOUBLE_QUOTES 1
+#define SHARD_CONTEXT_EXPANSION 2
 
 struct shard
 {
     char *state;
     char *data;
+
+    bool can_chain;
+    int shard_type;
 };
 
-struct shard *splitter_next(struct stream *stream);
-int handle_5_to_11(struct stream *stream, struct mbt_str *str, char c);
-int handle_quoting(struct stream *stream, struct mbt_str *str,
-                   struct mbt_str *str_state, char c);
+struct splitter_ctx_exp
+{
+    int value;
+};
 
+struct splitter_ctx
+{
+    struct stack *expect;
+};
+
+struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx);
+
+struct splitter_ctx *splitter_ctx_init(void);
+void splitter_ctx_expect(struct splitter_ctx *ctx, int value);
+
+void shard_print(struct shard *shard);
 void shard_free(struct shard *shard);
 
 #endif // !SPLITTER_H

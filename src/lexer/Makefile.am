@@ -5,15 +5,7 @@ liblex_a_SOURCES =  \
   splitter.c \
   splitter.h \
   lexer.h \
-  token.h \
-  split_operator.c \
-  split_operator.h \
-  split_redir.c \
-  split_redir.h \
-  double_backslash.h \
-  double_backslash.c \
-  split_comments.h \
-  split_comments.c
+  token.h 
 
 liblex_a_CPPFLAGS = -I$(top_srcdir)/src
 

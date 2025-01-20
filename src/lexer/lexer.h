@@ -1,6 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "splitter.h"
 #include "streams/streams.h"
 #include "token.h"
 #include "utils/stack.h"
@@ -21,6 +22,8 @@ struct lexer
 {
     struct stream *stream;
     struct stack *tokens;
+
+    struct splitter_ctx *ctx;
 };
 
 struct keyword
@@ -28,6 +31,8 @@ struct keyword
     const char *name;
     enum token_type type;
 };
+
+void token_print(struct token *token);
 
 /**
  * \brief Creates a new lexer given an input string.

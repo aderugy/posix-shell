@@ -48,11 +48,11 @@ static const struct keyword KEYWORDS[] = { { ";", TOKEN_SEMICOLON },
                                            { ">>", TOKEN_REDIR_STDOUT_FILE_A },
                                            { ">&", TOKEN_REDIR_STDOUT_FD },
                                            { "<&", TOKEN_REDIR_STDIN_FD },
-{ ">|",
+                                           { ">|",
                                              TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
                                            { ">", TOKEN_REDIR_STDOUT_FILE },
                                            { "<", TOKEN_REDIR_FILE_STDIN },
-                                           
+
                                            { NULL, TOKEN_EOF } };
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
@@ -64,7 +64,14 @@ struct lexer *lexer_create(struct stream *stream)
 
     res->stream = stream;
     res->tokens = stack_init((void (*)(void *))token_free);
+    res->ctx = splitter_ctx_init();
     return res;
+}
+
+void token_print(struct token *token)
+{
+    logger("%s\n",
+           token->value.c ? token->value.c : get_token_name(token->type));
 }
 
 void token_free(struct token *token)
@@ -88,6 +95,10 @@ void token_free(struct token *token)
 void lexer_free(struct lexer *lexer)
 {
     stack_free(lexer->tokens);
+    if (lexer->ctx)
+    {
+        free(lexer->ctx);
+    }
     if (lexer->stream)
     {
         stream_close(lexer->stream);
@@ -104,71 +115,33 @@ static struct token *lex(struct lexer *lexer)
     }
     token->type = TOKEN_ERROR;
 
-    // logger("lexer.c : will peek a shard\n");
-    struct shard *shard = splitter_next(lexer->stream);
+    struct shard *shard = splitter_next(lexer->stream, lexer->ctx);
     if (!shard)
     {
         token->type = TOKEN_EOF;
         return token;
     }
 
-    // logger("lexer.c : peeked a shard\n");
-
-    int condition = !strchr(shard->data, SHARD_DOUBLE_QUOTED);
-    condition = condition && !strchr(shard->data, SHARD_SINGLE_QUOTED);
-    condition = condition && !strchr(shard->data, SHARD_BACKSLASH_QUOTED);
-    for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
+    for (size_t i = 0; i < KEYWORDS_LEN; i++)
     {
-        char *first_occurence_of_chevron =
-            strpbrk(shard->data, KEYWORDS[i].name);
-
-        if (first_occurence_of_chevron
-            && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
+        if (strcmp(shard->data, KEYWORDS[i].name) == 0)
         {
             token->type = KEYWORDS[i].type;
-            logger("type found : %s\n", get_token_name(token->type));
-            if (token->type > 9)
-            {
-                size_t s = first_occurence_of_chevron - shard->data;
-                token->value.c = malloc((s + 1) * sizeof(char));
-                strncpy(token->value.c, shard->data, s);
-                token->value.c[s] = 0;
-            }
+            token->value.c = strdup(shard->data);
             break;
         }
     }
 
     if (token->type == TOKEN_ERROR)
     {
-        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
-        char *pos = NULL;
-        // If the data contains a '=' and it does not come first
-        if ((pos = strchr(shard->data, '=')) && pos != shard->data)
-        {
-            int len = pos - shard->data;
-            // If the '=' is unquoted
-            if (shard->state[len] == SHARD_UNQUOTED)
-            {
-                // if the name is SCL compliant
-                if (convention_check(shard->data, len))
-                {
-                    token->type = TOKEN_AWORD;
-                }
-                else
-                {
-                    errx(LEX_ERROR, "incorrect assignment name");
-                }
-            }
-        }
-
         if (token->type == TOKEN_ERROR)
         {
             token->type = TOKEN_WORD;
         }
 
         token->value.c = strdup(shard->data);
-        token->state = strdup(shard->state);
     }
+
     shard_free(shard);
     return token;
 }
