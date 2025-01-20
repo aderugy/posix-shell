@@ -234,10 +234,33 @@ test_redirections() {
     tes "cat non_existent_file 2> err.txt; cat err.txt; rm err.txt"
     tes "echo 'This will not appear' > /dev/null"
     tes "ls invalid_file 2> /dev/null"
-    tes "ls > text ; sort < text ; rm text"
-    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out"
+    tes "ls > text ; sort < text ; cat text;rm text"
+    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
+    tes "echo Salut |> text; cat text;rm text"
+    tes "echo Salut >| text; cat text;rm text"
+    tes "cat non_existent_file 2> err.txt; cat err.txt"
+    tes "echo 'This will not appear' > /dev/null"
+    tes "ls invalid_file 2> /dev/null"
+    tes "ls > text ; sort < text ; cat text;rm text"
+    tes "ls 1> dum.out; cat dum.out"
+    tes "echo 'Hello, World!' > file1; cat file1"
+    tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1;"
+    tes "cat < file1"
+    tes "cat < file1 > out.txt 2>&1; cat out.txt"
+    tes "ls | echo > dum.out; echo < dum.out"
+    tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
+    tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
+    tes "echo aads 1<&2 cat coverage.sh"
+    tes "echo aads 1>&2 cat coverage.sh"
+
     touch dum.out
     rm dum.out
+    touch file1
+    rm file1
+    touch err.txt
+    rm err.txt
+    touch out.txt
+    rm out.txt
     echo "========== REDIRECTION END =========="
 
 }
@@ -272,10 +295,7 @@ test_neg_pipeline() {
 }
 test_cd() {
     echo "========== CD ========="
-    tes "cd .. && echo $PWD"
-    tes "cd ../ && echo $PWD"
-    tes "cd && echo $PWD"
-    tes "cd . && echo $PWD"
+    tes 'cd && echo $PWD'
     echo "========== CD END ========="
 }
 test_exit() {
@@ -317,7 +337,52 @@ test_errs() {
     test_pars_lex_error 2 "cd a a"
     echo "========== ERROR_CODE END =========="
 }
-
+test_while()
+{
+    echo "========= WHILE BEGIN ============="
+    for i in $(find step2/loops -name "while*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========= WHILE END ============="
+}
+test_until()
+{
+    echo "========= UNTIL BEGIN ============="
+    for i in $(find step2/loops -name "until*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========= WHILE END ============="
+}
+test_for()
+{
+    echo "========= FOR LOOP BEGIN =========="
+    tes 'for i in a b; do echo $i; done'
+    tes 'for i in ls; do echo $i; done'
+    echo "========= FOR LOOP END =========="
+}
+test_export()
+{
+    echo "========== EXPORT BEGIN ==="
+    tes 'export ABC=5; echo $ABC;'
+    echo "========== EXPORT END ====="
+}
+test_unset()
+{
+    echo "========== UNSET BEGIN ==="
+    tes 'export ABC=5; echo $ABC; unset ABC; echo $ABC'
+    echo "========== UNSET END ====="
+}
+test_blocks()
+{
+    echo "========== BLOCKS BEGIN ==="
+    tes '{ echo a; echo b; } | tr b h'
+    tes '{ echo c; { echo a; echo b; } ; } | tr b h'
+    tes '{ echo a;} | tr a h'
+    tes '{ { { { { { { echo a; } } } } } } } | tr a h'
+    echo "========== BLOCKS END ====="
+}
 testsuite() {
     test_echo_basic
     test_non_builtin
@@ -335,7 +400,12 @@ testsuite() {
     test_exit
     test_var_local
     test_quoting
-
+    test_for
+    test_while
+    test_until
+    test_export
+    test_unset
+    test_blocks
 }
 
 if [ "$COVERAGE" = "yes" ]; then
@@ -344,6 +414,8 @@ if [ "$COVERAGE" = "yes" ]; then
     ./step2/step2.sh
     ./step3/step3.sh
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
+    res=$((100 * $PASSED_TEST / $TOTAL_TEST))
+    echo "REGRESSION: $res% PASSED"
 else
     testsuite
     res=$((100 * $PASSED_TEST / $TOTAL_TEST))

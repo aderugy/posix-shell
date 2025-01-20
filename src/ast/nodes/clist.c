@@ -84,6 +84,9 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
     {
         struct ast_node *children = list_get(node->list, i);
         ast_eval(children, NULL, ctx);
+        if (ctx->break_count > 0 || ctx->continue_count > 0) {
+            return EXIT_SUCCESS;
+        }
     }
 
     struct ast_node *children = list_get(node->list, node->list->size - 1);

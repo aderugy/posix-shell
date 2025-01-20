@@ -1,27 +1,44 @@
+#define _POSIX_C_SOURCE 200809L
 #include <err.h>
 #include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "commands.h"
-static struct option l_opts[] = { { "p", no_argument, 0, 'p' },
-                                  { 0, 0, 0, 0 } };
-int export_builtin(int argc, char *argv[])
-{
-    int c;
+#include "utils/logger.h"
 
-    int opt_idx = 0;
-    optind = 1;
-    while ((c = getopt_long(argc, argv, "p", l_opts, &opt_idx)) != -1)
+int export_builtin(int argc, char **argv,
+                   __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
+{
+    if (argc != 2)
     {
-        switch (c)
-        {
-        case 'p':
-            break;
-        case '?':
-            return 1;
-        default:
-            errx(1, "echo: unkown option %c", c);
-        }
+        fprintf(stderr, "export must take 1 argument\n");
+        return 1;
     }
 
-    return 0;
+    char *name = argv[1];
+
+    char *equal_sign = strchr(argv[1], '=');
+    char *word = NULL;
+    if (!equal_sign)
+    {
+        struct mbt_str *n = mbt_str_init(8);
+        mbt_str_pushcstr(n, name);
+        word = get(ast_eval_ctx, n)->data;
+    }
+    else
+    {
+        word = equal_sign + 1;
+
+        *equal_sign = 0;
+    }
+
+    logger("setenv %s=%s\n", name, word);
+
+    if (word)
+    {
+        return setenv(name, word, 1);
+    }
+    return 1;
 }

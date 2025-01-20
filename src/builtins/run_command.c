@@ -18,8 +18,8 @@ static int init_commands(void)
         return 1;
     }
 
-    commands->capacity = 8;
-    commands->list = calloc(8, sizeof(struct runnable *));
+    commands->capacity = 16;
+    commands->list = calloc(16, sizeof(struct runnable *));
 
     if (!commands->list)
     {
@@ -70,7 +70,8 @@ static void free_commands(void)
     commands = NULL;
 }
 
-int add_command(const char *name, int (*command)(int, char **))
+int add_command(const char *name,
+                int (*command)(int, char **, struct ast_eval_ctx *))
 {
     if (!name || !command || (!commands && init_commands() == 1))
     {
@@ -142,7 +143,8 @@ int del_command(const char *name)
     return 0;
 }
 
-int run_command(int argc, char **argv)
+int run_command(int argc, char **argv,
+                struct ast_eval_ctx *ast_eval_ctx)
 {
     struct runnable *cmd;
     if (argc == 0 || !argv || (cmd = get_command(argv[0], NULL)) == NULL)
@@ -150,5 +152,5 @@ int run_command(int argc, char **argv)
         return 127;
     }
 
-    return cmd->command(argc, argv);
+    return cmd->command(argc, argv, ast_eval_ctx);
 }

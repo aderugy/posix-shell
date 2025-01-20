@@ -45,6 +45,29 @@ char *get_current_path(void)
     return buf;
 }
 
+static char *my_strcat(char *src, char *dest)
+{
+    size_t total_len = strlen(src) + strlen(dest);
+    char *result = malloc(total_len + 1);
+    size_t i = 0;
+    size_t j = 0;
+    while (dest[j] != 0)
+    {
+        result[i] = dest[j];
+        j++;
+        i++;
+    }
+    j = 0;
+    while (src[j] != 0)
+    {
+        result[i] = src[j];
+        j++;
+        i++;
+    }
+    result[i] = 0;
+    return result;
+}
+
 char *normalize_path(const char *path)
 {
     static char resolved_path[MAX_PATH];
@@ -57,18 +80,17 @@ char *normalize_path(const char *path)
     {
         resolved = resolved_path;
         resolved[0] = '/';
-        resolved[1] = '\0';
+        resolved[1] = 0;
     }
-
     else
     {
         if (!getcwd(resolved_path, sizeof(resolved_path)))
         {
-            perror("getcwd");
-            return NULL;
+            errx(2, "cd: normalize_path: not a good path");
         }
         resolved = resolved_path + strlen(resolved_path);
     }
+    logger("resolved: %s ?\n", resolved);
 
     snprintf(temp_path, sizeof(temp_path), "%s", path);
     temp_path[sizeof(temp_path) - 1] = '\0';
@@ -81,7 +103,6 @@ char *normalize_path(const char *path)
             token = strtok(NULL, "/");
             continue;
         }
-
         else if (strcmp(token, "..") == 0) // On met le chemin d'avant
         {
             if (resolved > resolved_path + 1)
@@ -91,7 +112,6 @@ char *normalize_path(const char *path)
                     resolved--;
             }
         }
-
         else
         {
             if (resolved > resolved_path + 1)
@@ -116,7 +136,8 @@ void move_cd(char *oldpwd, char *pwd)
         errx(1, "cd: chdir: error");
 }
 
-int cd(int argc, char **argv)
+int cd(int argc, char **argv,
+       __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc > 2)
     {
@@ -139,6 +160,7 @@ int cd(int argc, char **argv)
         char *oldpwd = getenv("OLDPWD");
         char *current_path = get_current_path(); // RULE 2
         move_cd(current_path, oldpwd);
+        printf("%s\n", oldpwd);
         free(current_path);
         return 0;
     }
@@ -155,13 +177,17 @@ int cd(int argc, char **argv)
     }
 
     char *resolved_path = normalize_path(argv[1]);
-    if (!resolved_path)
-    {
-        errx(1, "cd: Path error");
-    }
 
     char *current_path = get_current_path(); // RULE 2
-    move_cd(current_path, resolved_path);
+    logger("current_path: %s !", resolved_path);
+    if (argv[1][0] == '/')
+    {
+        resolved_path = my_strcat(resolved_path, "/");
+        move_cd(current_path, resolved_path);
+        free(resolved_path);
+    }
+    else
+        move_cd(current_path, resolved_path);
     free(current_path);
 
     return 0;

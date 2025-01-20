@@ -61,11 +61,26 @@ int ast_eval_while(struct ast_while_node *node, void **out,
 {
     int ret_val;
     while (ast_eval(node->condition, out, ctx) == EXIT_SUCCESS)
+
     {
         ret_val = ast_eval(node->body, out, ctx);
         if (ret_val != EXIT_SUCCESS)
         {
             return ret_val;
+        }
+        if (ctx->break_count > 0)
+        {
+            ctx->break_count--;
+            return ret_val;
+        }
+        if (ctx->continue_count > 1)
+        {
+            ctx->continue_count--;
+            return ret_val;
+        }
+        else if (ctx->continue_count == 0)
+        {
+            ctx->continue_count--;
         }
     }
     return EXIT_SUCCESS;

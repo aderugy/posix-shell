@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "builtins/builtins.h"
 #include "eval_ctx.h"
 #include "lexer/lexer.h"
 #include "lexer/splitter.h"

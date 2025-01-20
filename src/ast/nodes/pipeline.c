@@ -65,7 +65,8 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         struct ast_node *command = ast_create(lexer, AST_COMMAND);
         if (!command)
         {
-            goto error;
+            errx(2, "ast_pipeline: no command found");
+            // goto error;
         }
 
         list_append(node->commands, command);

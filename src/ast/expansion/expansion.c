@@ -12,10 +12,12 @@
 #include "utils/logger.h"
 #include "utils/naming.h"
 
-// retrieves the longest valid name from a '$' or a ${
 /*
  * @RENAME (dans quel contexte ?)
+ * rename the the way that pleases you, i can't guess it if you don't tell me
+ * @ANSWER during expansion
  */
+// retrieves the longest valid name from a '$' or a ${
 struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
                               int bracket)
 {
@@ -81,8 +83,12 @@ struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
 
 /*
  * @RENAME
+ * rename the the way that pleases you, i can't guess it if you don't tell me
  * Expand ? Expand dollar ? Qui fait quoi ?
  */
+// Expand is the main loop
+// Expand calls expand_dollar when it finds a VALID DOLLAR
+// OR when it finds a ${  } pattern
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct dstream *dstream = dstream_from_str(token->value.c, token->state);

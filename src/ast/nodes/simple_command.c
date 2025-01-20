@@ -17,8 +17,8 @@
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
-static char *keywords[] = { "then", "elif", "if",    "fi",    "else", "do",
-                            "for",  "done", "while", "until", NULL };
+static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
+                            "done", "while", "until", "{",  "}",    NULL };
 
 bool is_keyword(char *word)
 {
@@ -84,115 +84,6 @@ error:
     ast_free_simple_cmd(cmd);
     logger("Exit SIMPLE_COMMAND (ERROR)\n");
     return NULL;
-}
-
-int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
-                                   struct ast_eval_ctx *ctx)
-
-{
-    int element_count = cmd->args->size + 1;
-
-    int *fd_ptr =
-        calloc(3 * element_count, sizeof(int)); // alloc in case of redirections
-
-    int *fd_pointer = fd_ptr;
-
-    int ret_value = 0;
-
-    int argc = 1;
-
-    for (int i = 1; i < element_count; i++)
-    {
-        ctx->check_redir = true;
-        struct ast_node *children = list_get(cmd->args, i - 1);
-        int element_eval_result;
-        if ((element_eval_result =
-                 ast_eval(children, (void **)&fd_pointer, ctx))
-            == -1)
-        {
-            fd_pointer += 3; // for the 3 files descriptor that we need to close
-        }
-        else if (element_eval_result == 0)
-        {
-            argc++;
-        }
-        else
-        {
-            ret_value = element_eval_result;
-            goto error;
-        }
-    }
-
-    logger("simple command : execute : %s\n", argv[0]);
-
-    ret_value = run_command(argc, argv);
-
-    fd_pointer = fd_ptr;
-    while (*fd_pointer)
-    {
-        logger("simple_command ; fd to close : %i\n", *fd_pointer);
-        close(*fd_pointer);
-
-        dup2(fd_pointer[2], STDOUT_FILENO);
-
-        close(fd_pointer[2]);
-
-        fd_pointer += 3;
-        logger("simple_command ; fd end : %i\n", *fd_pointer);
-    }
-
-    free(fd_ptr);
-    return ret_value;
-error:
-
-    if (fd_ptr)
-    {
-        free(fd_ptr);
-    }
-
-    logger("Exit SIMPLE_COMMAND with error\n");
-    return ret_value;
-}
-int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
-                                       struct ast_eval_ctx *ctx, int argc)
-
-{
-    int elt = 1;
-
-    int stat;
-    int ret_value;
-
-    logger("simple command : not a builtin\n");
-
-    pid_t p = fork();
-
-    if (p == 0)
-    {
-        for (int i = 1; i < argc; i++)
-        {
-            ctx->check_redir = true;
-            struct ast_node *children = list_get(cmd->args, i - 1);
-
-            if (ast_eval(children, NULL, ctx) == 0)
-                elt++;
-        }
-
-        logger("simple_command.c : execute : %s\n", argv[0]);
-
-        ret_value = execvp(argv[0], argv);
-        exit(ret_value);
-    }
-    else
-    {
-        wait(&stat);
-
-        int result = WEXITSTATUS(stat);
-        if (result == 255)
-        {
-            errx(127, "simple_command: command not found");
-        }
-        return result;
-    }
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,

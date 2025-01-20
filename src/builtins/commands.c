@@ -2,6 +2,7 @@
 
 #include <err.h>
 
+#include "builtins.h"
 #include "run_command.h"
 
 int register_commands(void)
@@ -29,6 +30,22 @@ int register_commands(void)
     if (add_command(EXPORT, export_builtin))
     {
         errx(1, "%s: Couldn't register command", EXPORT);
+    }
+    if (add_command(UNSET, unset_builtin))
+    {
+        errx(1, "%s: Couldn't register command", UNSET);
+    }
+    if (add_command(DOT, dot))
+    {
+        errx(1, "%s: Couldn't register command", DOT);
+    }
+    if (add_command(BREAK_BUILTIN, break_builtin))
+    {
+        errx(1, "%s: Couldn't register command", BREAK_BUILTIN);
+    }
+    if (add_command(CONTINUE_BUILTIN, continue_builtin))
+    {
+        errx(1, "%s: Couldn't register command", CONTINUE_BUILTIN);
     }
 
     return 0;
@@ -59,6 +76,22 @@ int unregister_commands(void)
     if (del_command(EXPORT))
     {
         errx(1, "%s: Couldn't delete command", EXPORT);
+    }
+    if (del_command(UNSET))
+    {
+        errx(1, "%s: Couldn't delete command", UNSET);
+    }
+    if (del_command(DOT))
+    {
+        errx(1, "%s: Couldn't delete command", DOT);
+    }
+    if (del_command(BREAK_BUILTIN))
+    {
+        errx(1, "%s: Couldn't delete command", BREAK_BUILTIN);
+    }
+    if (del_command(CONTINUE_BUILTIN))
+    {
+        errx(1, "%s: Couldn't delete command", CONTINUE_BUILTIN);
     }
 
     return 0;
