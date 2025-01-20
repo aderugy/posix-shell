@@ -7,6 +7,7 @@
 #include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 
 /*
  * fundec = WORD '(' ')' { '\n' } shell_command ;
@@ -24,7 +25,8 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 
     // CASE the name of the function
     struct token *tok = lexer_peek(lexer);
-    if (tok->type == TOKEN_WORD)
+    if (tok->type == TOKEN_WORD && XDB_valid(tok->value.c)
+        && !(is_keyword(tok->value.c)))
     {
         node->name = strdup(tok->value.c);
         lexer_pop(lexer);
