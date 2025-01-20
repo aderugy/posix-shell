@@ -22,7 +22,7 @@ int convention_check(char *name, int len)
     }
 
     int i = 0;
-    while (i < len && (isalnum(name[i]) || name[i] == '_'))
+    while (name[i] && (isalnum(name[i]) || name[i] == '_'))
     {
         ++i;
     }
@@ -52,4 +52,19 @@ int dollar_valid(int state)
 int regular(int c)
 {
     return isdigit(c) || strchr("@*#?$", c) || isalnum(c);
+}
+
+int XDB_valid(char *name)
+{
+    if (isdigit(*name))
+    {
+        return 0;
+    }
+
+    while (*name && (isalnum(*name) || *name == '_'))
+    {
+        ++name;
+    }
+
+    return *name == 0;
 }
