@@ -13,6 +13,9 @@
 #include "utils/xalloc.h"
 
 // @RENAME
+
+// @ANSWER
+// rename the the way that pleases you, i can't guess it if you don't tell me
 struct ast_eval_ctx *ctx_init(void)
 {
     struct ast_eval_ctx *ctx = xcalloc(1, sizeof(struct ast_eval_ctx));
@@ -35,6 +38,9 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
 
 // @RENAME
 // @REFACTOR: n'est pas censé calloc la return value.
+
+// @ANSWER
+// rename the way that pleases you, i can't guess it if you don't tell me
 struct mbt_str *env_vars(char *name)
 {
     struct mbt_str *value = mbt_str_init(8);
@@ -55,6 +61,10 @@ struct mbt_str *env_vars(char *name)
 
 // @RENAME
 // @REFACTOR: env_vars renvoie une valeur a free, et pas hash_map_get.
+
+// @ANSWER
+// rename the way that pleases you, i can't guess it if you don't tell me
+// @DONE Both values must now be freed
 struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
     // env vars
@@ -63,7 +73,9 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
     // local vars
     if (value == NULL)
     {
-        value = hash_map_get(ctx->value, name->data);
+        struct mbt_str *tmp = hash_map_get(ctx->value, name->data);
+        value = mbt_str_init(8);
+        mbt_str_pushcstr(value, tmp->data);
     }
 
     return value;
@@ -73,6 +85,16 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 // @REFACTOR
 // Pourquoi prend il un token ? Pourquoi il expand a l'insertion et pas à
 // l'evaluation ?
+
+// @ANSWER
+// Token is used during expansion, cf line 81
+// Bc the token has the information about the state of each characters
+// cf. 'struct token'; field 'state'
+//
+// Expansion is actually done in EVAL, because insert is called during eval
+// for example : in the function ast_eval_element
+// this aims at removing redundant code in evaluation
+// feel free to split it
 void insert(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct mbt_str *expanded = expand(ctx, token);
