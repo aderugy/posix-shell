@@ -128,7 +128,8 @@ static struct token *lex(struct lexer *lexer)
             token->type = KEYWORDS[i].type;
             logger("type found : %s for%s\n", get_token_name(token->type),
                    shard->data);
-            if (token->type > TOKEN_OR && token->type < TOKEN_AWORD) // if it is a redir
+            if (token->type > TOKEN_OR
+                && token->type < TOKEN_AWORD) // if it is a redir
             {
                 logger("is a redir\n");
                 size_t s = first_occurence_of_chevron - shard->data;

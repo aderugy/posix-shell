@@ -407,6 +407,8 @@ if [ "$COVERAGE" = "yes" ]; then
     ./step2/step2.sh
     ./step3/step3.sh
     echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
+    res=$((100 * $PASSED_TEST / $TOTAL_TEST))
+    echo "REGRESSION: $res% PASSED"
 else
     testsuite
     res=$((100 * $PASSED_TEST / $TOTAL_TEST))

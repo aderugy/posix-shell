@@ -64,7 +64,7 @@ int unregister_commands(void)
     {
         errx(1, "%s: Couldn't delete command", EXPORT);
     }
-if (del_command(UNSET))
+    if (del_command(UNSET))
     {
         errx(1, "%s: Couldn't delete command", UNSET);
     }
