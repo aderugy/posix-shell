@@ -17,8 +17,8 @@
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
-static char *keywords[] = { "then", "elif", "if",    "fi",    "else", "do",
-                            "for",  "done", "while", "until", NULL };
+static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
+                            "done", "while", "until", "{",  "}",    NULL };
 
 bool is_keyword(char *word)
 {
