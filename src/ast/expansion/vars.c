@@ -69,7 +69,7 @@ int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
     mbt_str_pushcstr(glob_val, arobase->data);
 
     hash_map_insert(ctx->value, "*", glob_val);
-    return  argc - 2;
+    return argc - 2;
 }
 
 //$UID

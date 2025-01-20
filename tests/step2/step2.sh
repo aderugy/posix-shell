@@ -224,7 +224,7 @@ testsuite() {
 testsuite
 echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
 res=$((100 * $PASSED_TEST / $TOTAL_TEST))
-echo "COVERAGE : $res%"
+echo "STEP2 : $res% PASSED"
 #================== making sure every file exists before deleting them
 touch $EXPECTED_OUT
 touch $ACTUAL_OUT
