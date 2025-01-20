@@ -18,8 +18,8 @@ static int init_commands(void)
         return 1;
     }
 
-    commands->capacity = 8;
-    commands->list = calloc(8, sizeof(struct runnable *));
+    commands->capacity = 16;
+    commands->list = calloc(16, sizeof(struct runnable *));
 
     if (!commands->list)
     {
@@ -144,7 +144,7 @@ int del_command(const char *name)
 }
 
 int run_command(int argc, char **argv,
-                __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
+                struct ast_eval_ctx *ast_eval_ctx)
 {
     struct runnable *cmd;
     if (argc == 0 || !argv || (cmd = get_command(argv[0], NULL)) == NULL)

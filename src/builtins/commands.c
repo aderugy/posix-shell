@@ -83,7 +83,7 @@ int unregister_commands(void)
     }
     if (del_command(BREAK))
     {
-        errx(1, "%s: Couldn't delete command", BREAK);
+        errx(1, "%s: Couldn't delete command", BREAK_BUILTIN);
     }
 
     return 0;

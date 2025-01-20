@@ -13,6 +13,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
                                    struct ast_eval_ctx *ctx)
 
 {
+    logger("execute bultin\n");
     int element_count = cmd->args->size + 1;
 
     int *fd_ptr =
