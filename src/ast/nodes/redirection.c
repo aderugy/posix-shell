@@ -124,8 +124,6 @@ error:
     return NULL;
 }
 
-
-
 int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
