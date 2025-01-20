@@ -371,11 +371,18 @@ test_export()
 }
 test_unset()
 {
-{
     echo "========== UNSET BEGIN ==="
     tes 'export ABC=5; echo $ABC; unset ABC; echo $ABC'
     echo "========== UNSET END ====="
 }
+test_blocks()
+{
+    echo "========== BLOCKS BEGIN ==="
+    tes '{ echo a; echo b; } | tr b h'
+    tes '{ echo c; { echo a; echo b; } ; } | tr b h'
+    tes '{ echo a;} | tr a h'
+    tes '{ { { { { { { echo a; } } } } } } } | tr a h'
+    echo "========== BLOCKS END ====="
 }
 testsuite() {
     test_echo_basic
@@ -399,6 +406,7 @@ testsuite() {
     test_until
     test_export
     test_unset
+    test_blocks
 }
 
 if [ "$COVERAGE" = "yes" ]; then
