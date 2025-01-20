@@ -1,4 +1,5 @@
 a=mehdi
+c=oui
 export b=gaspard
 echo $a
 echo $b
