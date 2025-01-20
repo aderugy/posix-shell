@@ -2,22 +2,54 @@
 
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
 
 /*
- * shell_command = rule_if ;
+ * shell_command =
+                '{' compound_list '}'
+                | rule_if
+                | rule_while
+                | rule_until
+                | rule_for
+                ;
  */
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 {
+    logger("Parse SHELL_COMMAND\n");
     struct ast_shell_cmd *node = calloc(1, sizeof(struct ast_shell_cmd));
-    if (!node)
+
+    // CASE 0 '{' compound_list '}'
+    struct token *tok = lexer_peek(lexer);
+    if (reserved_word_check(tok) && strcmp(tok->value.c, "{") == 0)
     {
-        errx(EXIT_FAILURE, "out of memory");
+        lexer_pop(lexer);
+        token_free(tok);
+
+        struct ast_node *clist = ast_create(lexer, AST_CLIST);
+        if (clist)
+        {
+            tok = lexer_pop(lexer);
+            if (reserved_word_check(tok) && strcmp(tok->value.c, "}") == 0)
+            {
+                token_free(tok);
+                node->ast_node = clist;
+                return node;
+            }
+            token_free(tok);
+            perror("parse_shell_command: Unmatched left bracket");
+        }
+        else
+        {
+            perror("parse_shell_command: no clist found after {");
+        }
+        ast_free_shell_cmd(node);
+        return NULL;
     }
 
-    logger("Parse SHELL_COMMAND\n");
     // CASE 1 IF
     struct ast_node *rule = ast_create(lexer, AST_IF);
     if (rule)

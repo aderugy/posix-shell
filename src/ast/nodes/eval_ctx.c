@@ -74,8 +74,11 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
     if (value == NULL)
     {
         struct mbt_str *tmp = hash_map_get(ctx->value, name->data);
-        value = mbt_str_init(8);
-        mbt_str_pushcstr(value, tmp->data);
+        if (tmp)
+        {
+            value = mbt_str_init(8);
+            mbt_str_pushcstr(value, tmp->data);
+        }
     }
 
     return value;
