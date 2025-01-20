@@ -16,7 +16,7 @@
 
 // @ANSWER
 // rename the the way that pleases you, i can't guess it if you don't tell me
-struct ast_eval_ctx *ctx_init(void)
+struct ast_eval_ctx *ast_eval_ctx_init(void)
 {
     struct ast_eval_ctx *ctx = xcalloc(1, sizeof(struct ast_eval_ctx));
     ctx->value = hash_map_init(64);

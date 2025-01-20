@@ -53,8 +53,7 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     lexer_free(lexer);
     unregister_commands();
 
-    // return return_value;
-    exit(return_value);
+    return return_value;
 }
 
 int main(int argc, char *argv[])
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
     int c;
     int opt_idx = 0;
     struct stream *stream = NULL;
-    struct ast_eval_ctx *ctx = ctx_init();
+    struct ast_eval_ctx *ctx = ast_eval_ctx_init();
     int nb_args = 0;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
