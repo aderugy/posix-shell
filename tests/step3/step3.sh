@@ -56,13 +56,21 @@ test_from_direct_input() {
 test_pars_lex_error() {
   ERR="$1"
   shift
-  "$F" -c "$@"
+  "$F" -c "$@" >/dev/null 2>/dev/null
   ACTUAL_ERR="$?"
-  if [ $ACTUAL_ERR -eq $ERR ]; then
-    echo "$G[OK]$D $F -c \""$@"\"$D"
+  ACTUAL_MSG=$("$F" -c "$@" 2>&1)
+  if [ $ACTUAL_ERR -eq $ERR ] && [ -n "$ACTUAL_MSG" ]; then
+    echo "$G[OK]$D ./$BIN -c \""$@"\"$D"
+    PASSED_TEST=$((PASSED_TEST + 1))
   else
+    echo "$R[KO]$D"
     echo "COMMAND RUN : $R$F -c \""$@"\"$D"
-    echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
+    if ! [ $ACTUAL_ERR -eq $ERR ]; then
+      echo "EXPECTED $G$ERR$D. GOT $R$ACTUAL_ERR$D"
+    fi
+    if [ -z "$ACTUAL_MSG" ]; then
+      echo "EXPECTED ERROR MESSAGE !"
+    fi
   fi
 }
 
@@ -104,7 +112,7 @@ test_cd() {
 }
 
 testsuite() {
-    test_cd
+  test_cd
 }
 
 testsuite
