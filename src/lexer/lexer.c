@@ -62,9 +62,7 @@ static struct token *lexer_chain(struct lexer *lexer);
 
 struct lexer *lexer_create(struct stream *stream)
 {
-    struct lexer *res = calloc(1, sizeof(struct lexer));
-    CHECK_MEMORY_ERROR(res);
-
+    struct lexer *res = xcalloc(1, sizeof(struct lexer));
     res->tokens = stack_init((void (*)(void *))token_free);
     res->ctx = splitter_ctx_init(stream);
     return res;
@@ -141,6 +139,12 @@ static struct token *lex(struct lexer *lexer)
     {
     case SHARD_WORD:
     case SHARD_OPERATOR:
+        if (!*shard->data)
+        {
+            token_free(token);
+            shard_free(shard);
+            return lex(lexer);
+        }
         if (shard->quote_type == SHARD_UNQUOTED && !token->next)
         {
             for (size_t i = 0; i < KEYWORDS_LEN; i++)
@@ -155,26 +159,21 @@ static struct token *lex(struct lexer *lexer)
             if (token->type == TOKEN_ERROR)
             {
                 token->type = TOKEN_WORD;
-                token->value.c = strdup(shard->data);
             }
         }
         else
         {
             token->type = TOKEN_COMPLEX_WORD;
-            token->value.c = strdup(shard->data);
         }
         break;
     case SHARD_EXPANSION_VARIABLE:
         token->type = TOKEN_VARIABLE;
-        token->value.c = strdup(shard->data);
         break;
     case SHARD_EXPANSION_ARITH:
         token->type = TOKEN_ARITH;
-        token->value.c = strdup(shard->data);
         break;
     case SHARD_EXPANSION_SUBSHELL:
         token->type = TOKEN_SUBSHELL;
-        token->value.c = strdup(shard->data);
         break;
     case SHARD_GLOBBING_STAR:
         token->type = TOKEN_GLOBBING_STAR;
@@ -188,6 +187,7 @@ static struct token *lex(struct lexer *lexer)
         return lex(lexer);
     }
 
+    token->value.c = strdup(shard->data);
     shard_free(shard);
     return token;
 

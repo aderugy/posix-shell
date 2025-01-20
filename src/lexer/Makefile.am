@@ -5,6 +5,7 @@ liblex_a_SOURCES =  \
   splitter.c \
   splitter_ctx.c \
   shard.c \
+  shard.h \
   splitter.h \
   lexer.h \
   token.h 
