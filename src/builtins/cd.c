@@ -45,6 +45,29 @@ char *get_current_path(void)
     return buf;
 }
 
+static char *my_strcat(char *src, char *dest)
+{
+    size_t total_len = strlen(src) + strlen(dest);
+    char *result = malloc(total_len + 1);
+    size_t i = 0;
+    size_t j = 0;
+    while (dest[j] != 0)
+    {
+        result[i] = dest[j];
+        j++;
+        i++;
+    }
+    j = 0;
+    while (src[j] != 0)
+    {
+        result[i] = src[j];
+        j++;
+        i++;
+    }
+    result[i] = 0;
+    return result;
+}
+
 char *normalize_path(const char *path)
 {
     static char resolved_path[MAX_PATH];
@@ -59,7 +82,6 @@ char *normalize_path(const char *path)
         resolved[0] = '/';
         resolved[1] = 0;
     }
-
     else
     {
         if (!getcwd(resolved_path, sizeof(resolved_path)))
@@ -68,6 +90,7 @@ char *normalize_path(const char *path)
         }
         resolved = resolved_path + strlen(resolved_path);
     }
+    logger("resolved: %s ?\n", resolved);
 
     snprintf(temp_path, sizeof(temp_path), "%s", path);
     temp_path[sizeof(temp_path) - 1] = '\0';
@@ -80,7 +103,6 @@ char *normalize_path(const char *path)
             token = strtok(NULL, "/");
             continue;
         }
-
         else if (strcmp(token, "..") == 0) // On met le chemin d'avant
         {
             if (resolved > resolved_path + 1)
@@ -90,7 +112,6 @@ char *normalize_path(const char *path)
                     resolved--;
             }
         }
-
         else
         {
             if (resolved > resolved_path + 1)
@@ -158,7 +179,14 @@ int cd(int argc, char **argv)
 
     char *current_path = get_current_path(); // RULE 2
     logger("current_path: %s !", resolved_path);
-    move_cd(current_path, resolved_path);
+    if (argv[1][0] == '/')
+    {
+        resolved_path = my_strcat(resolved_path, "/");
+        move_cd(current_path, resolved_path);
+        free(resolved_path);
+    }
+    else
+        move_cd(current_path, resolved_path);
     free(current_path);
 
     return 0;
