@@ -57,15 +57,14 @@ char *normalize_path(const char *path)
     {
         resolved = resolved_path;
         resolved[0] = '/';
-        resolved[1] = '\0';
+        resolved[1] = 0;
     }
 
     else
     {
         if (!getcwd(resolved_path, sizeof(resolved_path)))
         {
-            perror("getcwd");
-            return NULL;
+            errx(2, "cd: normalize_path: not a good path");
         }
         resolved = resolved_path + strlen(resolved_path);
     }
@@ -139,6 +138,7 @@ int cd(int argc, char **argv)
         char *oldpwd = getenv("OLDPWD");
         char *current_path = get_current_path(); // RULE 2
         move_cd(current_path, oldpwd);
+        printf("%s\n", oldpwd);
         free(current_path);
         return 0;
     }
@@ -155,12 +155,9 @@ int cd(int argc, char **argv)
     }
 
     char *resolved_path = normalize_path(argv[1]);
-    if (!resolved_path)
-    {
-        errx(1, "cd: Path error");
-    }
 
     char *current_path = get_current_path(); // RULE 2
+    logger("current_path: %s !", resolved_path);
     move_cd(current_path, resolved_path);
     free(current_path);
 
