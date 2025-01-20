@@ -1,7 +1,8 @@
 a=mehdi
+c=oui
 export b=gaspard
 echo $a
 echo $b
-. ./test_dot.sh
+. ./tests/test_dot.sh
 echo $a
 echo $b

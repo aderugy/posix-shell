@@ -20,18 +20,25 @@ int export_builtin(int argc, char **argv,
     char *name = argv[1];
 
     char *equal_sign = strchr(argv[1], '=');
-    char *word;
+    char *word = NULL;
     if (!equal_sign)
     {
-        errx(2,
-             "export : faut que j'investigue cette histoire de export sans =");
+        struct mbt_str *n = mbt_str_init(8);
+        mbt_str_pushcstr(n, name);
+        word = get(ast_eval_ctx, n)->data;
     }
+    else
+    {
+        word = equal_sign + 1;
 
-    word = equal_sign + 1;
-
-    *equal_sign = 0;
+        *equal_sign = 0;
+    }
 
     logger("setenv %s=%s\n", name, word);
 
-    return setenv(name, word, 0);
+    if (word)
+    {
+        return setenv(name, word, 1);
+    }
+    return 1;
 }

@@ -8,6 +8,8 @@ struct ast_eval_ctx
 {
     struct hash_map *value;
     bool check_redir;
+    long break_count;
+    long continue_count;
 };
 
 struct ast_eval_ctx *ast_eval_ctx_init(void);
