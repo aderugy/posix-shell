@@ -90,3 +90,12 @@ char stream_peek(struct stream *stream)
 
     return c;
 }
+
+void stream_empty(struct stream *stream)
+{
+    stream->next = EOF;
+    while (fgetc(stream->in) > 0)
+    {
+        continue;
+    }
+}

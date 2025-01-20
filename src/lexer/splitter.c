@@ -19,35 +19,33 @@ DEFINE_OPERATORS;
  * PROTOTYPES
  * ---------------------------------------------------------------------------
  */
-static struct shard *splitter_handle_double_quotes(struct stream *stream,
-                                                   struct splitter_ctx *ctx,
+static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                                                    struct mbt_str *str);
 
-static struct shard *splitter_handle_expansion(struct stream *stream,
-                                               struct splitter_ctx *ctx,
+static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
                                                struct mbt_str *str);
 
-static void splitter_handle_backslash(struct stream *stream,
+static void splitter_handle_backslash(struct splitter_ctx *ctx,
                                       struct mbt_str *str);
 
-static bool splitter_read_between(struct stream *stream, struct mbt_str *str,
+static bool splitter_read_between(struct splitter_ctx *ctx, struct mbt_str *str,
                                   char left, char right);
 
-static bool splitter_read_until(struct stream *stream, struct mbt_str *str,
+static bool splitter_read_until(struct splitter_ctx *ctx, struct mbt_str *str,
                                 char c);
 
 static bool is_valid_identifier(struct mbt_str *str);
 
 static bool list_any_begins_with(const char *list[], char c);
 
-static void discard_comment(struct stream *stream);
-
+static void discard_comment(struct splitter_ctx *ctx);
 /*
  * ---------------------------------------------------------------------------
  * PROTOTYPES
  * ---------------------------------------------------------------------------
  */
-struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
+
+static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
     struct mbt_str *str = mbt_str_init(64);
 
@@ -58,17 +56,17 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
         if (exp->value == SHARD_CONTEXT_EXPANSION)
         {
             stack_pop(ctx->expect);
-            return splitter_handle_expansion(stream, ctx, str);
+            return splitter_handle_expansion(ctx, str);
         }
         else if (exp->value == SHARD_CONTEXT_DOUBLE_QUOTES)
         {
-            return splitter_handle_double_quotes(stream, ctx, str);
+            return splitter_handle_double_quotes(ctx, str);
         }
     }
     else
     {
         char c;
-        while ((c = stream_peek(stream)) > 0)
+        while ((c = stream_peek(ctx->stream)) > 0)
         {
             // Case 1: EOF handled by exiting the loop
             if (shard_is_operator(str) || shard_is_redir(str))
@@ -76,7 +74,7 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
                 mbt_str_pushc(str, c);
                 if (shard_is_operator(str) || shard_is_redir(str)) // Case 2
                 {
-                    stream_read(stream);
+                    stream_read(ctx->stream);
                     continue;
                 }
                 else // Case 3
@@ -97,25 +95,25 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
 
                 if (c == '\\')
                 {
-                    splitter_handle_backslash(stream, str);
+                    splitter_handle_backslash(ctx, str);
                     return shard_init(str, true, SHARD_WORD,
                                       SHARD_BACKSLASH_QUOTED);
                 }
 
                 if (c == '\'')
                 {
-                    stream_read(stream);
-                    splitter_read_until(stream, str, '\'');
-                    stream_read(stream);
+                    stream_read(ctx->stream);
+                    splitter_read_until(ctx, str, '\'');
+                    stream_read(ctx->stream);
                     return shard_init(str, true, SHARD_WORD,
                                       SHARD_SINGLE_QUOTED);
                 }
 
                 if (c == '"')
                 {
-                    stream_read(stream); // Pop the quote
+                    stream_read(ctx->stream); // Pop the quote
                     splitter_ctx_expect(ctx, SHARD_CONTEXT_DOUBLE_QUOTES);
-                    return splitter_handle_double_quotes(stream, ctx, str);
+                    return splitter_handle_double_quotes(ctx, str);
                 }
 
                 break;
@@ -130,10 +128,10 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
 
                 if (c == '$')
                 {
-                    stream_read(stream);
+                    stream_read(ctx->stream);
                 }
 
-                return splitter_handle_expansion(stream, ctx, str);
+                return splitter_handle_expansion(ctx, str);
             }
 
             // Case 5: Expansions
@@ -145,7 +143,7 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
                     return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
                 }
 
-                mbt_str_pushc(str, stream_read(stream));
+                mbt_str_pushc(str, stream_read(ctx->stream));
                 continue;
             }
 
@@ -158,7 +156,7 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
                 }
 
                 mbt_str_pushc(str, c);
-                stream_read(stream);
+                stream_read(ctx->stream);
                 continue;
             }
 
@@ -172,7 +170,7 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
                 else
                 {
                     mbt_str_pushc(str, c);
-                    stream_read(stream);
+                    stream_read(ctx->stream);
                 }
 
                 return shard_init(str, false, SHARD_WORD, SHARD_UNQUOTED);
@@ -186,9 +184,9 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
                     return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
                 }
 
-                while ((c = stream_peek(stream)) > 0 && isspace(c))
+                while ((c = stream_peek(ctx->stream)) > 0 && isspace(c))
                 {
-                    stream_read(stream);
+                    stream_read(ctx->stream);
                 }
 
                 return DELIMITER(str);
@@ -197,20 +195,20 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
             // Case 9: existing word
             if (NOT_EMPTY(str))
             {
-                mbt_str_pushc(str, stream_read(stream));
+                mbt_str_pushc(str, stream_read(ctx->stream));
                 continue;
             }
 
             // Case 10: comments
             if (c == '#')
             {
-                discard_comment(stream);
+                discard_comment(ctx);
                 continue;
             }
 
             // Case 11: new word: keep looping
             mbt_str_pushc(str, c);
-            stream_read(stream);
+            stream_read(ctx->stream);
         }
     }
 
@@ -223,37 +221,53 @@ struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx)
     return NULL;
 }
 
-static struct shard *splitter_handle_expansion(struct stream *stream,
-                                               struct splitter_ctx *ctx,
+struct shard *splitter_peek(struct splitter_ctx *ctx)
+{
+    if (!ctx->cache)
+    {
+        ctx->cache = splitter_next(ctx);
+    }
+
+    return ctx->cache;
+}
+
+struct shard *splitter_pop(struct splitter_ctx *ctx)
+{
+    struct shard *shard = splitter_peek(ctx);
+    ctx->cache = NULL;
+    return shard;
+}
+
+static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
                                                struct mbt_str *str)
 {
     enum shard_quote_type type = splitter_ctx_get_active_quote(ctx);
 
-    char c = stream_peek(stream);
+    char c = stream_peek(ctx->stream);
     if (c == '{')
     {
-        stream_read(stream);
-        if (splitter_read_between(stream, str, '{', '}'))
+        stream_read(ctx->stream);
+        if (splitter_read_between(ctx, str, '{', '}'))
         {
             warnx("Syntax error: unmatched bracked");
             goto error;
         }
 
-        stream_read(stream);
+        stream_read(ctx->stream);
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
     }
     else if (c == '(')
     {
-        stream_read(stream);
-        c = stream_peek(stream);
+        stream_read(ctx->stream);
+        c = stream_peek(ctx->stream);
 
         bool is_arith = c == '(';
         if (is_arith)
         {
-            stream_read(stream);
+            stream_read(ctx->stream);
         }
 
-        if (splitter_read_between(stream, str, '(', ')'))
+        if (splitter_read_between(ctx, str, '(', ')'))
         {
             warnx("Syntax error: unmatched parenthesis");
             goto error;
@@ -261,7 +275,7 @@ static struct shard *splitter_handle_expansion(struct stream *stream,
 
         if (is_arith)
         {
-            c = stream_read(stream);
+            c = stream_read(ctx->stream);
 
             if (c != ')')
             {
@@ -276,26 +290,26 @@ static struct shard *splitter_handle_expansion(struct stream *stream,
     }
     else if (c == '`')
     {
-        stream_read(stream);
-        if (splitter_read_until(stream, str, '`'))
+        stream_read(ctx->stream);
+        if (splitter_read_until(ctx, str, '`'))
         {
             warnx("Syntax error: unmatched backtick");
             goto error;
         }
 
-        stream_read(stream);
+        stream_read(ctx->stream);
         return shard_init(str, true, SHARD_EXPANSION_SUBSHELL, type);
     }
     else
     {
-        while ((c = stream_peek(stream)) > 0)
+        while ((c = stream_peek(ctx->stream)) > 0)
         {
             mbt_str_pushc(str, c);
             for (size_t i = 0; VARIABLES[i]; i++)
             {
                 if (strcmp(str->data, VARIABLES[i]) == 0)
                 {
-                    stream_read(stream);
+                    stream_read(ctx->stream);
                     return shard_init(str, true, SHARD_EXPANSION_VARIABLE,
                                       type);
                 }
@@ -307,7 +321,7 @@ static struct shard *splitter_handle_expansion(struct stream *stream,
                 return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
             }
 
-            stream_read(stream);
+            stream_read(ctx->stream);
         }
 
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
@@ -319,14 +333,13 @@ error:
     return NULL;
 }
 
-static struct shard *splitter_handle_double_quotes(struct stream *stream,
-                                                   struct splitter_ctx *ctx,
+static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                                                    struct mbt_str *str)
 {
     struct splitter_ctx_exp *expected = stack_peek(ctx->expect);
 
     char c;
-    while ((c = stream_peek(stream)) > 0)
+    while ((c = stream_peek(ctx->stream)) > 0)
     {
         switch (c)
         {
@@ -336,24 +349,21 @@ static struct shard *splitter_handle_double_quotes(struct stream *stream,
                 goto error;
             }
 
-            stream_read(stream);
+            stream_read(ctx->stream);
             free(stack_pop(ctx->expect));
             return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
 
         case '$':
-            stream_read(stream); // Discard $
             if (NOT_EMPTY(str)) // If there is already a token, return it
             {
-                splitter_ctx_expect(
-                    ctx, SHARD_CONTEXT_EXPANSION); // Will parse the expansion
-                                                   // on next call
                 return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
             }
 
-            return splitter_handle_expansion(stream, ctx, str);
+            stream_read(ctx->stream); // Discard $
+            return splitter_handle_expansion(ctx, str);
 
         case '`':
-            return splitter_handle_expansion(stream, ctx, str);
+            return splitter_handle_expansion(ctx, str);
 
         case '?':
         case '*':
@@ -362,14 +372,14 @@ static struct shard *splitter_handle_double_quotes(struct stream *stream,
                 return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
             }
 
-            mbt_str_pushc(str, stream_read(stream));
+            mbt_str_pushc(str, stream_read(ctx->stream));
             return shard_init(str, true,
                               c == '*' ? SHARD_GLOBBING_STAR
                                        : SHARD_GLOBBING_QUESTIONMARK,
                               SHARD_DOUBLE_QUOTED);
 
         case '\\':
-            splitter_handle_backslash(stream, str);
+            splitter_handle_backslash(ctx, str);
             return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
 
         case 0:
@@ -379,7 +389,7 @@ static struct shard *splitter_handle_double_quotes(struct stream *stream,
 
         default:
             mbt_str_pushc(str, c);
-            stream_read(stream);
+            stream_read(ctx->stream);
             break;
         }
     }
@@ -392,12 +402,12 @@ error:
     return NULL;
 }
 
-static void splitter_handle_backslash(struct stream *stream,
+static void splitter_handle_backslash(struct splitter_ctx *ctx,
                                       struct mbt_str *str)
 {
-    stream_read(stream);
+    stream_read(ctx->stream);
 
-    char c = stream_read(stream);
+    char c = stream_read(ctx->stream);
     if (c > 0)
     {
         mbt_str_pushc(str, c);
@@ -417,11 +427,11 @@ static void splitter_handle_backslash(struct stream *stream,
  * ---------------------------------------------------------------------------
  * ---------------------------------------------------------------------------
  */
-static bool splitter_read_until(struct stream *stream, struct mbt_str *str,
+static bool splitter_read_until(struct splitter_ctx *ctx, struct mbt_str *str,
                                 char c)
 {
     char ch;
-    while ((ch = stream_peek(stream)) > 0)
+    while ((ch = stream_peek(ctx->stream)) > 0)
     {
         if (ch == c)
         {
@@ -429,22 +439,22 @@ static bool splitter_read_until(struct stream *stream, struct mbt_str *str,
         }
 
         mbt_str_pushc(str, ch);
-        stream_read(stream);
+        stream_read(ctx->stream);
     }
 
     return ch <= 0;
 }
 
-static bool splitter_read_between(struct stream *stream, struct mbt_str *str,
+static bool splitter_read_between(struct splitter_ctx *ctx, struct mbt_str *str,
                                   char left, char right)
 {
     char c;
     int pcount = 0;
-    while ((c = stream_read(stream)) > 0)
+    while ((c = stream_read(ctx->stream)) > 0)
     {
         if (c == '\\')
         {
-            splitter_handle_backslash(stream, str);
+            splitter_handle_backslash(ctx, str);
         }
 
         if (c == left)
@@ -514,11 +524,11 @@ static bool is_valid_identifier(struct mbt_str *str)
     return true;
 }
 
-static void discard_comment(struct stream *stream)
+static void discard_comment(struct splitter_ctx *ctx)
 {
     char c;
-    while ((c = stream_peek(stream)) > 0 && c != '\n')
+    while ((c = stream_peek(ctx->stream)) > 0 && c != '\n')
     {
-        stream_read(stream);
+        stream_read(ctx->stream);
     }
 }

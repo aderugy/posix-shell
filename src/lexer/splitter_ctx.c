@@ -1,10 +1,11 @@
 #include "splitter.h"
 #include "utils/xalloc.h"
 
-struct splitter_ctx *splitter_ctx_init(void)
+struct splitter_ctx *splitter_ctx_init(struct stream *stream)
 {
     struct splitter_ctx *ctx = xcalloc(1, sizeof(struct splitter_ctx));
     ctx->expect = stack_init(free);
+    ctx->stream = stream;
     return ctx;
 }
 
@@ -18,6 +19,13 @@ void splitter_ctx_expect(struct splitter_ctx *ctx, int value)
 void splitter_ctx_free(struct splitter_ctx *ctx)
 {
     stack_free(ctx->expect);
+    stream_close(ctx->stream);
+
+    if (ctx->cache)
+    {
+        shard_free(ctx->cache);
+    }
+
     free(ctx);
 }
 

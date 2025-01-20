@@ -73,8 +73,11 @@ struct shard *shard_init(struct mbt_str *data, bool can_chain,
 
 void shard_free(struct shard *shard)
 {
-    free(shard->data);
-    free(shard);
+    if (shard)
+    {
+        free(shard->data);
+        free(shard);
+    }
 }
 
 int shard_is_redir(struct mbt_str *str)

@@ -8,6 +8,14 @@
 
 #define LEX_ERROR 2
 
+#define LEX_ANY 0
+#define LEX_OPERATOR 1
+#define LEX_UNQUOTED 2
+#define LEX_UNCHAINED 4
+
+#define LEX_PLAIN_WORD LEX_UNQUOTED &LEX_UNCHAINED
+#define LEX_WORD 0
+
 /**
  * \page Lexer
  *
@@ -20,10 +28,10 @@
 
 struct lexer
 {
-    struct stream *stream;
     struct stack *tokens;
 
     struct splitter_ctx *ctx;
+    bool error;
 };
 
 struct keyword
@@ -57,6 +65,8 @@ struct token *lexer_peek(struct lexer *lexer);
  *   calling lexer_pop in a loop will iterate over all tokens until EOF.
  */
 struct token *lexer_pop(struct lexer *lexer);
+
+void lexer_error(struct lexer *lexer, const char *msg);
 
 const char *get_token_name(enum token_type token);
 

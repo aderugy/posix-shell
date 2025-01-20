@@ -76,11 +76,15 @@ struct splitter_ctx
 {
     bool err;
     struct stack *expect;
+
+    struct stream *stream;
+    struct shard *cache;
 };
 
-struct shard *splitter_next(struct stream *stream, struct splitter_ctx *ctx);
+struct shard *splitter_peek(struct splitter_ctx *ctx);
+struct shard *splitter_pop(struct splitter_ctx *ctx);
 
-struct splitter_ctx *splitter_ctx_init(void);
+struct splitter_ctx *splitter_ctx_init(struct stream *stream);
 void splitter_ctx_free(struct splitter_ctx *ctx);
 void splitter_ctx_expect(struct splitter_ctx *ctx, int value);
 enum shard_quote_type splitter_ctx_get_active_quote(struct splitter_ctx *ctx);
