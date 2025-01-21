@@ -82,10 +82,7 @@ char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name)
         {
             value = tmp->data;
         }
-        else
-        {
-            warnx("there is no variable named %s\n", name->data);
-        }
+        
     }
 
     return value;
@@ -124,6 +121,7 @@ int insert(struct ast_eval_ctx *ctx, struct token *token)
     if (!eq)
     {
         warnx("insert: no '=' in token");
+        return 1;
     }
 
     char *name = strndup(data, eq - data); // ok on re alloue

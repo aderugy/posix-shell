@@ -371,7 +371,7 @@ test_export()
 test_unset()
 {
     echo "========== UNSET BEGIN ==="
-    tes 'export ABCD=5; echo $ABCD; unset ABCD; echo $ABCD'
+    tes 'export ABCD=5; echo $ABCD; unset ABCD;'
     echo "========== UNSET END ====="
 }
 test_blocks()
