@@ -13,7 +13,6 @@
 struct ast_list *ast_parse_list(struct lexer *lexer)
 {
     struct ast_list *node = xcalloc(1, sizeof(struct ast_list));
-    CHECK_MEMORY_ERROR(node);
 
     logger("PARSE LIST\n");
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
@@ -28,14 +27,13 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
     struct token *token;
     while ((token = lexer_peek(lexer)))
     {
-        if (!token || (token->type != TOKEN_SEMICOLON))
+        if (!token || token->type != TOKEN_SEMICOLON)
         {
             break;
         }
         else
         {
-            lexer_pop(lexer);
-            free(token);
+            token_free(lexer_pop(lexer));
 
             and_or = ast_create(lexer, AST_AND_OR);
             if (!and_or)
@@ -47,9 +45,16 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         }
     }
 
+    token = lexer_peek(lexer);
+    if (token && token->type == TOKEN_SEMICOLON)
+    {
+        token_free(lexer_pop(lexer));
+    }
+
     logger("Exit LIST (SUCCESS)\n");
     return node;
 error:
+
     ast_free_list(node);
     logger("Exit LIST (ERROR)\n");
     return NULL;

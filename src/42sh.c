@@ -30,21 +30,27 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     register_commands();
 
     struct lexer *lexer = lexer_create(*stream);
-    struct ast_node *node;
-    int return_value = 0;
+    struct ast_node *node = ast_create(lexer, AST_INPUT);
+    int return_value = node ? 0 : 2;
 
     /*
      * Process input line by line (AST_INPUT after AST_INPUT)
      */
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    do
     {
         ast_print(node);
         return_value = ast_eval(node, NULL, *ctx);
+        ast_free(node);
 
+        node = ast_create(lexer, AST_INPUT);
+    } while (!lexer->eof && !lexer->error && node && !return_value);
+
+    if (node)
+    {
         ast_free(node);
     }
 
-    if (!node && lexer->stream)
+    if (lexer->error)
     {
         warnx("Syntax error");
         return_value = 2;
@@ -63,6 +69,8 @@ int main(int argc, char *argv[])
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ast_eval_ctx_init();
     int nb_args = 0;
+
+    bool disp_lex = false;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -72,6 +80,10 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             stream = stream_from_str(optarg);
+            break;
+        case 't':
+            logger(NULL, NULL);
+            disp_lex = true;
             break;
         case '?':
             exit(1);
@@ -98,6 +110,19 @@ int main(int argc, char *argv[])
     if (!stream)
     {
         errx(1, "stream error");
+    }
+
+    if (disp_lex)
+    {
+        struct lexer *lexer = lexer_create(stream);
+        struct token *token;
+        while ((token = lexer_pop(lexer)))
+        {
+            token_print(token);
+            token_free(token);
+        }
+        lexer_free(lexer);
+        return 0;
     }
 
     return sub_main(&stream, &ctx, nb_args);

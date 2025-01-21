@@ -1,5 +1,6 @@
 #include "redirection.h"
 
+#include <ctype.h>
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -21,25 +22,8 @@
  * WORD ;
  */
 
-static const char *DIGITS_CHARS = "0123456789";
-/*int redir_stdout_file(struct ast_redir *redir, __attribute((unused)) void
-**out,
-                      __attribute((unused)) struct ast_eval_ctx *ctx);
-int redir_stdout_file_a(struct ast_redir *redir,
-                        __attribute((unused)) void **out,
-                        __attribute((unused)) struct ast_eval_ctx *ctx);
-int redir_stdout_file_notrunc(struct ast_redir *redir,
-                              __attribute((unused)) void **out,
-                              __attribute((unused)) struct ast_eval_ctx *ctx);*/
-// int redir_file_stdin(struct ast_redir *redir, __attribute((unused)) void
-// **out,
-//                     __attribute((unused)) struct ast_eval_ctx *ctx);
-// int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
-//                   __attribute((unused)) struct ast_eval_ctx *ctx);
 int redir_fopen_rw(struct ast_redir *redir, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx);
-// int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
-//                    __attribute((unused)) struct ast_eval_ctx *ctx);
 
 static const struct redirection REDIR_LIST[] = {
     { TOKEN_REDIR_STDOUT_FILE, redir_stdout_file, ">" },
@@ -75,19 +59,14 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     struct ast_redir *redir = xcalloc(1, sizeof(struct ast_redir));
-
     logger("PARSE REDIR\n");
 
     redir->number = -1;
     char number = 1;
     size_t i = 0;
-    for (; token->value.c[i]; i++)
+    if (isdigit(*token->value.c))
     {
-        if (!strchr(DIGITS_CHARS, token->value.c[i]))
-        {
-            number = 0;
-            break;
-        }
+        number = *token->value.c - '0';
     }
 
     if (number == 1 && i > 0)
@@ -95,8 +74,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         redir->number = atoi(token->value.c);
     }
     redir->pipe = token->type;
-    lexer_pop(lexer);
-    token_free(token);
+    token_free(lexer_pop(lexer));
 
     token = lexer_peek(lexer);
     if (!token || token->type != TOKEN_WORD)
@@ -105,8 +83,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     }
 
     redir->file = strdup(token->value.c);
-    lexer_pop(lexer);
-    token_free(token);
+    token_free(lexer_pop(lexer));
 
     logger("PARSE REDIR (SUCCESS)\n");
     return redir;
@@ -121,6 +98,10 @@ error:
     return NULL;
 }
 
+/*
+ * @MEHDI @JULES
+ * Enlever ces errx
+ */
 int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
@@ -137,19 +118,25 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
+
     int fd = open(file, O_RDWR);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
     }
+
     if (dup2(fd, fd2) == -1)
+    {
         errx(2, "redir_eval: dup: error");
+    }
     if (out)
     {
         int *origin_fd = *out;
         *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
+        *(origin_fd + 1) = fd2; // smiley deux yeux grand ouverts
+        // Les crochets ont été inventés en 2026. Jules en 2025:
         *(origin_fd + 2) = saved_stdout;
+        // Blague rendue possible grace a GIT BLAME
     }
     return 0;
 }
@@ -164,6 +151,7 @@ int ast_eval_redir(struct ast_redir *node, void **out,
             return REDIR_LIST[i].redir(node, out, NULL);
         }
     }
+
     errx(2, "eval_redir: error");
 }
 

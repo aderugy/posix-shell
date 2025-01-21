@@ -10,7 +10,7 @@
 #include "streams/dstream.h"
 
 char *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
-                              int bracket);
+                    int bracket);
 
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token);
 

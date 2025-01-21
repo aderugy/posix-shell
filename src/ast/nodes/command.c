@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "node.h"
+#include "simple_command.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
 

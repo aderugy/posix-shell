@@ -4,19 +4,16 @@
 #include "lexer/lexer.h"
 #include "node.h"
 
-struct ast_element // can be produced with new_element_node
+enum ast_element_type
 {
-    char *value; // a word that will be an argument
-    struct ast_node *redir;
-    char child;
-    struct token *token;
-    char *expanded;
+    AST_ELEMENT_WORD = 0,
+    AST_ELEMENT_REDIR
 };
 
-struct keywords
+struct ast_element // can be produced with new_element_node
 {
-    char *name;
-    enum token_type type;
+    enum ast_element_type type;
+    struct ast_node *child;
 };
 
 struct ast_element *ast_parse_element(struct lexer *lexer);

@@ -44,7 +44,7 @@ int dot(__attribute__((unused)) int argc, __attribute__((unused)) char **argv,
         ast_free(node);
     }
 
-    if (!node && lexer->stream)
+    if (lexer->error)
     {
         warnx("Syntax error");
         return_value = 2;
