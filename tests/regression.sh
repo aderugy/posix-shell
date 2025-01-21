@@ -19,9 +19,9 @@ SCRIPT="script.sh"
 #BIN="42sh"
 F=$BIN_PATH
 # for colors
-G=""
-R=""
-D=""
+G="\033[0;32m"
+R="\033[0;31m"
+D="\033[0m"
 
 TOTAL_TEST=0
 PASSED_TEST=0
