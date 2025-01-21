@@ -54,6 +54,13 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         goto error;
     }
 
+    struct token *parenthese = lexer_peek_two(lexer);
+    if (!parenthese || parenthese->type != TOKEN_WORD
+        || (parenthese->value.c && is_keyword(parenthese->value.c)))
+    {
+        goto error;
+    }
+
     cmd->cmd = strdup(token->value.c);
     token_free(lexer_pop(lexer));
 
