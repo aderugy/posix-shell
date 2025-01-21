@@ -8,6 +8,7 @@
 #include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_while = 'while' compound_list 'do' compound_list 'done'
 */
@@ -18,42 +19,46 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     {
         return NULL;
     }
-    lexer_pop(lexer);
-    token_free(tok);
+    token_free(lexer_pop(lexer));
 
-    struct ast_while_node *ast = calloc(1, sizeof(struct ast_while_node));
-    if (!ast)
-    {
-        errx(2, "out of memory");
-    }
+    struct ast_while_node *ast = xcalloc(1, sizeof(struct ast_while_node));
 
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(AST_PARSE_ERROR, "while: missing 1st clist");
+        lexer_error(lexer, "expecting condition");
+        goto error;
     }
 
     tok = lexer_pop(lexer);
     if (!reserved_word_check(tok) || strcmp(tok->value.c, "do") != 0)
     {
-        errx(2, "while: missing do token");
+        lexer_error(lexer, "expecting 'do'");
+        goto error;
     }
     token_free(tok);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
     {
-        errx(AST_PARSE_ERROR, "while: missing 2nd clist");
+        lexer_error(lexer, "expecting body");
+        goto error;
     }
 
     tok = lexer_pop(lexer);
     if (!reserved_word_check(tok) || strcmp(tok->value.c, "done") != 0)
     {
-        errx(AST_PARSE_ERROR, "while: missing done token");
+        lexer_error(lexer, "expecting 'done'");
+        goto error;
     }
     token_free(tok);
 
     return ast;
+
+error:
+    ast_free_while(ast);
+    token_free(tok);
+    return NULL;
 }
 
 int ast_eval_while(struct ast_while_node *node, void **out,

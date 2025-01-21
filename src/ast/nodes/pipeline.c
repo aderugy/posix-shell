@@ -33,12 +33,10 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         goto error;
     }
 
-    if (token->type == TOKEN_WORD
-        && (token->value.c[0] == '!' && strlen(token->value.c) == 1))
+    if (token->type == TOKEN_WORD && strcmp(token->value.c, "!") == 0)
     {
         node->not = 1;
-        lexer_pop(lexer);
-        token_free(token);
+        token_free(lexer_pop(lexer));
         token = lexer_peek(lexer);
     }
 
@@ -51,14 +49,12 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 
     while ((token = lexer_peek(lexer)) && token->type == TOKEN_PIPE)
     {
-        lexer_pop(lexer);
-        token_free(token);
+        token_free(lexer_pop(lexer));
         token = lexer_peek(lexer);
 
-        while (token->type == TOKEN_NEW_LINE)
+        while (token && token->type == TOKEN_NEW_LINE)
         {
-            lexer_pop(lexer);
-            token_free(token);
+            token_free(lexer_pop(lexer));
             token = lexer_peek(lexer);
         }
 

@@ -39,11 +39,11 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         {
             root->type = OR;
         }
-        free(lexer_pop(lexer));
+        token_free(lexer_pop(lexer));
 
         while (lexer_peek(lexer)->type == TOKEN_NEW_LINE)
         {
-            free(lexer_pop(lexer));
+            token_free(lexer_pop(lexer));
         }
 
         root->left = ast_create(lexer, AST_PIPELINE);

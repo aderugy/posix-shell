@@ -3,12 +3,17 @@
 #include "prefix.h"
 
 #include <err.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "cword.h"
+#include "eval_ctx.h"
+#include "lexer/lexer.h"
 #include "node.h"
 #include "redirection.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 {
@@ -18,19 +23,31 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
         return NULL;
     }
 
-    struct ast_prefix *node = calloc(1, sizeof(struct ast_prefix));
-    if (!node)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_prefix *node = xcalloc(1, sizeof(struct ast_prefix));
 
-    if (token->type == TOKEN_AWORD)
+    char *eq;
+    if (token->type == TOKEN_WORD)
     {
-        lexer_pop(lexer);
-        node->data = token;
+        eq = strchr(token->value.c, '=');
+        if (eq)
+        {
+            *(eq++) = 0;
+            node->name = strdup(token->value.c);
 
-        logger("PARSE PREFIX (SUCCESS)\n");
-        return node;
+            // Copies whats after the = to the beginning of the string
+            // So that we dont change the pointer
+            memmove(token->value.c, eq, strlen(eq) + 1);
+
+            node->type = AST_PREFIX_ASSIGNMENT;
+            node->child.word = ast_parse_cword_from_token(token);
+            token_free(lexer_pop(lexer));
+
+            logger("PARSE PREFIX (SUCCESS)\n");
+            return node;
+        }
+
+        ast_free_prefix(node);
+        return NULL;
     }
 
     struct ast_node *redir = ast_create(lexer, AST_REDIRECTION);
@@ -40,7 +57,8 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
         return NULL;
     }
 
-    node->redir = redir;
+    node->type = AST_PREFIX_REDIR;
+    node->child.redir = redir;
     logger("PARSE PREFIX (SUCCESS)\n");
     return node;
 }
@@ -48,26 +66,59 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 int ast_eval_prefix(struct ast_prefix *node, void **out,
                     struct ast_eval_ctx *ctx)
 {
-    if (node->data)
+    if (node->type == AST_PREFIX_ASSIGNMENT)
     {
-        insert(ctx, node->data);
-        return EXIT_SUCCESS;
-    }
+        char *value = NULL;
+        if (ast_eval_cword(node->child.word, (void **)&value, ctx)
+            == AST_EVAL_ERROR)
+        {
+            return AST_EVAL_ERROR;
+        }
 
-    return ast_eval(node->redir, out, ctx);
+        ast_eval_ctx_set_local_var(ctx, node->name, value);
+        free(value);
+        return AST_EVAL_SUCCESS;
+    }
+    else
+    {
+        return ast_eval(node->child.redir, out, ctx);
+    }
 }
 
 void ast_free_prefix(struct ast_prefix *node)
 {
     if (node)
     {
-        token_free(node->data);
-        ast_free(node->redir);
+        if (node->name)
+        {
+            free(node->name);
+        }
+
+        if (node->type == AST_PREFIX_ASSIGNMENT)
+        {
+            ast_free_cword(node->child.word);
+        }
+        else
+        {
+            ast_free(node->child.redir);
+        }
+
         free(node);
     }
 }
 
 void ast_print_prefix(struct ast_prefix *node)
 {
-    ast_print(node->redir);
+    if (node)
+    {
+        if (node->type == AST_PREFIX_ASSIGNMENT)
+        {
+            logger("%s=", node->name);
+            ast_print_cword(node->child.word);
+        }
+        else
+        {
+            ast_print(node->child.redir);
+        }
+    }
 }

@@ -8,39 +8,35 @@
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    struct ast_input *input = calloc(1, sizeof(struct ast_input));
-    if (!input)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
-
-    struct ast_node *list = ast_create(lexer, AST_LIST);
-    input->list = list;
+    struct ast_input *input = xcalloc(1, sizeof(struct ast_input));
+    input->list = ast_create(lexer, AST_LIST);
 
     struct token *token = lexer_peek(lexer);
     if (!token)
     {
-        ast_free_input(input);
-        return NULL;
+        goto error;
     }
 
     if (token->type == TOKEN_NEW_LINE)
     {
-        free(lexer_pop(lexer));
+        token_free(lexer_pop(lexer));
         return input;
     }
 
     if (token->type != TOKEN_EOF)
     {
-        ast_free_input(input);
-        return NULL;
+        goto error;
     }
 
-    free(lexer_pop(lexer));
+    token_free(lexer_pop(lexer));
     return input;
+error:
+    ast_free_input(input);
+    return NULL;
 }
 
 int ast_eval_input(struct ast_input *node, void **out, struct ast_eval_ctx *ctx)

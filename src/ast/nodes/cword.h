@@ -25,4 +25,6 @@ void ast_free_cword(struct ast_cword *node);
 
 void ast_print_cword(struct ast_cword *node);
 
+struct ast_cword *ast_parse_cword_from_token(struct token *token);
+
 #endif // !AST_CWORD_H

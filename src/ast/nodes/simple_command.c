@@ -1,6 +1,7 @@
 #include "simple_command.h"
 
 #include <err.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,7 @@
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
                             "done", "while", "until", "{",  "}",    NULL };
@@ -34,11 +36,7 @@ bool is_keyword(char *word)
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
-    if (!cmd)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_simple_cmd *cmd = xcalloc(1, sizeof(struct ast_simple_cmd));
 
     struct token *token = NULL;
     cmd->prefix = ast_create(lexer, AST_PREFIX);
@@ -68,9 +66,8 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         goto error;
     }
 
-    cmd->cmd = token->value.c;
-    free(token->state);
-    free(lexer_pop(lexer));
+    cmd->cmd = strdup(token->value.c);
+    token_free(lexer_pop(lexer));
 
     struct ast_node *element;
     while ((element = ast_create(lexer, AST_ELEMENT)))
@@ -137,13 +134,18 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 {
+    if (!cmd)
+    {
+        return;
+    }
+
     if (cmd->prefix)
     {
         ast_free(cmd->prefix);
     }
     list_free(cmd->prefixes, (void (*)(void *))ast_free);
 
-    if (cmd)
+    if (cmd->cmd)
     {
         free(cmd->cmd);
     }

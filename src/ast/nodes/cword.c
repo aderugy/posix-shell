@@ -1,12 +1,13 @@
 #define _POSIX_C_SOURCE 200809L
-
 #include "cword.h"
 
 #include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "eval_ctx.h"
 #include "lexer/token.h"
+#include "mbtstr/str.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/mergestr.h"
@@ -53,11 +54,22 @@ static int eval_arith(__attribute((unused)) const struct ast_cword *node,
     errx(EXIT_FAILURE, "not implemented");
 }
 
-static int eval_variable(__attribute((unused)) const struct ast_cword *node,
-                         __attribute((unused)) void **out,
-                         __attribute((unused)) struct ast_eval_ctx *ctx)
+static int eval_variable(const struct ast_cword *node, void **out,
+                         struct ast_eval_ctx *ctx)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    struct mbt_str *str = mbt_str_init(64);
+    mbt_str_pushcstr(str, node->data);
+
+    char *var = ctx_get_value(ctx, str);
+    mbt_str_free(str);
+
+    if (!var)
+    {
+        var = "";
+    }
+
+    *out = strdup(var);
+    return AST_EVAL_SUCCESS;
 }
 
 static int eval_globbing_star(__attribute((unused))
@@ -92,7 +104,7 @@ static const struct token_eval_entry eval_table[] = {
     { TOKEN_GLOBBING_QM, eval_globbing_qm },
 };
 
-static struct ast_cword *ast_parse_cword_from_token(struct token *token)
+struct ast_cword *ast_parse_cword_from_token(struct token *token)
 {
     if (!token)
     {
@@ -147,7 +159,9 @@ struct ast_cword *ast_parse_cword(struct lexer *lexer)
 int ast_eval_cword(struct ast_cword *node, void **out, struct ast_eval_ctx *ctx)
 {
     if (!node)
+    {
         return AST_EVAL_ERROR;
+    }
 
     for (size_t i = 0; i < sizeof(eval_table) / sizeof(eval_table[0]); i++)
     {

@@ -29,7 +29,6 @@ enum token_type
     TOKEN_ARITH,
     TOKEN_GLOBBING_STAR,
     TOKEN_GLOBBING_QM, // Questionmark '?'
-    TOKEN_AWORD
 };
 
 struct token

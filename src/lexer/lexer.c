@@ -204,12 +204,17 @@ static struct token *lex(struct lexer *lexer)
     }
 
     token->value.c = strdup(shard->data);
+    if (token->type == TOKEN_ERROR)
+    {
+        goto error;
+    }
     shard_free(shard);
     return token;
 
 error:
     token_free(token);
     shard_free(shard);
+    lexer_error(lexer, "erreur inconnue");
     return NULL;
 }
 
@@ -231,6 +236,11 @@ static struct token *lexer_chain(struct lexer *lexer)
 
 struct token *lexer_peek(struct lexer *lexer)
 {
+    if (lexer->error || lexer->eof)
+    {
+        return NULL;
+    }
+
     struct token *token = stack_peek(lexer->tokens);
     if (!token)
     {
@@ -247,6 +257,11 @@ struct token *lexer_peek(struct lexer *lexer)
 
 struct token *lexer_pop(struct lexer *lexer)
 {
+    if (lexer->error || lexer->eof)
+    {
+        return NULL;
+    }
+
     struct token *token =
         lexer->tokens->size ? stack_pop(lexer->tokens) : lex(lexer);
 
