@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "ast/ast.h"
-#include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
@@ -14,13 +13,13 @@
 */
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
-    struct token *tok = lexer_peek(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "if") != 0)
+    struct token *token = lexer_peek(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "if") != 0)
     {
         return NULL;
     }
     lexer_pop(lexer);
-    token_free(tok);
+    token_free(token);
 
     struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
     if (!ast)
@@ -35,12 +34,12 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     }
 
     logger("PARSE IF\n");
-    tok = lexer_pop(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "then") != 0)
+    token = lexer_pop(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "then") != 0)
     {
         errx(2, "missing then token");
     }
-    token_free(tok);
+    token_free(token);
 
     struct ast_node *body = ast_create(lexer, AST_CLIST);
     if (body == NULL)
@@ -51,13 +50,13 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
 
-    tok = lexer_pop(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "fi") != 0)
+    token = lexer_pop(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "fi") != 0)
     {
         errx(2, "missing fi");
     }
 
-    token_free(tok);
+    token_free(token);
     logger("PARSE IF (SUCCESS)\n");
     return ast;
 }

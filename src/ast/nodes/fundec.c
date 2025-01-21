@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
@@ -14,9 +13,9 @@
  */
 /*
 SCL: case 8 [ NAME in function]
-When the TOKEN is exactly a reserved word, the token identifier for that
+When the TOKEN is exactly a reserved word, the tokenen identifier for that
 reserved word shall result. Otherwise, when the TOKEN meets the requirements
-for a name, the token identifier NAME shall result. Otherwise, rule 7 applies.
+for a name, the tokenen identifier NAME shall result. Otherwise, rule 7 applies.
 */
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 {
@@ -24,31 +23,30 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     struct ast_fundec *node = calloc(1, sizeof(struct ast_fundec));
 
     // CASE the name of the function
-    struct token *tok = lexer_peek(lexer);
-    if (tok && tok->type == TOKEN_WORD && XDB_valid(tok->value.c)
-        && !(is_keyword(tok->value.c)))
+    struct tokenen *token = lexer_peek(lexer);
+    if (TOKEN_OK && XDB_valid(token->value.c) && !(is_keyword(token->value.c)))
     {
-        node->name = strdup(tok->value.c);
+        node->name = strdup(token->value.c);
         lexer_pop(lexer);
-        token_free(tok);
+        tokenen_free(token);
 
-        tok = lexer_peek(lexer);
-        if (reserved_word_check(tok) && strcmp(tok->value.c, "(") == 0)
+        token = lexer_peek(lexer);
+        if (reserved_word_check(token) && strcmp(token->value.c, "(") == 0)
         {
             lexer_pop(lexer);
-            token_free(tok);
-            tok = lexer_peek(lexer);
+            tokenen_free(token);
+            token = lexer_peek(lexer);
 
-            if (reserved_word_check(tok) && strcmp(tok->value.c, ")") == 0)
+            if (reserved_word_check(token) && strcmp(token->value.c, ")") == 0)
             {
                 lexer_pop(lexer);
-                token_free(tok);
-                tok = lexer_peek(lexer);
-                while (tok && tok->type == TOKEN_NEW_LINE)
+                tokenen_free(token);
+                token = lexer_peek(lexer);
+                while (token && token->type == TOKEN_NEW_LINE)
                 {
                     lexer_pop(lexer);
-                    token_free(tok);
-                    tok = lexer_peek(lexer);
+                    tokenen_free(token);
+                    token = lexer_peek(lexer);
                 }
 
                 struct ast_node *shell_cmd =

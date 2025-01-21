@@ -4,8 +4,6 @@ libast_a_SOURCES =  \
   ast.h \
   nodes/eval_ctx.h \
   nodes/eval_ctx.c \
-  expansion/expansion.h \
-  expansion/expansion.c \
   expansion/vars.h \
   expansion/vars.c \
   nodes/and_or.c \

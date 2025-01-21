@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expansion/expansion.h"
 #include "expansion/vars.h"
 #include "lexer/lexer.h"
 #include "node.h"
@@ -33,7 +32,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         goto error;
     }
 
-    if (token->type == TOKEN_WORD && strcmp(token->value.c, "!") == 0)
+    if (TOKEN_OK && strcmp(token->value.c, "!") == 0)
     {
         node->not = 1;
         token_free(lexer_pop(lexer));
@@ -100,7 +99,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
         result = !result;
     }
 
-    update_qm(ctx, result);
+    ctx_update_local_qm(ctx, result);
     return result;
 }
 

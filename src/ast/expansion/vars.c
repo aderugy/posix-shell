@@ -6,80 +6,92 @@
 #include <unistd.h>
 
 #include "lexer/splitter.h"
+#include "utils/xalloc.h"
 
 // $#
-void init_hashtag(int nb_arg, struct ast_eval_ctx *ctx)
+void ctx_init_local_hashtag(int nb_arg, struct ast_eval_ctx *ctx)
 {
-    char *nb_arg_str = calloc(1, 64);
+    char *buffer = xcalloc(15, sizeof(char));
+    char *str = my_itoa(nb_arg, buffer);
 
-    struct mbt_str *str_dieze = mbt_str_init(8);
-    mbt_str_pushcstr(str_dieze, my_itoa(nb_arg, nb_arg_str));
-    free(nb_arg_str);
+    char *name = strdup("#");
 
-    hash_map_insert(ctx->value, "#", str_dieze);
+    ctx_set_local_variable(ctx, name, str);
 }
 
 // $$
-void init_dollar(struct ast_eval_ctx *ctx)
+void ctx_init_local_dollar(struct ast_eval_ctx *ctx)
 {
     pid_t pid = getpid();
 
-    char dollar_arg[65];
-    struct mbt_str *str_dollar = mbt_str_init(8);
-    mbt_str_pushcstr(str_dollar, my_itoa(pid, dollar_arg));
+    char *buffer = xcalloc(15, sizeof(char));
+    char *str = my_itoa(pid, buffer);
 
-    hash_map_insert(ctx->value, "$", str_dollar);
+    char *name = strdup("$");
+
+    ctx_set_local_variable(ctx, name, str);
 }
 
 // $?
-void update_qm(struct ast_eval_ctx *ctx, int ret_val)
+void ctx_update_local_qm(struct ast_eval_ctx *ctx, int return_value)
 {
-    char qm_arg[65];
-    struct mbt_str *str_qm = mbt_str_init(8);
-    mbt_str_pushcstr(str_qm, my_itoa(ret_val, qm_arg));
+    char *buffer = xcalloc(15, sizeof(char));
+    char *str = my_itoa(return_value, buffer);
 
-    hash_map_insert(ctx->value, "?", str_qm);
-}
+    char *name = strdup("?");
 
-// inits the number of args
-int init_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
-{
-    struct mbt_str *arobase = mbt_str_init(64);
-
-    for (int i = 2; i < argc; i++)
-    {
-        struct mbt_str *str = mbt_str_init(8);
-        mbt_str_pushcstr(str, argv[i]);
-
-        //  FOR $@
-        mbt_str_pushcstr(arobase, argv[i]);
-        if (i < argc - 1)
-        {
-            mbt_str_pushc(arobase, ' ');
-        }
-
-        char number[20];
-        hash_map_insert(ctx->value, my_itoa(i - 1, number), str);
-    }
-
-    hash_map_insert(ctx->value, "@", arobase);
-
-    // Temporary for $*
-    struct mbt_str *glob_val = mbt_str_init(8);
-    mbt_str_pushcstr(glob_val, arobase->data);
-
-    hash_map_insert(ctx->value, "*", glob_val);
-    return argc - 2;
+    ctx_set_local_variable(ctx, name, str);
 }
 
 //$UID
-void init_UID(struct ast_eval_ctx *ctx)
+void ctx_init_local_UID(struct ast_eval_ctx *ctx)
 {
     uid_t uid = getuid();
-    char *key_uid = strdup("UID");
-    char *uid_arg = calloc(1, 65);
-    struct mbt_str *str_uid = mbt_str_init(8);
-    mbt_str_pushcstr(str_uid, my_itoa(uid, uid_arg));
-    free(uid_arg);
-    hash_map_insert(ctx->value, key_uid, str_uid);
+
+    char *buffer = xcalloc(15, sizeof(char));
+    char *str = my_itoa(uid, buffer);
+
+    char *name = strdup("UID");
+
+    ctx_set_local_variable(ctx, name, str);
+}
+// inits $1, $2, $3, $n + the arobase and the star
+// @return the numbers of $ args
+int ctx_init_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
+{
+    // FOR $@ = $1 + IFS + $2 + IFS + etc
+    struct mbt_str *arobase_args = mbt_str_init(64);
+
+    for (int i = 2; i < argc; i++)
+    {
+        // Accumlution to form the list of arguments
+        mbt_str_pushcstr(arobase_args, argv[i]);
+
+        if (i < argc - 1)
+        {
+            // $@ += IFS
+            mbt_str_pushc(arobase_args, ' ');
+        }
+
+        char *buffer = xcalloc(12, sizeof(char));
+        char *name = my_itoa(i - 1, buffer);
+        char *str = strdup(argv[i]);
+
+        ctx_set_local_variable(ctx, name, str);
+    }
+
+    char *name = strdup("@");
+    char *str = strdup(arobase_args->data);
+
+    ctx_set_local_variable(ctx, name, str);
+
+    // Until I understand it better, the arobase is the same as the star
+    name = strdup("*");
+    str = strdup(arobase_args->data);
+
+    ctx_set_local_variable(ctx, name, str);
+
+    mbt_str_free(arobase_args);
+
+    return argc - 2;
 }

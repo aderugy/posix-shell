@@ -20,7 +20,7 @@
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
-#include "utils/xalloc.h"
+#include "utils/xcalloc.h"
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
