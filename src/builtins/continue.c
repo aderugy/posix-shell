@@ -9,7 +9,7 @@
 #include "utils/logger.h"
 
 int continue_builtin(__attribute__((unused)) int argc, char **argv,
-                  struct ast_eval_ctx *ast_eval_ctx)
+                     struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc > 1)
     {

@@ -15,11 +15,17 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
     struct ast_input *input = xcalloc(1, sizeof(struct ast_input));
     input->list = ast_create(lexer, AST_LIST);
 
-    struct token *token = lexer_peek(lexer);
-    if (!token)
+    if (lexer->error)
     {
         goto error;
     }
+
+    if (lexer->eof)
+    {
+        return input;
+    }
+
+    struct token *token = lexer_peek(lexer);
 
     if (token->type == TOKEN_NEW_LINE)
     {

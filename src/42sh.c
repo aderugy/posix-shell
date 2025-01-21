@@ -36,14 +36,14 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     /*
      * Process input line by line (AST_INPUT after AST_INPUT)
      */
-    while (!lexer->eof && !lexer->error && node && !return_value)
+    do
     {
         ast_print(node);
         return_value = ast_eval(node, NULL, *ctx);
         ast_free(node);
 
         node = ast_create(lexer, AST_INPUT);
-    }
+    } while (!lexer->eof && !lexer->error && node && !return_value);
 
     if (node)
     {

@@ -143,8 +143,7 @@ int del_command(const char *name)
     return 0;
 }
 
-int run_command(int argc, char **argv,
-                struct ast_eval_ctx *ast_eval_ctx)
+int run_command(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
 {
     struct runnable *cmd;
     if (argc == 0 || !argv || (cmd = get_command(argv[0], NULL)) == NULL)
