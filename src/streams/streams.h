@@ -20,4 +20,6 @@ void stream_close(struct stream *stream);
 char stream_read(struct stream *stream);
 char stream_peek(struct stream *stream);
 
+void stream_empty(struct stream *stream);
+
 #endif // !STREAMS_H

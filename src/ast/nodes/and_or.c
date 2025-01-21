@@ -7,11 +7,11 @@
 #include "lexer/token.h"
 #include "utils/err_utils.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {
-    struct ast_and_or_node *root = calloc(1, sizeof(struct ast_and_or_node));
-    CHECK_MEMORY_ERROR(root);
+    struct ast_and_or_node *root = xcalloc(1, sizeof(struct ast_and_or_node));
     root->type = NONE;
 
     logger("Parse AND_OR\n");
@@ -24,13 +24,11 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 
     struct ast_and_or_node *node = NULL;
     struct token *tok = lexer_peek(lexer);
-    while (tok->type == TOKEN_AND || tok->type == TOKEN_OR)
+    while (tok && (tok->type == TOKEN_AND || tok->type == TOKEN_OR))
     {
         node = root;
 
-        root = calloc(1, sizeof(struct ast_and_or_node));
-        CHECK_MEMORY_ERROR(root);
-
+        root = xcalloc(1, sizeof(struct ast_and_or_node));
         root->right = node;
 
         if (tok->type == TOKEN_AND)
@@ -41,11 +39,11 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
         {
             root->type = OR;
         }
-        free(lexer_pop(lexer));
+        token_free(lexer_pop(lexer));
 
         while (lexer_peek(lexer)->type == TOKEN_NEW_LINE)
         {
-            free(lexer_pop(lexer));
+            token_free(lexer_pop(lexer));
         }
 
         root->left = ast_create(lexer, AST_PIPELINE);

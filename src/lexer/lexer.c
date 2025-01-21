@@ -10,23 +10,32 @@
 #include "utils/err_utils.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
+#include "utils/xalloc.h"
 
 static const char *token_names[] = {
-    "TOKEN_SEMICOLON", // ; [5]
-    "TOKEN_NEW_LINE", // \n [6]
-    "TOKEN_QUOTE", // ' [7]
-    "TOKEN_WORD", // word [8]
-    "TOKEN_PIPE", // | [9]
-    "TOKEN_NOT", // ! [10]
-    "TOKEN_EOF", // end of input marker [11]
+    "TOKEN_SEMICOLON", // ;
+    "TOKEN_NEW_LINE", // \n
+    "TOKEN_QUOTE", // '
+    "TOKEN_WORD", // word
+    "TOKEN_PIPE", // |
+    "TOKEN_NOT", // !
+    "TOKEN_EOF", // end of input marker
     "TOKEN_ERROR", // it is not a real token, it is returned in case of invalid
-                   // input [12]
-    "TOKEN_AND", // and [18]
-    "TOKEN_OR", // or [19]
-    "TOKEN_REDIR_STDOUT_FILE", "TOKEN_REDIR_FILE_STDIN",
-    "TOKEN_REDIR_STDOUT_FILE_A", "TOKEN_REDIR_STDOUT_FD",
-    "TOKEN_REDIR_STDIN_FD", "TOKEN_REDIR_STDOUT_FILE_NOTRUNC",
-    "TOKEN_REDIR_FOPEN_RW"
+    "TOKEN_AND", // and
+    "TOKEN_OR", // or
+    "TOKEN_REDIR_STDOUT_FILE",
+    "TOKEN_REDIR_FILE_STDIN",
+    "TOKEN_REDIR_STDOUT_FILE_A",
+    "TOKEN_REDIR_STDOUT_FD",
+    "TOKEN_REDIR_STDIN_FD",
+    "TOKEN_REDIR_STDOUT_FILE_NOTRUNC",
+    "TOKEN_REDIR_FOPEN_RW",
+    "TOKEN_COMPLEX_WORD",
+    "TOKEN_SUBSHELL",
+    "TOKEN_VARIABLE",
+    "TOKEN_ARITH",
+    "TOKEN_GLOBBING_STAR",
+    "TOKEN_GLOBBING_QM"
 };
 
 const char *get_token_name(enum token_type token)
@@ -38,39 +47,63 @@ const char *get_token_name(enum token_type token)
     return "UNKNOWN_TOKEN";
 }
 
-static const struct keyword KEYWORDS[] = { { "<>", TOKEN_REDIR_FOPEN_RW },
-                                           { ">>", TOKEN_REDIR_STDOUT_FILE_A },
-                                           { ">&", TOKEN_REDIR_STDOUT_FD },
-                                           { "<&", TOKEN_REDIR_STDIN_FD },
-                                           { ">|",
-                                             TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
-                                           { ">", TOKEN_REDIR_STDOUT_FILE },
-                                           { "<", TOKEN_REDIR_FILE_STDIN },
-                                           { ";", TOKEN_SEMICOLON },
-                                           { "\n", TOKEN_NEW_LINE },
-                                           { "'", TOKEN_QUOTE },
-                                           { "|", TOKEN_PIPE },
-                                           { "&&", TOKEN_AND },
-                                           { "||", TOKEN_OR },
-
-                                           { NULL, TOKEN_EOF } };
+static const struct keyword KEYWORDS[] = {
+    { "<>", TOKEN_REDIR_FOPEN_RW },
+    { ">>", TOKEN_REDIR_STDOUT_FILE_A },
+    { ">&", TOKEN_REDIR_STDOUT_FD },
+    { "<&", TOKEN_REDIR_STDIN_FD },
+    { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
+    { ">", TOKEN_REDIR_STDOUT_FILE },
+    { "<", TOKEN_REDIR_FILE_STDIN },
+    { ";", TOKEN_SEMICOLON },
+    { "\n", TOKEN_NEW_LINE },
+    { "'", TOKEN_QUOTE },
+    { "|", TOKEN_PIPE },
+    { "&&", TOKEN_AND },
+    { "||", TOKEN_OR },
+    { "<>", TOKEN_REDIR_FOPEN_RW },
+    { ">>", TOKEN_REDIR_STDOUT_FILE_A },
+    { ">&", TOKEN_REDIR_STDOUT_FD },
+    { "<&", TOKEN_REDIR_STDIN_FD },
+    { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
+    { ">", TOKEN_REDIR_STDOUT_FILE },
+    { "<", TOKEN_REDIR_FILE_STDIN },
+    { NULL, TOKEN_EOF }
+};
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
+static struct token *lexer_chain(struct lexer *lexer);
+
 struct lexer *lexer_create(struct stream *stream)
 {
-    struct lexer *res = calloc(1, sizeof(struct lexer));
-    CHECK_MEMORY_ERROR(res);
-
-    res->stream = stream;
+    struct lexer *res = xcalloc(1, sizeof(struct lexer));
     res->tokens = stack_init((void (*)(void *))token_free);
+    res->ctx = splitter_ctx_init(stream);
     return res;
+}
+
+void token_print(struct token *token)
+{
+    logger("%s '%s'\n", get_token_name(token->type),
+           token->value.c ? token->value.c : "");
+
+    if (token->next)
+    {
+        logger("CHAINED: ");
+        token_print(token->next);
+    }
 }
 
 void token_free(struct token *token)
 {
     if (token)
     {
+        if (token->next)
+        {
+            token_free(token->next);
+        }
+
         if (token->value.c)
         {
             free(token->value.c);
@@ -88,97 +121,129 @@ void token_free(struct token *token)
 void lexer_free(struct lexer *lexer)
 {
     stack_free(lexer->tokens);
-    if (lexer->stream)
+    if (lexer->ctx)
     {
-        stream_close(lexer->stream);
+        splitter_ctx_free(lexer->ctx);
     }
+
     free(lexer);
 }
 
 static struct token *lex(struct lexer *lexer)
 {
-    struct token *token = calloc(1, sizeof(struct token));
-    if (!token)
+    if (lexer->eof)
     {
-        errx(EXIT_FAILURE, "lex: memory error");
+        return NULL;
     }
+
+    struct token *token = xcalloc(1, sizeof(struct token));
     token->type = TOKEN_ERROR;
 
-    // logger("lexer.c : will peek a shard\n");
-    struct shard *shard = splitter_next(lexer->stream);
+    struct shard *shard = splitter_pop(lexer->ctx);
     if (!shard)
     {
+        if (lexer->ctx->err)
+        {
+            lexer_error(lexer, NULL);
+            goto error;
+        }
+
         token->type = TOKEN_EOF;
+        lexer->eof = true;
         return token;
     }
 
-    // logger("lexer.c : peeked a shard\n");
-
-    int condition = !strchr(shard->data, SHARD_DOUBLE_QUOTED);
-    condition = condition && !strchr(shard->data, SHARD_SINGLE_QUOTED);
-    condition = condition && !strchr(shard->data, SHARD_BACKSLASH_QUOTED);
-    for (size_t i = 0; i < KEYWORDS_LEN && condition; i++)
+    if (shard->can_chain)
     {
-        char *first_occurence_of_chevron =
-            strpbrk(shard->data, KEYWORDS[i].name);
-
-        if (first_occurence_of_chevron
-            && (strcmp(first_occurence_of_chevron, KEYWORDS[i].name) == 0))
-        {
-            token->type = KEYWORDS[i].type;
-            logger("type found : %s for%s\n", get_token_name(token->type),
-                   shard->data);
-            if (token->type > TOKEN_OR
-                && token->type < TOKEN_AWORD) // if it is a redir
-            {
-                logger("is a redir\n");
-                size_t s = first_occurence_of_chevron - shard->data;
-                token->value.c = malloc((s + 1) * sizeof(char));
-                strncpy(token->value.c, shard->data, s);
-                token->value.c[s] = 0;
-            }
-            break;
-        }
+        token->next = lexer_chain(lexer);
     }
 
-    if (token->type == TOKEN_ERROR)
+    switch (shard->type)
     {
-        // DOES NOT HANDLE THE FOLLOWING EXAMPLE : echo a"="B
-        char *pos = NULL;
-        // If the data contains a '=' and it does not come first
-        if ((pos = strchr(shard->data, '=')) && pos != shard->data)
+    case SHARD_WORD:
+    case SHARD_OPERATOR:
+        if (!*shard->data)
         {
-            int len = pos - shard->data;
-            // If the '=' is unquoted
-            if (shard->state[len] == SHARD_UNQUOTED)
+            token_free(token);
+            shard_free(shard);
+            return lex(lexer);
+        }
+        if (shard->quote_type == SHARD_UNQUOTED && !token->next)
+        {
+            for (size_t i = 0; i < KEYWORDS_LEN; i++)
             {
-                // if the name is SCL compliant
-                if (convention_check(shard->data, len))
+                if (strcmp(KEYWORDS[i].name, shard->data) == 0)
                 {
-                    token->type = TOKEN_AWORD;
-                }
-                else
-                {
-                    errx(LEX_ERROR, "incorrect assignment name");
+                    token->type = KEYWORDS[i].type;
+                    break;
                 }
             }
-        }
 
-        if (token->type == TOKEN_ERROR)
+            if (token->type == TOKEN_ERROR)
+            {
+                token->type = TOKEN_WORD;
+            }
+        }
+        else
         {
-            token->type = TOKEN_WORD;
+            token->type = TOKEN_COMPLEX_WORD;
         }
+        break;
+    case SHARD_EXPANSION_VARIABLE:
+        token->type = TOKEN_VARIABLE;
+        break;
+    case SHARD_EXPANSION_ARITH:
+        token->type = TOKEN_ARITH;
+        break;
+    case SHARD_EXPANSION_SUBSHELL:
+        token->type = TOKEN_SUBSHELL;
+        break;
+    case SHARD_GLOBBING_STAR:
+        token->type = TOKEN_GLOBBING_STAR;
+        break;
+    case SHARD_GLOBBING_QUESTIONMARK:
+        token->type = TOKEN_GLOBBING_QM;
+        break;
+    case SHARD_DELIMITER:
+        token_free(token);
+        shard_free(shard);
+        return lex(lexer);
+    }
 
-        token->value.c = strdup(shard->data);
-        token->state = strdup(shard->state);
+    token->value.c = strdup(shard->data);
+    if (token->type == TOKEN_ERROR)
+    {
+        goto error;
     }
     shard_free(shard);
     return token;
+
+error:
+    token_free(token);
+    shard_free(shard);
+    lexer_error(lexer, "erreur inconnue");
+    return NULL;
+}
+
+static struct token *lexer_chain(struct lexer *lexer)
+{
+    struct shard *shard = splitter_peek(lexer->ctx);
+    if (!shard)
+    {
+        return NULL;
+    }
+
+    if (!shard->can_chain)
+    {
+        return NULL;
+    }
+
+    return lex(lexer);
 }
 
 struct token *lexer_peek(struct lexer *lexer)
 {
-    if (!lexer || !lexer->stream)
+    if (lexer->error || lexer->eof)
     {
         return NULL;
     }
@@ -197,9 +262,41 @@ struct token *lexer_peek(struct lexer *lexer)
     return token;
 }
 
+struct token *lexer_peek_two(struct lexer *lexer)
+{
+    if (lexer->error || lexer->eof)
+    {
+        return NULL;
+    }
+
+    if (lexer->tokens->size > 1)
+    {
+        return lexer->tokens->head->next->data;
+    }
+
+    struct token *token1 = stack_peek(lexer->tokens);
+    if (!token1)
+    {
+        token1 = lex(lexer);
+        if (token1)
+        {
+            stack_push(lexer->tokens, token1);
+        }
+    }
+
+    stack_pop(lexer->tokens);
+    struct token *token2 = lex(lexer);
+    if (token2)
+    {
+        stack_push(lexer->tokens, token2);
+        stack_push(lexer->tokens, token1);
+    }
+    return token2;
+}
+
 struct token *lexer_pop(struct lexer *lexer)
 {
-    if (!lexer->stream)
+    if (lexer->error || lexer->eof)
     {
         return NULL;
     }
@@ -207,11 +304,16 @@ struct token *lexer_pop(struct lexer *lexer)
     struct token *token =
         lexer->tokens->size ? stack_pop(lexer->tokens) : lex(lexer);
 
-    if (token->type == TOKEN_EOF)
+    return token;
+}
+
+void lexer_error(struct lexer *lexer, const char *msg)
+{
+    if (msg)
     {
-        stream_close(lexer->stream);
-        lexer->stream = NULL;
+        warnx("Syntax error: %s", msg);
     }
 
-    return token;
+    lexer->error = true;
+    stream_empty(lexer->ctx->stream);
 }

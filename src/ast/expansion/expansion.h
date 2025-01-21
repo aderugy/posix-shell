@@ -9,8 +9,8 @@
 #include "nodes/eval_ctx.h"
 #include "streams/dstream.h"
 
-struct mbt_str *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
-                              int bracket);
+char *expand_dollar(struct ast_eval_ctx *ctx, struct dstream *dstream,
+                    int bracket);
 
 struct mbt_str *expand(struct ast_eval_ctx *ctx, struct token *token);
 

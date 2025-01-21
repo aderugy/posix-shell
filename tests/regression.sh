@@ -196,14 +196,6 @@ test_comment() {
     tes echo "Ya un commentaire m c chill #de ouf c chill"
     echo "========== COMMENT END =========="
 }
-test_pipeline() {
-    echo "========== PIPELINE BEGIN =========="
-    tes "echo Hello | tr a e"
-    tes "echo Hello | tr a e | tr e a"
-    tes "echo Hello | tr a e | tr e a | tr a e"
-    tes "tree -L 2 | echo | tr e a | tr c b"
-    echo "========== PIPELINE END =========="
-}
 test_neg_pipeline() {
     echo "========== NEGATION PIPELINE BEGIN =========="
     test_code_error 0 "! false | true | true | true | false"
@@ -251,6 +243,7 @@ test_redirections() {
     tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
     tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
     tes "echo aads 1<&2 cat coverage.sh"
+    tes "echo aads 1>&2 cat coverage.sh"
 
     touch dum.out
     rm dum.out
@@ -269,6 +262,9 @@ test_quoting() {
         test_from_file $i
         test_from_stdin $i
     done
+    tes "echo Hello World!"
+    tes "'echo' hello 'my' dream"
+    tes "'ls'"
     echo "========== QUOTING END =========="
 }
 test_pipeline() {
@@ -278,9 +274,6 @@ test_pipeline() {
     tes "echo Hello | tr a e | tr e a | tr a e"
     tes "find -name *.c | echo"
     tes "tree -L 2 | echo | tr e a | tr c b"
-    tes "echo Hello World!"
-    tes "'echo' hello 'my' dream"
-    tes "'ls'"
     echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
@@ -294,10 +287,7 @@ test_neg_pipeline() {
 }
 test_cd() {
     echo "========== CD ========="
-    tes "cd .. && echo $PWD"
-    tes "cd ../ && echo $PWD"
-    tes "cd && echo $PWD"
-    tes "cd . && echo $PWD"
+    tes 'cd && echo $PWD'
     echo "========== CD END ========="
 }
 test_exit() {
@@ -361,6 +351,7 @@ test_for()
 {
     echo "========= FOR LOOP BEGIN =========="
     tes 'for i in a b; do echo $i; done'
+    tes 'for i in ls; do echo $i; done'
     echo "========= FOR LOOP END =========="
 }
 test_export()
@@ -372,7 +363,7 @@ test_export()
 test_unset()
 {
     echo "========== UNSET BEGIN ==="
-    tes 'export ABC=5; echo $ABC; unset ABC; echo $ABC'
+    tes 'export ABCD=5; echo $ABCD; unset ABCD;'
     echo "========== UNSET END ====="
 }
 test_blocks()

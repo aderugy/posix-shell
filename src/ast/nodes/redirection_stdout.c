@@ -1,5 +1,7 @@
 #include "redirection_stdout.h"
 
+#include "utils/logger.h"
+
 static const char *DIGITS_OUT = "0123456789";
 int redir_stdout_file_a(struct ast_redir *node,
                         __attribute((unused)) void **out,

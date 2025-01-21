@@ -26,7 +26,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     while ((token = lexer_peek(lexer))->type == TOKEN_NEW_LINE)
     {
         lexer_pop(lexer);
-        free(token);
+        token_free(token);
     }
 
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
@@ -43,13 +43,13 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     while (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON)
     {
         lexer_pop(lexer);
-        free(token);
+        token_free(token);
 
         token = lexer_peek(lexer);
         while (token->type == TOKEN_NEW_LINE)
         {
             lexer_pop(lexer);
-            free(token);
+            token_free(token);
 
             token = lexer_peek(lexer);
         }
@@ -84,6 +84,10 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
     {
         struct ast_node *children = list_get(node->list, i);
         ast_eval(children, NULL, ctx);
+        if (ctx->break_count > 0 || ctx->continue_count > 0)
+        {
+            return EXIT_SUCCESS;
+        }
     }
 
     struct ast_node *children = list_get(node->list, node->list->size - 1);

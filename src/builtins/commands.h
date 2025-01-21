@@ -1,6 +1,10 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "builtins.h"
+
+// @Remark; functions were moved to avoid the following clang-tidy:
+// 'file.h containg ten or more function declarations'
 #define ECHO "echo"
 #define TRUE "true"
 #define FALSE "false"
@@ -8,16 +12,11 @@
 #define CD "cd"
 #define EXPORT "export"
 #define UNSET "unset"
+#define DOT "."
+#define BREAK_BUILTIN "break"
+#define CONTINUE_BUILTIN "continue"
 
 int register_commands(void);
 int unregister_commands(void);
-
-int echo(int argc, char *argv[]);
-int true_builtin(int argc, char **argv);
-int false_builtin(int argc, char **argv);
-int exit_builtin(int argc, char **argv);
-int cd(int argc, char **argv);
-int export_builtin(int argc, char *argv[]);
-int unset_builtin(int argc, char *argv[]);
 
 #endif // !COMMANDS_H

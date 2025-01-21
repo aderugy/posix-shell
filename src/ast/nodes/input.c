@@ -6,28 +6,30 @@
 
 #include "list.h"
 #include "node.h"
-#include "utils/err_utils.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    struct ast_input *input = calloc(1, sizeof(struct ast_input));
-    CHECK_MEMORY_ERROR(input);
-
-    logger("PARSE INPUT\n");
+    struct ast_input *input = xcalloc(1, sizeof(struct ast_input));
     input->list = ast_create(lexer, AST_LIST);
 
-    struct token *token = lexer_peek(lexer);
-    if (!token)
+    if (lexer->error)
     {
         goto error;
     }
 
+    if (lexer->eof)
+    {
+        return input;
+    }
+
+    struct token *token = lexer_peek(lexer);
+
     if (token->type == TOKEN_NEW_LINE)
     {
-        free(lexer_pop(lexer));
-        logger("PARSE INPUT (SUCCESS)\n");
+        token_free(lexer_pop(lexer));
         return input;
     }
 
@@ -36,13 +38,10 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
         goto error;
     }
 
-    free(lexer_pop(lexer));
-    logger("PARSE INPUT (SUCCESS)\n");
+    token_free(lexer_pop(lexer));
     return input;
-
 error:
     ast_free_input(input);
-    logger("PARSE INPUT (ERROR)\n");
     return NULL;
 }
 

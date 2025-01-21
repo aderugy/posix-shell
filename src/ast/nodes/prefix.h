@@ -1,13 +1,25 @@
 #ifndef PREFIX_H
 #define PREFIX_H
 
+#include "cword.h"
 #include "lexer/lexer.h"
 #include "node.h"
 
+enum ast_prefix_type
+{
+    AST_PREFIX_ASSIGNMENT = 1,
+    AST_PREFIX_REDIR
+};
+
 struct ast_prefix
 {
-    struct token *data;
-    struct ast_node *redir;
+    enum ast_prefix_type type;
+    char *name;
+    union
+    {
+        struct ast_cword *word;
+        struct ast_node *redir;
+    } child;
 };
 
 struct ast_prefix *ast_parse_prefix(struct lexer *lexer);

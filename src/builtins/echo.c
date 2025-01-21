@@ -61,7 +61,8 @@ void print_echo(struct echo_options *opts, int argc)
     fflush(stdout);
 }
 
-int echo(int argc, char *argv[])
+int echo(int argc, char **argv,
+         __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     int c;
     int opt_idx = 0;

@@ -9,7 +9,8 @@
 #include "commands.h"
 #include "utils/logger.h"
 
-int unset_builtin(int argc, char *argv[])
+int unset_builtin(int argc, char **argv,
+                  __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc != 2)
     {

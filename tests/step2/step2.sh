@@ -173,6 +173,7 @@ test_mix_grammar() {
 test_errs() {
   echo "========== ERROR_CODE BEGIN =========="
   # PARSE ERRS
+  test_code_error 0 "echo a; echa b; echo c"
   test_code_error 2 "false | | true"
   test_code_error 2 "| false || true"
   test_code_error 2 "false | true |"
@@ -208,6 +209,19 @@ test_special_vars() {
   done
   echo "========== SPE_VARS END =========="
 }
+test_quoting() {
+  echo "========== QUOTING BEGIN =========="
+  tes 'echo "42\nsh"'
+  tes 'echo "| & ; < > ( ) % ^ \\ * - + =  # ~ !"'
+  tes 'echo "\$\`\\"'
+  tes 'echo "imagine\n" "mais attent le truc de \nfou\n"'
+  tes 'A=mmmmm; echo "\$Apasse stp mon reuf"'
+  tes 'echo "JEsuisTONpere\$JEsuisTONpere\=JEsuisTONpere\-tuJEsuisTONpere\%tiJEsuisTONpere\^ta\_"'
+  tes 'echo "\% \# \^ \\\ \: \;"'
+  tes "echo c\'est le quantine"
+  tes "echo "\"\"\'""
+  echo "========== QUOTING END =========="
+}
 testsuite() {
   test_pipeline
   test_var
@@ -215,7 +229,7 @@ testsuite() {
   #test_for
   test_while_loops
   #test_mix_grammar
-  #test_quoting
+  test_quoting
   test_redirections
   test_special_vars
   test_errs

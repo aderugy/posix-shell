@@ -16,11 +16,11 @@
 */
 /* @REFACTOR
  1. clang-tidy function too long
- 2. SCL : ' case 5 [ NAME in for]
-        When the TOKEN meets the requirements for a name (see XBD Name ),
-        the token identifier NAME shall result.
-        Otherwise, the token WORD shall be returned.'
-*/
+ 2. SCL : 'case 5 [ NAME in for]
+            When the TOKEN meets the requirements for a name (see XBD Name ),
+            the token identifier NAME shall result.
+            Otherwise, the token WORD shall be returned.'
+ */
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");

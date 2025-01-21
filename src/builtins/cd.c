@@ -136,7 +136,8 @@ void move_cd(char *oldpwd, char *pwd)
         errx(1, "cd: chdir: error");
 }
 
-int cd(int argc, char **argv)
+int cd(int argc, char **argv,
+       __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
     if (argc > 2)
     {

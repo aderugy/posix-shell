@@ -1,6 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "builtins/builtins.h"
 #include "eval_ctx.h"
 #include "lexer/lexer.h"
 #include "lexer/splitter.h"
@@ -27,7 +28,8 @@ enum ast_type
     AST_FOR, // 14
     AST_REDIRECTION, // 15
     AST_PREFIX, // 16
-    AST_FUNDEC // 17
+    AST_FUNDEC, // 17
+    AST_COMPLEX_WORD
 };
 
 struct ast_node

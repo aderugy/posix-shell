@@ -47,6 +47,8 @@ libast_a_SOURCES =  \
   nodes/until.h \
   nodes/for.c \
   nodes/for.h \
+  nodes/cword.c \
+  nodes/cword.h \
   nodes/redirection_stdin.h \
   nodes/redirection_stdin.c \
   nodes/redirection_stdout.c \

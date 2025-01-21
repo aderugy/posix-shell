@@ -30,21 +30,27 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     register_commands();
 
     struct lexer *lexer = lexer_create(*stream);
-    struct ast_node *node;
-    int return_value = 0;
+    struct ast_node *node = ast_create(lexer, AST_INPUT);
+    int return_value = node ? 0 : 2;
 
     /*
      * Process input line by line (AST_INPUT after AST_INPUT)
      */
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    do
     {
         ast_print(node);
         return_value = ast_eval(node, NULL, *ctx);
+        ast_free(node);
 
+        node = ast_create(lexer, AST_INPUT);
+    } while (!lexer->eof && !lexer->error && node && !return_value);
+
+    if (node)
+    {
         ast_free(node);
     }
 
-    if (!node && lexer->stream)
+    if (lexer->error)
     {
         warnx("Syntax error");
         return_value = 2;

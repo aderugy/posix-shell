@@ -14,19 +14,23 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
 
     int saved_stdout = dup(fd2);
     char *file = node->file;
-
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
+
     int fd = open(file, O_RDONLY);
     if (fd == -1)
     {
         fprintf(stderr, "eval_redir: no such file: %s\n", node->file);
         return 1;
     }
+
     if (dup2(fd, fd2) == -1)
+    {
         errx(2, "redir_eval: dup: error");
+    }
+
     if (out)
     {
         int *origin_fd = *out;
@@ -34,6 +38,7 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
         *(origin_fd + 1) = fd2;
         *(origin_fd + 2) = saved_stdout;
     }
+
     return 0;
 }
 int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
@@ -65,8 +70,12 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
+
     if (dup2(fd, fd2) == -1)
+    {
         errx(2, "redir_eval: dup: error");
+    }
+
     if (out)
     {
         int *origin_fd = *out;
@@ -74,5 +83,6 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
         *(origin_fd + 1) = fd2;
         *(origin_fd + 2) = saved_stdout;
     }
+
     return 0;
 }

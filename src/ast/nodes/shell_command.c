@@ -7,6 +7,7 @@
 #include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /*
  * shell_command =
@@ -20,14 +21,13 @@
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 {
     logger("Parse SHELL_COMMAND\n");
-    struct ast_shell_cmd *node = calloc(1, sizeof(struct ast_shell_cmd));
+    struct ast_shell_cmd *node = xcalloc(1, sizeof(struct ast_shell_cmd));
 
     // CASE 0 '{' compound_list '}'
     struct token *tok = lexer_peek(lexer);
     if (reserved_word_check(tok) && strcmp(tok->value.c, "{") == 0)
     {
-        lexer_pop(lexer);
-        token_free(tok);
+        token_free(lexer_pop(lexer));
 
         struct ast_node *clist = ast_create(lexer, AST_CLIST);
         if (clist)
@@ -40,12 +40,9 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
                 return node;
             }
             token_free(tok);
-            perror("parse_shell_command: Unmatched left bracket");
         }
-        else
-        {
-            perror("parse_shell_command: no clist found after {");
-        }
+
+        lexer_error(lexer, "unmatched bracket");
         ast_free_shell_cmd(node);
         return NULL;
     }

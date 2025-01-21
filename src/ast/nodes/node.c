@@ -100,6 +100,10 @@ static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_fundec,
       (int (*)(void *, void **, void *))ast_eval_fundec,
       (void (*)(void *))ast_free_fundec, (void (*)(void *))ast_print_fundec },
+
+    { (void *(*)(struct lexer *))ast_parse_cword,
+      (int (*)(void *, void **, void *))ast_eval_cword,
+      (void (*)(void *))ast_free_cword, (void (*)(void *))ast_print_cword },
 };
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
 {
