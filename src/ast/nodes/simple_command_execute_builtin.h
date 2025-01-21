@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
-#include "ast_simple_cmd.h"
 #include "lexer/lexer.h"
 #include "node.h"
 #include "simple_command.h"

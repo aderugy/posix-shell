@@ -9,6 +9,8 @@ libutils_a_SOURCES =  \
   linked_list.h \
   xalloc.c \
   xalloc.h \
+  mergestr.c \
+  mergestr.h \
 	mypipe.c \
 	mypipe.h \
 	hash_map.h \

@@ -3,10 +3,10 @@
 
 #include <stdlib.h>
 
-#include "ast_simple_cmd.h"
 #include "command.h"
 #include "lexer/lexer.h"
 #include "node.h"
+#include "simple_command.h"
 #include "simple_command_execute_builtin.h"
 #include "utils/linked_list.h"
 
