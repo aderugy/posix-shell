@@ -22,6 +22,60 @@
             the token identifier NAME shall result.
             Otherwise, the token WORD shall be returned.'
  */
+
+static void skip_new_line(struct lexer *lexer)
+{
+    struct token *tok = NULL;
+    while ((tok = lexer_peek(lexer)) && tok->type == TOKEN_NEW_LINE)
+    {
+        token_free(lexer_pop(lexer));
+    }
+}
+
+static void check_word_done(struct lexer *lexer)
+{
+    struct token *tok = NULL;
+    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
+        || strcmp(tok->value.c, "done"))
+    {
+        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
+        // goto error;
+    }
+}
+
+static void check_newline_colon(struct lexer *lexer)
+{
+    struct token *tok = NULL;
+    if (!(tok = lexer_peek(lexer))
+        || !(tok->type == TOKEN_NEW_LINE || tok->type == TOKEN_SEMICOLON))
+    {
+        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
+        // goto error;
+    }
+}
+
+static void check_word_in(struct lexer *lexer)
+{
+    struct token *tok = NULL;
+    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
+        || strcmp(tok->value.c, "in"))
+    {
+        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
+        //      goto error;
+    }
+}
+
+static void check_word_do(struct lexer *lexer)
+{
+    struct token *tok = NULL;
+    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
+        || strcmp(tok->value.c, "do"))
+    {
+        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
+        // goto error;
+    }
+}
+
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");
@@ -39,8 +93,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     // Contains word
-    tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_WORD)
+    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD)
     {
         errx(2, "ast_for_node: Syntax error: Bad for loop variable");
         // goto error;
@@ -48,9 +101,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     ast->name = strdup(tok->value.c);
     token_free(lexer_pop(lexer));
 
-    tok = lexer_peek(lexer);
     // [ ; ]
-    if (tok && tok->type == TOKEN_SEMICOLON)
+    if ((tok = lexer_peek(lexer)) && tok->type == TOKEN_SEMICOLON)
     {
         token_free(lexer_pop(lexer));
         list_append(ast->items, strdup("$@"));
@@ -58,18 +110,11 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     else
     {
         // { \n }
-        while (tok && tok->type == TOKEN_NEW_LINE)
-        {
-            token_free(lexer_pop(lexer));
-            tok = lexer_peek(lexer);
-        }
+        skip_new_line(lexer);
 
         // 'in'
-        if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "in"))
-        {
-            errx(2, "ast_for_node: Syntax error: Bad for loop variable");
-            //      goto error;
-        }
+        check_word_in(lexer);
+
         token_free(lexer_pop(lexer));
 
         // { WORD }
@@ -79,43 +124,25 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
             token_free(lexer_pop(lexer));
         }
 
-        if (!tok
-            || !(tok->type == TOKEN_NEW_LINE || tok->type == TOKEN_SEMICOLON))
-        {
-            errx(2, "ast_for_node: Syntax error: Bad for loop variable");
-            // goto error;
-        }
+        check_newline_colon(lexer);
 
-        free(lexer_pop(lexer));
+        token_free(lexer_pop(lexer));
     }
 
     // { '\n' }
-    while ((tok = lexer_peek(lexer)) && tok->type == TOKEN_NEW_LINE)
-    {
-        free(lexer_pop(lexer));
-    }
+    skip_new_line(lexer);
 
     // 'do'
-    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "do"))
-    {
-        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
-        // goto error;
-    }
+    check_word_do(lexer);
     token_free(lexer_pop(lexer));
 
-    ast->body = ast_create(lexer, AST_CLIST);
-    if (!ast->body)
+    if (!(ast->body = ast_create(lexer, AST_CLIST)))
     {
         errx(2, "ast_for_node: Syntax error: Bad for loop variable");
         // goto error;
     }
 
-    tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "done"))
-    {
-        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
-        // goto error;
-    }
+    check_word_done(lexer);
     token_free(lexer_pop(lexer));
 
     logger("EXIT FOR (SUCCESS)\n");
