@@ -1,12 +1,12 @@
+#include "eval_ctx.h"
 #define _POSIX_C_SOURCE 200809L
-
-#include "prefix.h"
 
 #include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "node.h"
+#include "prefix.h"
 #include "redirection.h"
 #include "utils/logger.h"
 
@@ -50,7 +50,7 @@ int ast_eval_prefix(struct ast_prefix *node, void **out,
 {
     if (node->data)
     {
-        insert(ctx, node->data);
+        ctx_insert_value(ctx, node->data);
         return EXIT_SUCCESS;
     }
 

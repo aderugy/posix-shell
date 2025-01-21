@@ -111,7 +111,7 @@ char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name)
 // for example : in the function ast_eval_element
 // this aims at removing redundant code in evaluation
 // feel free to split it
-int insert(struct ast_eval_ctx *ctx, struct token *token)
+int ctx_insert_value(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct mbt_str *expanded = expand(ctx, token);
 
@@ -119,7 +119,7 @@ int insert(struct ast_eval_ctx *ctx, struct token *token)
     char *eq = strchr(data, '=');
     if (!eq)
     {
-        warnx("insert: no '=' in token");
+        warnx("ctx_insert_value: no '=' in token");
         return 1;
     }
 
