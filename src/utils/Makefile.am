@@ -11,19 +11,19 @@ libutils_a_SOURCES =  \
   xalloc.h \
   mergestr.c \
   mergestr.h \
-	mypipe.c \
-	mypipe.h \
-	hash_map.h \
-	hash_map.c \
-	naming.h \
-	naming.c \
-	stack.c \
-	stack.h \
-	err_utils.h \
-	my_itoa.h \
-	my_itoa.c \
-	my_strcat.h \
-	my_strcat.c
+  mypipe.c \
+  mypipe.h \
+  hash_map.h \
+  hash_map.c \
+  naming.h \
+  naming.c \
+  stack.c \
+  stack.h \
+  err_utils.h \
+  my_itoa.h \
+  my_itoa.c \
+  my_strcat.h \
+  my_strcat.c
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 

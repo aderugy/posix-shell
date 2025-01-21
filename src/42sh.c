@@ -24,9 +24,9 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
                     int nb_args)
 {
-    init_dollar(*ctx);
-    init_hashtag(nb_args, *ctx);
-    update_qm(*ctx, 0);
+    ctx_init_local_dollar(*ctx);
+    ctx_init_local_hashtag(nb_args, *ctx);
+    ctx_update_local_qm(*ctx, 0);
     register_commands();
 
     struct lexer *lexer = lexer_create(*stream);
@@ -55,7 +55,7 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
         warnx("Syntax error");
         return_value = 2;
     }
-    ast_eval_ctx_free(*ctx);
+    ctx_free(*ctx);
     lexer_free(lexer);
     unregister_commands();
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     int c;
     int opt_idx = 0;
     struct stream *stream = NULL;
-    struct ast_eval_ctx *ctx = ast_eval_ctx_init();
+    struct ast_eval_ctx *ctx = ctx_init();
     int nb_args = 0;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
-            nb_args = init_args(argc, argv, ctx);
+            nb_args = ctx_init_local_args(argc, argv, ctx);
         }
         else
         {

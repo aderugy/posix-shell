@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "ast/ast.h"
-#include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
@@ -14,8 +13,8 @@
 */
 struct ast_while_node *ast_parse_while(struct lexer *lexer)
 {
-    struct token *tok = lexer_peek(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "while") != 0)
+    struct token *token = lexer_peek(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "while") != 0)
     {
         return NULL;
     }
@@ -30,13 +29,13 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         goto error;
     }
 
-    tok = lexer_pop(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "do") != 0)
+    token = lexer_pop(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "do") != 0)
     {
         lexer_error(lexer, "expecting 'do'");
         goto error;
     }
-    token_free(tok);
+    token_free(token);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
@@ -45,19 +44,19 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         goto error;
     }
 
-    tok = lexer_pop(lexer);
-    if (!reserved_word_check(tok) || strcmp(tok->value.c, "done") != 0)
+    token = lexer_pop(lexer);
+    if (!(TOKEN_OK) || strcmp(token->value.c, "done") != 0)
     {
         lexer_error(lexer, "expecting 'done'");
         goto error;
     }
-    token_free(tok);
+    token_free(token);
 
     return ast;
 
 error:
     ast_free_while(ast);
-    token_free(tok);
+    token_free(token);
     return NULL;
 }
 

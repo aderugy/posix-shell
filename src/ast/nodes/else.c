@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expansion/expansion.h"
 #include "if.h"
 #include "lexer/lexer.h"
 #include "node.h"
@@ -24,7 +23,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
 
     logger("\tParsing ELSE_CLAUSE\n");
 
-    if (reserved_word_check(token) && strcmp(token->value.c, "else") == 0)
+    if (TOKEN_OK && strcmp(token->value.c, "else") == 0)
     {
         lexer_pop(lexer);
         token_free(token);
@@ -37,7 +36,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
         return node;
     }
 
-    if (reserved_word_check(token) && strcmp(token->value.c, "elif") == 0)
+    if (TOKEN_OK && strcmp(token->value.c, "elif") == 0)
     {
         lexer_pop(lexer);
         token_free(token);
@@ -47,7 +46,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (!reserved_word_check(token) || strcmp(token->value.c, "then") != 0)
+        if (!(TOKEN_OK) || strcmp(token->value.c, "then") != 0)
         {
             return NULL;
         }

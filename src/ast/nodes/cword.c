@@ -57,11 +57,9 @@ static int eval_arith(__attribute((unused)) const struct ast_cword *node,
 static int eval_variable(const struct ast_cword *node, void **out,
                          struct ast_eval_ctx *ctx)
 {
-    struct mbt_str *str = mbt_str_init(64);
-    mbt_str_pushcstr(str, node->data);
-
-    char *var = ctx_get_value(ctx, str);
-    mbt_str_free(str);
+    // should be freed by the hashmap
+    char *name = strdup(node->data);
+    char *var = ctx_get_variable(ctx, name);
 
     if (!var)
     {

@@ -140,7 +140,7 @@ int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
     struct linked_list_element *item = node->items->head;
     while (item)
     {
-        ast_eval_ctx_set_local_var(ctx, node->name, item->data);
+        ctx_set_local_variable(ctx, node->name, item->data);
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
         if (ctx->break_count > 0)

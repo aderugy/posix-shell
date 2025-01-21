@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ast/nodes/node.h"
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
@@ -26,13 +27,14 @@ static size_t hash(char *key)
     return hash_key;
 }
 
-static struct hash_map_elt *
-hash_map_elt_init(char *name, void *value enum hash_map_elt_type type)
+static struct hash_map_elt *hash_map_elt_init(char *name, void *value,
+                                              enum hash_map_elt_type type)
 {
     struct hash_map_elt *p = xcalloc(1, sizeof(struct hash_map_elt));
 
     p->key = name;
     p->value = value;
+    p->type = type;
     p->next = NULL;
 
     return p;
@@ -77,7 +79,7 @@ static bool hash_map_remove(struct hash_map *hash_map, char *key,
     {
         index %= hash_map->size;
     }
-    struct hash_map_elt *prev;
+    struct hash_map_elt *prev = NULL;
     struct hash_map_elt *p = hash_map->data[index];
     if (p && strcmp(p->key, key) == 0 && p->type == type)
     {
@@ -109,7 +111,7 @@ int hash_map_insert(struct hash_map *hash_map, char *name, void *value,
     }
 
     // Removes the element if it exists
-    hash_map_remove(name, type);
+    hash_map_remove(hash_map, name, type);
 
     // AND index with capacity - 1 to ensure index < capacity
     size_t index = hash(name);

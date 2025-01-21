@@ -23,29 +23,29 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     struct ast_fundec *node = calloc(1, sizeof(struct ast_fundec));
 
     // CASE the name of the function
-    struct tokenen *token = lexer_peek(lexer);
+    struct token *token = lexer_peek(lexer);
     if (TOKEN_OK && XDB_valid(token->value.c) && !(is_keyword(token->value.c)))
     {
         node->name = strdup(token->value.c);
         lexer_pop(lexer);
-        tokenen_free(token);
+        token_free(token);
 
         token = lexer_peek(lexer);
-        if (reserved_word_check(token) && strcmp(token->value.c, "(") == 0)
+        if (TOKEN_OK && strcmp(token->value.c, "(") == 0)
         {
             lexer_pop(lexer);
-            tokenen_free(token);
+            token_free(token);
             token = lexer_peek(lexer);
 
-            if (reserved_word_check(token) && strcmp(token->value.c, ")") == 0)
+            if (TOKEN_OK && strcmp(token->value.c, ")") == 0)
             {
                 lexer_pop(lexer);
-                tokenen_free(token);
+                token_free(token);
                 token = lexer_peek(lexer);
                 while (token && token->type == TOKEN_NEW_LINE)
                 {
                     lexer_pop(lexer);
-                    tokenen_free(token);
+                    token_free(token);
                     token = lexer_peek(lexer);
                 }
 
