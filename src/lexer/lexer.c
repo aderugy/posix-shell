@@ -108,6 +108,14 @@ void token_free(struct token *token)
 
         if (token->value.c)
         {
+            if (strcmp(token->value.c, ";") == 0)
+            {
+                logger("------------------------------\n");
+                logger("------------------------------\n");
+                logger("DISCARDING ;\n");
+                logger("------------------------------\n");
+                logger("------------------------------\n");
+            }
             free(token->value.c);
         }
 
@@ -229,7 +237,6 @@ static struct token *lex(struct lexer *lexer)
         goto error;
     }
 
-    logger("%s (%s)\n", shard->data, get_token_name(token->type));
     shard_free(shard);
     return token;
 

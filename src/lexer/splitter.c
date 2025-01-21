@@ -217,6 +217,15 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
     if (NOT_EMPTY(str))
     {
+        if (shard_is_operator(str))
+        {
+            return shard_init(str, false, SHARD_OPERATOR, SHARD_UNQUOTED);
+        }
+        if (shard_is_redir(str))
+        {
+            return shard_init(str, false, SHARD_REDIR, SHARD_UNQUOTED);
+        }
+
         return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
     }
 
@@ -335,8 +344,8 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
 
         if (!str->size)
         {
-                    mbt_str_pushc(str, '$');
-                    return shard_init(str, true, SHARD_WORD, type);
+            mbt_str_pushc(str, '$');
+            return shard_init(str, true, SHARD_WORD, type);
         }
 
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);

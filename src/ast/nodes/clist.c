@@ -18,38 +18,30 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
     logger("Parse CLIST\n");
     struct ast_clist *node = xcalloc(1, sizeof(struct ast_clist));
+    node->list = list_init();
 
     struct token *token;
     while ((token = lexer_peek(lexer))->type == TOKEN_NEW_LINE)
     {
-        lexer_pop(lexer);
-        token_free(token);
+        token_free(lexer_pop(lexer));
     }
 
     struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
     if (!and_or)
     {
-        free(node);
+        ast_free_clist(node);
         return NULL;
     }
-
-    node->list = list_init();
     list_append(node->list, and_or);
 
-    token = lexer_peek(lexer);
-    while (token
+    while ((token = lexer_peek(lexer))
            && (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON))
     {
-        lexer_pop(lexer);
-        token_free(token);
+        token_free(lexer_pop(lexer));
 
-        token = lexer_peek(lexer);
-        while (token && token->type == TOKEN_NEW_LINE)
+        while ((token = lexer_peek(lexer)) && token->type == TOKEN_NEW_LINE)
         {
-            lexer_pop(lexer);
-            token_free(token);
-
-            token = lexer_peek(lexer);
+            token_free(lexer_pop(lexer));
         }
 
         struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
@@ -59,14 +51,17 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         }
 
         list_append(node->list, and_or);
+    }
 
-        token = lexer_peek(lexer);
-        if (!token)
-        {
-            lexer_error(lexer, "unexpected eof");
-            ast_free_clist(node);
-            return NULL;
-        }
+    token = lexer_peek(lexer);
+    if (token && token->type == TOKEN_SEMICOLON)
+    {
+        token_free(lexer_pop(lexer));
+    }
+
+    while ((token = lexer_peek(lexer)) && token->type == TOKEN_NEW_LINE)
+    {
+        token_free(lexer_pop(lexer));
     }
 
     return node;
@@ -84,6 +79,7 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
     {
         struct ast_node *children = list_get(node->list, i);
         ast_eval(children, NULL, ctx);
+
         if (ctx->break_count > 0 || ctx->continue_count > 0)
         {
             return EXIT_SUCCESS;

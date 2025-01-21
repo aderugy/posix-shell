@@ -45,6 +45,12 @@ struct ast_list *ast_parse_list(struct lexer *lexer)
         }
     }
 
+    token = lexer_peek(lexer);
+    if (token && token->type == TOKEN_SEMICOLON)
+    {
+        token_free(lexer_pop(lexer));
+    }
+
     logger("Exit LIST (SUCCESS)\n");
     return node;
 error:
