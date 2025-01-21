@@ -56,7 +56,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     struct token *parenthese = lexer_peek_two(lexer);
     if (parenthese && parenthese->type == TOKEN_WORD
-        && strcmp(parenthese->value.c, ")") == 0)
+        && strcmp(parenthese->value.c, "(") == 0)
     {
         goto error;
     }
