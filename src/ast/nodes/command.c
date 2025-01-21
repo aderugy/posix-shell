@@ -57,7 +57,8 @@ void ast_free_cmd(struct ast_cmd *node)
     free(node);
 }
 
-int ast_eval_cmd(struct ast_cmd *node, void **out, struct ast_eval_ctx *ctx)
+int ast_eval_cmd(struct ast_cmd *node, struct linked_list *out,
+                 struct ast_eval_ctx *ctx)
 {
     return ast_eval(node->cmd, out, ctx);
 }

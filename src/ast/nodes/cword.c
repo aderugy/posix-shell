@@ -13,7 +13,7 @@
 #include "utils/mergestr.h"
 #include "utils/xalloc.h"
 
-static int eval_word(const struct ast_cword *node, void **out,
+static int eval_word(const struct ast_cword *node, struct linked_list *out,
                      struct ast_eval_ctx *ctx)
 {
     if (!node->next)

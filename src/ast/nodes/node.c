@@ -126,7 +126,7 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
     return root;
 }
 
-int ast_eval(struct ast_node *node, void **out,
+int ast_eval(struct ast_node *node, struct eval_output *out,
              __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     if (!node)

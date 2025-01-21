@@ -60,7 +60,8 @@ error:
     return NULL;
 }
 
-int ast_eval_list(struct ast_list *node, __attribute((unused)) void **out,
+int ast_eval_list(struct ast_list *node,
+                  __attribute((unused)) struct linked_list *out,
                   struct ast_eval_ctx *ctx)
 {
     int return_val = 0;

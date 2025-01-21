@@ -41,7 +41,7 @@ struct ast_element *ast_parse_element(struct lexer *lexer)
     return NULL;
 }
 
-int ast_eval_element(struct ast_element *node, void **out,
+int ast_eval_element(struct ast_element *node, struct linked_list *out,
                      struct ast_eval_ctx *ctx)
 {
     if (node->type == AST_ELEMENT_WORD && !ctx->check_redir)

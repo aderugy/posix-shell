@@ -6,6 +6,7 @@
 #include "ast/ast.h"
 #include "lexer/token.h"
 #include "utils/err_utils.h"
+#include "utils/linked_list.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
 
@@ -65,7 +66,7 @@ error:
     return NULL;
 }
 
-int ast_eval_and_or(struct ast_and_or_node *node, void **out,
+int ast_eval_and_or(struct ast_and_or_node *node, struct linked_list *out,
                     struct ast_eval_ctx *ctx)
 {
     if (!node)

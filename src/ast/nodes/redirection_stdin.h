@@ -24,9 +24,11 @@ struct redirection
     int (*redir)(struct ast_redir *, void **, struct ast_eval_ctx *);
     char *token;
 };
-int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_file_stdin(struct ast_redir *node,
+                     __attribute((unused)) struct linked_list *out,
                      __attribute((unused)) struct ast_eval_ctx *ctx);
-int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
+int redir_stdin_fd(struct ast_redir *redir,
+                   __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx);
 
 #endif // !REDIRECTION_STDIN_H

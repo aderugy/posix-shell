@@ -11,7 +11,7 @@ struct ast_while_node
 };
 
 struct ast_while_node *ast_parse_while(struct lexer *lexer);
-int ast_eval_while(struct ast_while_node *node, void **cmd,
+int ast_eval_while(struct ast_while_node *node, struct linked_list *cmd,
                    __attribute((unused)) struct ast_eval_ctx *ctx);
 void ast_free_while(struct ast_while_node *node);
 void ast_print_while(struct ast_while_node *node);

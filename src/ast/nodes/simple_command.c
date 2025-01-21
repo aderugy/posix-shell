@@ -86,7 +86,7 @@ error:
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
-                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
 {
     if (!cmd->cmd)

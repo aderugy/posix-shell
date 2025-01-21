@@ -45,7 +45,8 @@ error:
     return NULL;
 }
 
-int ast_eval_input(struct ast_input *node, void **out, struct ast_eval_ctx *ctx)
+int ast_eval_input(struct ast_input *node, struct linked_list *out,
+                   struct ast_eval_ctx *ctx)
 {
     if (node->list == NULL)
     {

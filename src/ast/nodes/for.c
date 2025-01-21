@@ -126,7 +126,8 @@ error:
     return NULL;
 }
 
-int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
+int ast_eval_for(struct ast_for_node *node,
+                 __attribute((unused)) struct linked_list *out,
                  struct ast_eval_ctx *ctx)
 {
     /*

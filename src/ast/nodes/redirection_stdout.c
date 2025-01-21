@@ -4,7 +4,7 @@
 
 static const char *DIGITS_OUT = "0123456789";
 int redir_stdout_file_a(struct ast_redir *node,
-                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct linked_list *out,
                         __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
@@ -39,7 +39,8 @@ int redir_stdout_file_a(struct ast_redir *node,
     return 0;
 }
 
-int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_stdout_fd(struct ast_redir *node,
+                    __attribute((unused)) struct linked_list *out,
                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;
@@ -80,7 +81,7 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
     return 0;
 }
 int redir_stdout_file_notrunc(struct ast_redir *node,
-                              __attribute((unused)) void **out,
+                              __attribute((unused)) struct linked_list *out,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
@@ -114,7 +115,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     }
     return 0;
 }
-int redir_stdout_file(struct ast_redir *node, void **out,
+int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;

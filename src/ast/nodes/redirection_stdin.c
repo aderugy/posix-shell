@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 static const char *DIGITS = "0123456789";
-int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_file_stdin(struct ast_redir *node,
+                     __attribute((unused)) struct linked_list *out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
@@ -41,7 +42,8 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
 
     return 0;
 }
-int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_stdin_fd(struct ast_redir *node,
+                   __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;

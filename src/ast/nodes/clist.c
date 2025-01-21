@@ -67,7 +67,8 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
+int ast_eval_clist(struct ast_clist *node,
+                   __attribute((unused)) struct linked_list *out,
                    struct ast_eval_ctx *ctx)
 {
     if (!node->list->size)

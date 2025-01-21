@@ -64,7 +64,7 @@ error:
     return NULL;
 }
 
-int ast_eval_until(struct ast_until_node *node, void **out,
+int ast_eval_until(struct ast_until_node *node, struct linked_list *out,
                    struct ast_eval_ctx *ctx)
 {
     int ret_val;
