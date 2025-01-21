@@ -37,13 +37,14 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     list_append(node->list, and_or);
 
     token = lexer_peek(lexer);
-    while (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON)
+    while (token
+           && (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON))
     {
         lexer_pop(lexer);
         token_free(token);
 
         token = lexer_peek(lexer);
-        while (token->type == TOKEN_NEW_LINE)
+        while (token && token->type == TOKEN_NEW_LINE)
         {
             lexer_pop(lexer);
             token_free(token);
@@ -62,7 +63,9 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         token = lexer_peek(lexer);
         if (!token)
         {
-            errx(2, "clist : not token\n");
+            lexer_error(lexer, "unexpected eof");
+            ast_free_clist(node);
+            return NULL;
         }
     }
 

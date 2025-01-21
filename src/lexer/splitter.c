@@ -322,6 +322,12 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
             if (!is_valid_identifier(str))
             {
                 mbt_str_pop(str);
+                if (!str->size)
+                {
+                    mbt_str_pushc(str, '$');
+                    return shard_init(str, true, SHARD_WORD, type);
+                }
+
                 return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
             }
 

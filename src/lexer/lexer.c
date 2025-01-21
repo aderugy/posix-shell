@@ -176,7 +176,8 @@ static struct token *lex(struct lexer *lexer)
     switch (shard->type)
     {
     case SHARD_REDIR:
-        token->type = token_get_keyword_type(shard->data + (isdigit(*shard->data) ? 1 : 0));
+        token->type = token_get_keyword_type(shard->data
+                                             + (isdigit(*shard->data) ? 1 : 0));
         break;
 
     case SHARD_WORD:
