@@ -324,14 +324,19 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
                 mbt_str_pop(str);
                 if (!str->size)
                 {
-                    mbt_str_pushc(str, '$');
-                    return shard_init(str, true, SHARD_WORD, type);
+                    break;
                 }
 
                 return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
             }
 
             stream_read(ctx->stream);
+        }
+
+        if (!str->size)
+        {
+                    mbt_str_pushc(str, '$');
+                    return shard_init(str, true, SHARD_WORD, type);
         }
 
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
