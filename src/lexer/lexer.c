@@ -108,14 +108,6 @@ void token_free(struct token *token)
 
         if (token->value.c)
         {
-            if (strcmp(token->value.c, ";") == 0)
-            {
-                logger("------------------------------\n");
-                logger("------------------------------\n");
-                logger("DISCARDING ;\n");
-                logger("------------------------------\n");
-                logger("------------------------------\n");
-            }
             free(token->value.c);
         }
 
@@ -195,11 +187,13 @@ static struct token *lex(struct lexer *lexer, bool nullable)
             token_free(token);
             shard_free(shard);
 
-                if (nullable)
-                {
-                    return NULL;
-                }
-            return lex(lexer, true);
+            shard = splitter_peek(lexer->ctx);
+            if (nullable && (!shard || !shard->can_chain))
+            {
+                return NULL;
+            }
+
+            return lex(lexer, nullable);
         }
         if (shard->quote_type == SHARD_UNQUOTED && !token->next)
         {
@@ -234,11 +228,12 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         token_free(token);
         shard_free(shard);
 
-        if (nullable)
+        shard = splitter_peek(lexer->ctx);
+        if (nullable && (!shard || !shard->can_chain))
         {
             return NULL;
         }
-        return lex(lexer, true);
+        return lex(lexer, nullable);
     }
 
     token->value.c = strdup(shard->data);
@@ -275,13 +270,13 @@ static struct token *lexer_chain(struct lexer *lexer)
 
 struct token *lexer_peek(struct lexer *lexer)
 {
-    if (lexer->error || lexer->eof)
+    if (lexer->error)
     {
         return NULL;
     }
 
     struct token *token = stack_peek(lexer->tokens);
-    if (!token)
+    if (!token && !lexer->eof)
     {
         token = lex(lexer, false);
 
@@ -296,13 +291,13 @@ struct token *lexer_peek(struct lexer *lexer)
 
 struct token *lexer_peek_two(struct lexer *lexer)
 {
-    if (lexer->error || lexer->eof)
+    if (lexer->error)
     {
         return NULL;
     }
 
     struct token *token1 = stack_peek(lexer->tokens);
-    if (!token1)
+    if (!token1 && !lexer->eof)
     {
         token1 = lex(lexer, false);
         if (token1)
@@ -315,7 +310,7 @@ struct token *lexer_peek_two(struct lexer *lexer)
     {
         return lexer->tokens->head->next->data;
     }
-    else
+    else if (!lexer->eof)
     {
         struct token *token2 = lex(lexer, false);
         if (token2)
@@ -324,6 +319,8 @@ struct token *lexer_peek_two(struct lexer *lexer)
         }
         return token2;
     }
+
+    return NULL;
 }
 
 struct token *lexer_pop(struct lexer *lexer)

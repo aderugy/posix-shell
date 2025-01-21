@@ -27,8 +27,9 @@
     static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", NULL }
 
 #define DEFINE_REDIRS                                                          \
-    static const char *REDIRS[] = { ">>", ">&", "<&", "<>", ">|",              \
-                                    "|>", ">",  "<",  NULL }
+    static const char *REDIRS[] = {                                            \
+        ">>", ">&", "<&", "<>", ">|", ">", "<", NULL                           \
+    }
 
 #define DEFINE_VARIABLES                                                       \
     static const char *VARIABLES[] = { "@", "*", "#", "?", "-", "$", "!", NULL }
