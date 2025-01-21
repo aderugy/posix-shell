@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "node.h"
+#include "simple_command.h"
 #include "utils/logger.h"
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)

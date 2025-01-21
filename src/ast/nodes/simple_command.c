@@ -15,6 +15,8 @@
 #include "builtins/run_command.h"
 #include "lexer/token.h"
 #include "node.h"
+#include "simple_command_execute_builtin.h"
+#include "simple_command_execute_non_builtin.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"

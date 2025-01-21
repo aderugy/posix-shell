@@ -238,18 +238,6 @@ struct shard *splitter_pop(struct splitter_ctx *ctx)
     return shard;
 }
 
-enum shar_quote_type splitter_ctx_get_active_quote(struct splitter_ctx *ctx)
-{
-    if (ctx)
-    {
-        return ctx->value;
-    }
-    else
-    {
-        logger("splitter_ctx_get_active_quote: ctx is null");
-    }
-    return NULL;
-}
 // @TIDY
 static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
                                                struct mbt_str *str)

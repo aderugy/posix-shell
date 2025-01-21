@@ -17,6 +17,9 @@
 #define IS_REDIR_PARTIAL 1
 #define IS_REDIR_MATCH 2
 
+#define ERR_TRUE 1
+#define NO_ERR 0
+
 #define NOT_EMPTY(str) str->size > 0
 #define DELIMITER(str) shard_init(str, false, SHARD_DELIMITER, SHARD_UNQUOTED);
 
