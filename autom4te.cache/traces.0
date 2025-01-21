@@ -1467,10 +1467,12 @@ m4trace:configure.ac:17: -1- m4_pattern_allow([^am__fastdepCC_TRUE$])
 m4trace:configure.ac:17: -1- m4_pattern_allow([^am__fastdepCC_FALSE$])
 m4trace:configure.ac:17: -1- _AM_SUBST_NOTMAKE([am__fastdepCC_TRUE])
 m4trace:configure.ac:17: -1- _AM_SUBST_NOTMAKE([am__fastdepCC_FALSE])
-m4trace:configure.ac:20: -1- AX_COMPILER_FLAGS([], [], [], [-std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 -fsanitize=address])
+m4trace:configure.ac:20: -1- AX_COMPILER_FLAGS([], [], [], [-std=c99 -Werror -Wall -Wextra -Wvla -pedantic \
+                    -g -O0 -fsanitize=address ])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_COMPILER_FLAGS_CFLAGS])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_COMPILER_FLAGS_LDFLAGS])
-m4trace:configure.ac:20: -1- AX_COMPILER_FLAGS_CFLAGS([], [$ax_compiler_flags_is_release], [-std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 -fsanitize=address], [   ])
+m4trace:configure.ac:20: -1- AX_COMPILER_FLAGS_CFLAGS([], [$ax_compiler_flags_is_release], [-std=c99 -Werror -Wall -Wextra -Wvla -pedantic \
+                    -g -O0 -fsanitize=address ], [   ])
 m4trace:configure.ac:20: -1- m4_pattern_allow([^SED$])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_APPEND_COMPILE_FLAGS])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_APPEND_FLAG])
@@ -1487,7 +1489,8 @@ m4trace:configure.ac:20: -1- AX_CHECK_COMPILE_FLAG([-Wno-suggest-attribute=forma
     ])
 m4trace:configure.ac:20: -1- AX_APPEND_COMPILE_FLAGS([ dnl
         -fno-strict-aliasing dnl
-        -std=c99 -Werror -Wall -Wextra -Wvla -pedantic -g -O0 -fsanitize=address dnl
+        -std=c99 -Werror -Wall -Wextra -Wvla -pedantic \
+                    -g -O0 -fsanitize=address  dnl
     ], [WARN_CFLAGS], [$ax_compiler_flags_test])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_CHECK_COMPILE_FLAG])
 m4trace:configure.ac:20: -1- AX_REQUIRE_DEFINED([AX_APPEND_FLAG])
@@ -1656,14 +1659,14 @@ m4trace:configure.ac:20: -1- AX_APPEND_FLAG([ dnl
             --warn-error dnl
         ], [WARN_SCANNERFLAGS])
 m4trace:configure.ac:20: -1- m4_pattern_allow([^WARN_SCANNERFLAGS$])
-m4trace:configure.ac:34: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:34: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:34: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
-m4trace:configure.ac:34: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
-m4trace:configure.ac:34: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
-m4trace:configure.ac:34: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
-m4trace:configure.ac:34: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
-m4trace:configure.ac:34: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
-m4trace:configure.ac:34: -1- AM_RUN_LOG([cd "$am_dirpart" \
+m4trace:configure.ac:35: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:35: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:35: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
+m4trace:configure.ac:35: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
+m4trace:configure.ac:35: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
+m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
+m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
+m4trace:configure.ac:35: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:35: -1- AM_RUN_LOG([cd "$am_dirpart" \
       && sed -e '/# am--include-marker/d' "$am_filepart" \
         | $MAKE -f - am--depfiles])

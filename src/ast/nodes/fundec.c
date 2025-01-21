@@ -87,6 +87,6 @@ void ast_free_fundec(struct ast_fundec *f)
 }
 void ast_print_fundec(struct ast_fundec *f)
 {
-    printf("function name : %s", f->name);
+    printf("function name : %s\n", f->name);
     ast_print(f->ast_node);
 }

@@ -75,9 +75,12 @@ void ast_free_cmd(struct ast_cmd *node)
 {
     ast_free(node->cmd);
 
-    if (node->type == SHELL_CMD && node->redirs)
+    if (node->type == SHELL_CMD || node->type == FUNDEC)
     {
-        list_free(node->redirs, (void (*)(void *))ast_free);
+        if (node->redirs)
+        {
+            list_free(node->redirs, (void (*)(void *))ast_free);
+        }
     }
     free(node);
 }
