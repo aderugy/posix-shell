@@ -9,6 +9,7 @@
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 */
@@ -22,11 +23,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     lexer_pop(lexer);
     token_free(tok);
 
-    struct ast_if_node *ast = calloc(1, sizeof(struct ast_if_node));
-    if (!ast)
-    {
-        errx(2, "out of memory");
-    }
+    struct ast_if_node *ast = xcalloc(1, sizeof(struct ast_if_node));
 
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)

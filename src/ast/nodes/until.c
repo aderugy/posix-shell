@@ -8,6 +8,7 @@
 #include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_until = 'until' compound_list 'do' compound_list 'done'
 */
@@ -21,7 +22,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     lexer_pop(lexer);
     free(tok);
 
-    struct ast_until_node *ast = calloc(1, sizeof(struct ast_until_node));
+    struct ast_until_node *ast = xcalloc(1, sizeof(struct ast_until_node));
     if (!ast)
     {
         errx(2, "out of memory");
@@ -36,6 +37,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     tok = lexer_pop(lexer);
     if (!reserved_word_check(tok) || strcmp(tok->value.c, "do") != 0)
     {
+        token_free(tok);
         errx(2, "until: missing do token");
     }
     free(tok);

@@ -9,6 +9,7 @@
 #include "prefix.h"
 #include "redirection.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
 {
@@ -18,11 +19,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
         return NULL;
     }
 
-    struct ast_prefix *node = calloc(1, sizeof(struct ast_prefix));
-    if (!node)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_prefix *node = xcalloc(1, sizeof(struct ast_prefix));
 
     if (token->type == TOKEN_AWORD)
     {

@@ -8,6 +8,7 @@
 
 #include "builtins/run_command.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
                                    struct ast_eval_ctx *ctx)
@@ -16,8 +17,8 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     logger("execute bultin\n");
     int element_count = cmd->args->size + 1;
 
-    int *fd_ptr =
-        calloc(3 * element_count, sizeof(int)); // alloc in case of redirections
+    int *fd_ptr = xcalloc(3 * element_count,
+                          sizeof(int)); // alloc in case of redirections
 
     int *fd_pointer = fd_ptr;
 

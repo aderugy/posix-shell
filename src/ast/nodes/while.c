@@ -8,6 +8,7 @@
 #include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_while = 'while' compound_list 'do' compound_list 'done'
 */
@@ -21,11 +22,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     lexer_pop(lexer);
     token_free(tok);
 
-    struct ast_while_node *ast = calloc(1, sizeof(struct ast_while_node));
-    if (!ast)
-    {
-        errx(2, "out of memory");
-    }
+    struct ast_while_node *ast = xcalloc(1, sizeof(struct ast_while_node));
 
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)

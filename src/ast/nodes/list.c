@@ -8,10 +8,11 @@
 #include "utils/err_utils.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_list *ast_parse_list(struct lexer *lexer)
 {
-    struct ast_list *node = calloc(1, sizeof(struct ast_list));
+    struct ast_list *node = xcalloc(1, sizeof(struct ast_list));
     CHECK_MEMORY_ERROR(node);
 
     logger("PARSE LIST\n");

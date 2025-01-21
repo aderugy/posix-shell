@@ -7,6 +7,7 @@
 #include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /*
  * shell_command =
@@ -20,7 +21,7 @@
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 {
     logger("Parse SHELL_COMMAND\n");
-    struct ast_shell_cmd *node = calloc(1, sizeof(struct ast_shell_cmd));
+    struct ast_shell_cmd *node = xcalloc(1, sizeof(struct ast_shell_cmd));
 
     // CASE 0 '{' compound_list '}'
     struct token *tok = lexer_peek(lexer);

@@ -8,6 +8,7 @@
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /* compound_list =
  *  {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} ;
@@ -16,11 +17,7 @@
 struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
     logger("Parse CLIST\n");
-    struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
-    if (!node)
-    {
-        errx(2, "out of memory");
-    }
+    struct ast_clist *node = xcalloc(1, sizeof(struct ast_clist));
 
     struct token *token;
     while ((token = lexer_peek(lexer))->type == TOKEN_NEW_LINE)
@@ -84,7 +81,8 @@ int ast_eval_clist(struct ast_clist *node, __attribute((unused)) void **out,
     {
         struct ast_node *children = list_get(node->list, i);
         ast_eval(children, NULL, ctx);
-        if (ctx->break_count > 0 || ctx->continue_count > 0) {
+        if (ctx->break_count > 0 || ctx->continue_count > 0)
+        {
             return EXIT_SUCCESS;
         }
     }

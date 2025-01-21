@@ -7,6 +7,7 @@
 #include "lexer/token.h"
 #include "utils/err_utils.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {

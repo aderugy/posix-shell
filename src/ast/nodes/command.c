@@ -7,16 +7,12 @@
 
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
     logger("Parse COMMAND\n");
-    struct ast_cmd *node = calloc(1, sizeof(struct ast_cmd));
-    if (!node)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
-
+    struct ast_cmd *node = xcalloc(1, sizeof(struct ast_cmd));
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (shell_cmd)
     {

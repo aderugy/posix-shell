@@ -4,10 +4,11 @@
 #include <stdlib.h>
 
 #include "err_utils.h"
+#include "xalloc.h"
 
 struct stack *stack_init(void (*free_fn)(void *))
 {
-    struct stack *stack = calloc(1, sizeof(struct stack));
+    struct stack *stack = xcalloc(1, sizeof(struct stack));
     CHECK_MEMORY_ERROR(stack);
 
     stack->free_fn = free_fn;
@@ -16,7 +17,7 @@ struct stack *stack_init(void (*free_fn)(void *))
 
 void stack_push(struct stack *stack, void *data)
 {
-    struct stack_elt *elt = calloc(1, sizeof(struct stack_elt));
+    struct stack_elt *elt = xcalloc(1, sizeof(struct stack_elt));
     CHECK_MEMORY_ERROR(elt);
 
     elt->data = data;

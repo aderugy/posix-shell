@@ -12,6 +12,7 @@
 #include "builtins.h"
 #include "commands.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 #define MAX_PATH 4096
 
@@ -48,7 +49,7 @@ char *get_current_path(void)
 static char *my_strcat(char *src, char *dest)
 {
     size_t total_len = strlen(src) + strlen(dest);
-    char *result = malloc(total_len + 1);
+    char *result = xcalloc(1, total_len + 1);
     size_t i = 0;
     size_t j = 0;
     while (dest[j] != 0)

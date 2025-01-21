@@ -10,6 +10,7 @@
 #include "node.h"
 #include "utils/err_utils.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
               {'\n'} 'do' compound_list 'done' ;
@@ -25,7 +26,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");
 
-    struct ast_for_node *ast = calloc(1, sizeof(struct ast_for_node));
+    struct ast_for_node *ast = xcalloc(1, sizeof(struct ast_for_node));
     CHECK_MEMORY_ERROR(ast);
     ast->items = list_init();
 

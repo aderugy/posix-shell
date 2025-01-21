@@ -14,6 +14,7 @@
 #include "redirection_stdin.h"
 #include "redirection_stdout.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /*
  * redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
@@ -73,11 +74,7 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
         return NULL;
     }
 
-    struct ast_redir *redir = calloc(1, sizeof(struct ast_redir));
-    if (!redir)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_redir *redir = xcalloc(1, sizeof(struct ast_redir));
 
     logger("PARSE REDIR\n");
 

@@ -13,6 +13,7 @@
 #include "utils/err_utils.h"
 #include "utils/logger.h"
 #include "utils/mypipe.h"
+#include "utils/xalloc.h"
 
 /*
  * pipeline = ['!'] command { '|' {'\n'} command } ;
@@ -20,7 +21,7 @@
 
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 {
-    struct ast_pipeline *node = calloc(1, sizeof(struct ast_pipeline));
+    struct ast_pipeline *node = xcalloc(1, sizeof(struct ast_pipeline));
     CHECK_MEMORY_ERROR(node);
     node->commands = list_init();
 
@@ -94,7 +95,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not == 1)
+    if (node->not== 1)
     {
         result = !result;
     }

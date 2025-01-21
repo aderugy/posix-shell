@@ -9,10 +9,11 @@
 #include "utils/err_utils.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
-    struct ast_input *input = calloc(1, sizeof(struct ast_input));
+    struct ast_input *input = xcalloc(1, sizeof(struct ast_input));
     CHECK_MEMORY_ERROR(input);
 
     logger("PARSE INPUT\n");

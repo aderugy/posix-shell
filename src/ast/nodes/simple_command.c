@@ -16,6 +16,7 @@
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
                             "done", "while", "until", "{",  "}",    NULL };
@@ -34,11 +35,7 @@ bool is_keyword(char *word)
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
-    struct ast_simple_cmd *cmd = calloc(1, sizeof(struct ast_simple_cmd));
-    if (!cmd)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_simple_cmd *cmd = xcalloc(1, sizeof(struct ast_simple_cmd));
 
     struct token *token = NULL;
     cmd->prefix = ast_create(lexer, AST_PREFIX);
@@ -98,7 +95,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
     int argc = cmd->args->size + 1;
-    char **argv = calloc(argc + 1, sizeof(char *));
+    char **argv = xcalloc(argc + 1, sizeof(char *));
 
     argv[0] = cmd->cmd;
 

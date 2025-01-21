@@ -5,13 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils/xalloc.h"
+
 static struct runnables_list *commands = NULL;
 
 int last_status = 0;
 
 static int init_commands(void)
 {
-    commands = calloc(1, sizeof(struct runnables_list));
+    commands = xcalloc(1, sizeof(struct runnables_list));
 
     if (!commands)
     {
@@ -19,7 +21,7 @@ static int init_commands(void)
     }
 
     commands->capacity = 16;
-    commands->list = calloc(16, sizeof(struct runnable *));
+    commands->list = xcalloc(16, sizeof(struct runnable *));
 
     if (!commands->list)
     {
@@ -83,11 +85,7 @@ int add_command(const char *name,
         return -1;
     }
 
-    struct runnable *cmd = calloc(1, sizeof(struct runnable));
-    if (!cmd)
-    {
-        return -1;
-    }
+    struct runnable *cmd = xcalloc(1, sizeof(struct runnable));
     cmd->name = name;
     cmd->command = command;
 
@@ -143,8 +141,7 @@ int del_command(const char *name)
     return 0;
 }
 
-int run_command(int argc, char **argv,
-                struct ast_eval_ctx *ast_eval_ctx)
+int run_command(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
 {
     struct runnable *cmd;
     if (argc == 0 || !argv || (cmd = get_command(argv[0], NULL)) == NULL)
