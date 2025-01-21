@@ -128,12 +128,10 @@ int ctx_insert_value(struct ast_eval_ctx *ctx, struct token *token)
 
     // Basically the value after '='
     // this will be freed by the hashmap
-    struct mbt_str *value = mbt_str_init(32);
-    mbt_str_pushcstr(value, ++eq);
+
+    int return_value = hash_map_insert(ctx->value, name, ++eq);
+
     mbt_str_free(expanded);
-
-    int return_value = hash_map_insert(ctx->value, name, (void *)value);
-
     free(name);
 
     return return_value;
@@ -145,8 +143,5 @@ int ctx_insert_value(struct ast_eval_ctx *ctx, struct token *token)
 void ast_eval_ctx_set_local_var(struct ast_eval_ctx *ctx, char *name,
                                 char *value)
 {
-    struct mbt_str *str = mbt_str_init(strlen(value) + 1);
-    mbt_str_pushcstr(str, value);
-
-    hash_map_insert(ctx->value, name, str);
+    hash_map_insert(ctx->value, name, value);
 }
