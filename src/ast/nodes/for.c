@@ -147,7 +147,8 @@ int ast_eval_for(struct ast_for_node *node,
             return AST_EVAL_ERROR;
         }
 
-        ast_eval_ctx_set_local_var(ctx, node->name, value);
+        ctx_set_local_variable(ctx, node->name, value);
+
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
         free(value);

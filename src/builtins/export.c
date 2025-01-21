@@ -23,9 +23,7 @@ int export_builtin(int argc, char **argv,
     char *word = NULL;
     if (!equal_sign)
     {
-        struct mbt_str *n = mbt_str_init(8);
-        mbt_str_pushcstr(n, name);
-        word = ctx_get_value(ast_eval_ctx, n);
+        word = ctx_get_variable(ast_eval_ctx, name);
     }
     else
     {

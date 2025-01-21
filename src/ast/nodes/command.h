@@ -9,7 +9,8 @@
 enum command_type
 {
     SHELL_CMD,
-    SIMPLE_CMD
+    SIMPLE_CMD,
+    FUNDEC,
 };
 
 struct ast_cmd

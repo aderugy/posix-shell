@@ -75,7 +75,7 @@ int ast_eval_prefix(struct ast_prefix *node, void **out,
             return AST_EVAL_ERROR;
         }
 
-        ast_eval_ctx_set_local_var(ctx, node->name, value);
+        ctx_set_local_variable(ctx, node->name, value);
         free(value);
         return AST_EVAL_SUCCESS;
     }

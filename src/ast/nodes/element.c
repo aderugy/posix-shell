@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expansion/expansion.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"

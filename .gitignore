@@ -78,3 +78,4 @@ vgcore*
 *.gcno
 coverage*
 *.gcda
+*.swo

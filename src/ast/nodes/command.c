@@ -10,10 +10,28 @@
 #include "utils/logger.h"
 #include "utils/xalloc.h"
 
+/*
+    command =
+            | simple_command
+            | simple_command { redirection }
+            | fundec { redirection }
+            ;
+*/
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
     logger("Parse COMMAND\n");
+
     struct ast_cmd *node = xcalloc(1, sizeof(struct ast_cmd));
+
+    struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
+    if (simple_cmd)
+    {
+        node->type = SIMPLE_CMD;
+        node->cmd = simple_cmd;
+        logger("Exit COMMAND (SUCCESS)\n");
+        return node;
+    }
+
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (shell_cmd)
     {
@@ -29,16 +47,22 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
         logger("Exit COMMAND (SUCCESS)\n");
         return node;
     }
-    else
+
+    // @Remark : redundant code, could be merged
+    struct ast_node *fundec = ast_create(lexer, AST_FUNDEC);
+    if (fundec)
     {
-        struct ast_node *simple_cmd = ast_create(lexer, AST_SIMPLE_COMMAND);
-        if (simple_cmd)
+        node->redirs = list_init();
+        struct ast_node *redir;
+        while ((redir = ast_create(lexer, AST_REDIRECTION)))
         {
-            node->type = SIMPLE_CMD;
-            node->cmd = simple_cmd;
-            logger("Exit COMMAND (SUCCESS)\n");
-            return node;
+            list_append(node->redirs, redir);
         }
+
+        node->type = FUNDEC;
+        node->cmd = fundec;
+        logger("Exit COMMAND (SUCCESS)\n");
+        return node;
     }
 
     logger("Exit COMMAND (ERROR)\n");
@@ -50,9 +74,12 @@ void ast_free_cmd(struct ast_cmd *node)
 {
     ast_free(node->cmd);
 
-    if (node->type == SHELL_CMD && node->redirs)
+    if (node->type == SHELL_CMD || node->type == FUNDEC)
     {
-        list_free(node->redirs, (void (*)(void *))ast_free);
+        if (node->redirs)
+        {
+            list_free(node->redirs, (void (*)(void *))ast_free);
+        }
     }
     free(node);
 }

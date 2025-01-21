@@ -12,13 +12,14 @@ struct ast_eval_ctx
     long continue_count;
 };
 
-struct ast_eval_ctx *ast_eval_ctx_init(void);
-void ast_eval_ctx_free(struct ast_eval_ctx *ctx);
+struct ast_eval_ctx *ctx_init(void);
+void ctx_free(struct ast_eval_ctx *ctx);
 
-int ctx_insert_value(struct ast_eval_ctx *ctx, struct token *token);
-char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name);
+struct ast_node *ctx_get_function(struct ast_eval_ctx *ctx, char *name);
+char *ctx_get_variable(struct ast_eval_ctx *ctx, char *name);
 
-void ast_eval_ctx_set_local_var(struct ast_eval_ctx *ctx, char *name,
-                                char *value);
+int ctx_set_local_variable(struct ast_eval_ctx *ctx, char *name, char *str);
+int ctx_set_function(struct ast_eval_ctx *ctx, char *name,
+                     struct ast_node *function);
 
 #endif // !EVAL_CTX_H

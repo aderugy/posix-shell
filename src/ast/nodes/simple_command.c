@@ -19,22 +19,8 @@
 #include "simple_command_execute_non_builtin.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 #include "utils/xalloc.h"
-
-static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
-                            "done", "while", "until", "{",  "}",    NULL };
-
-bool is_keyword(char *word)
-{
-    for (size_t i = 0; keywords[i]; i++)
-    {
-        if (strcmp(keywords[i], word) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
@@ -62,8 +48,14 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD
-        || (token->value.c && is_keyword(token->value.c)))
+    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
+    {
+        goto error;
+    }
+
+    struct token *parenthese = lexer_peek_two(lexer);
+    if (parenthese && parenthese->type == TOKEN_WORD
+        && strcmp(parenthese->value.c, "(") == 0)
     {
         goto error;
     }

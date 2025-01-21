@@ -9,23 +9,33 @@
 
 #include "mbtstr/str.h"
 
-struct pair_list
+enum hash_map_elt_type
+{
+    HASH_VARIABLE, // char *
+    HASH_FUNCTION // ast_node *
+};
+
+struct hash_map_elt
 {
     char *key;
-    struct mbt_str *value;
-    struct pair_list *next;
+    enum hash_map_elt_type type;
+    void *value;
+    struct hash_map_elt *next;
 };
 
 struct hash_map
 {
-    struct pair_list **data;
+    struct hash_map_elt **data;
     size_t size;
 };
 
 struct hash_map *hash_map_init(size_t size);
 
-int hash_map_insert(struct hash_map *hm, char *key, char *value);
-struct mbt_str *hash_map_get(struct hash_map *hash_map, char *key);
+int hash_map_insert(struct hash_map *hash_map, char *name, void *value,
+                    enum hash_map_elt_type type);
+
+void *hash_map_get(struct hash_map *hash_map, char *key,
+                   enum hash_map_elt_type type);
 
 void hash_map_free(struct hash_map *hash_map);
 
