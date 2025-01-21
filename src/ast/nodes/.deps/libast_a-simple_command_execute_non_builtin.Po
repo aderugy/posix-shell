@@ -1,0 +1,111 @@
+nodes/libast_a-simple_command_execute_non_builtin.o: \
+ nodes/simple_command_execute_non_builtin.c /usr/include/stdc-predef.h \
+ nodes/simple_command_execute_non_builtin.h /usr/include/stdlib.h \
+ /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
+ /usr/include/features.h /usr/include/features-time64.h \
+ /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+ /usr/include/x86_64-linux-gnu/bits/timesize.h \
+ /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+ /usr/include/x86_64-linux-gnu/bits/long-double.h \
+ /usr/include/x86_64-linux-gnu/gnu/stubs.h \
+ /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn.h \
+ /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib.h nodes/command.h \
+ ../../src/lexer/lexer.h ../../src/lexer/splitter.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
+ ../../src/mbtstr/str.h ../../src/mbtstr/utils.h ../../src/lexer/shard.h \
+ ../../src/streams/streams.h /usr/include/stdio.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+ /usr/include/x86_64-linux-gnu/bits/types.h \
+ /usr/include/x86_64-linux-gnu/bits/typesizes.h \
+ /usr/include/x86_64-linux-gnu/bits/time64.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio2.h ../../src/utils/stack.h \
+ ../../src/lexer/token.h /usr/include/unistd.h \
+ /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+ /usr/include/x86_64-linux-gnu/bits/confname.h \
+ /usr/include/x86_64-linux-gnu/bits/unistd.h \
+ /usr/include/x86_64-linux-gnu/bits/unistd_ext.h nodes/node.h \
+ ../../src/builtins/builtins.h ../../src/ast/nodes/eval_ctx.h \
+ ../../src/utils/hash_map.h nodes/eval_ctx.h ../../src/lexer/splitter.h \
+ nodes/simple_command.h ../../src/utils/linked_list.h \
+ nodes/simple_command_execute_builtin.h /usr/include/err.h \
+ /usr/include/string.h \
+ /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
+ /usr/include/x86_64-linux-gnu/sys/wait.h \
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h \
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h ../../src/utils/logger.h
+/usr/include/stdc-predef.h:
+nodes/simple_command_execute_non_builtin.h:
+/usr/include/stdlib.h:
+/usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
+/usr/include/features.h:
+/usr/include/features-time64.h:
+/usr/include/x86_64-linux-gnu/bits/wordsize.h:
+/usr/include/x86_64-linux-gnu/bits/timesize.h:
+/usr/include/x86_64-linux-gnu/sys/cdefs.h:
+/usr/include/x86_64-linux-gnu/bits/long-double.h:
+/usr/include/x86_64-linux-gnu/gnu/stubs.h:
+/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
+/usr/include/x86_64-linux-gnu/bits/floatn.h:
+/usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:
+/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
+/usr/include/x86_64-linux-gnu/bits/stdlib.h:
+nodes/command.h:
+../../src/lexer/lexer.h:
+../../src/lexer/splitter.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h:
+../../src/mbtstr/str.h:
+../../src/mbtstr/utils.h:
+../../src/lexer/shard.h:
+../../src/streams/streams.h:
+/usr/include/stdio.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h:
+/usr/include/x86_64-linux-gnu/bits/types.h:
+/usr/include/x86_64-linux-gnu/bits/typesizes.h:
+/usr/include/x86_64-linux-gnu/bits/time64.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
+/usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/FILE.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+/usr/include/x86_64-linux-gnu/bits/stdio.h:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:
+../../src/utils/stack.h:
+../../src/lexer/token.h:
+/usr/include/unistd.h:
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+/usr/include/x86_64-linux-gnu/bits/confname.h:
+/usr/include/x86_64-linux-gnu/bits/unistd.h:
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+nodes/node.h:
+../../src/builtins/builtins.h:
+../../src/ast/nodes/eval_ctx.h:
+../../src/utils/hash_map.h:
+nodes/eval_ctx.h:
+../../src/lexer/splitter.h:
+nodes/simple_command.h:
+../../src/utils/linked_list.h:
+nodes/simple_command_execute_builtin.h:
+/usr/include/err.h:
+/usr/include/string.h:
+/usr/include/x86_64-linux-gnu/bits/string_fortified.h:
+/usr/include/x86_64-linux-gnu/sys/wait.h:
+/usr/include/x86_64-linux-gnu/bits/waitflags.h:
+/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+../../src/utils/logger.h:
