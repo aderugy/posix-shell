@@ -47,12 +47,6 @@ char *ctx_get_variable(struct ast_eval_ctx *ctx, char *name)
     {
         variable_value = hash_map_get(ctx->value, name, HASH_VARIABLE);
     }
-    else
-    {
-        // CASE GETENV
-        // BECAUSE NAME IS NOT USED ANYWHERE ANYMORE
-        free(name);
-    }
     return variable_value;
 }
 
@@ -61,6 +55,8 @@ char *ctx_get_variable(struct ast_eval_ctx *ctx, char *name)
  */
 int ctx_set_local_variable(struct ast_eval_ctx *ctx, char *name, char *str)
 {
+    name = strdup(name);
+    str = strdup(str);
     return hash_map_insert(ctx->value, name, (void *)str, HASH_VARIABLE);
 }
 
@@ -70,5 +66,7 @@ int ctx_set_local_variable(struct ast_eval_ctx *ctx, char *name, char *str)
 int ctx_set_function(struct ast_eval_ctx *ctx, char *name,
                      struct ast_node *function)
 {
+    name = strdup(name);
+    // TODO check when to free functions
     return hash_map_insert(ctx->value, name, (void *)function, HASH_FUNCTION);
 }

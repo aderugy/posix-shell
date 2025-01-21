@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
     int nb_args = 0;
+
+    bool disp_lex = false;
     while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -78,6 +80,10 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             stream = stream_from_str(optarg);
+            break;
+        case 't':
+            logger(NULL, NULL);
+            disp_lex = true;
             break;
         case '?':
             exit(1);
@@ -104,6 +110,19 @@ int main(int argc, char *argv[])
     if (!stream)
     {
         errx(1, "stream error");
+    }
+
+    if (disp_lex)
+    {
+        struct lexer *lexer = lexer_create(stream);
+        struct token *token;
+        while ((token = lexer_pop(lexer)))
+        {
+            token_print(token);
+            token_free(token);
+        }
+        lexer_free(lexer);
+        return 0;
     }
 
     return sub_main(&stream, &ctx, nb_args);

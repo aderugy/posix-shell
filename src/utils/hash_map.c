@@ -51,7 +51,7 @@ static void hash_map_elt_free(struct hash_map_elt *elt)
         }
         else
         {
-            mbt_str_free(elt->value);
+            free(elt->value);
         }
         free(elt);
     }

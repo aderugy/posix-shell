@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "ast/nodes/eval_ctx.h"
+#include "utils/my_strcat.h"
 
 #define ECHO "echo"
 #define TRUE "true"
@@ -23,6 +24,7 @@ struct echo_options
     char **str;
 };
 
+//@TIDY
 int echo(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int true_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);
 int false_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx);

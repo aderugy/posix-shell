@@ -217,6 +217,15 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
     if (NOT_EMPTY(str))
     {
+        if (shard_is_operator(str))
+        {
+            return shard_init(str, false, SHARD_OPERATOR, SHARD_UNQUOTED);
+        }
+        if (shard_is_redir(str))
+        {
+            return shard_init(str, false, SHARD_REDIR, SHARD_UNQUOTED);
+        }
+
         return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
     }
 

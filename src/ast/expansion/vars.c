@@ -14,9 +14,9 @@ void ctx_init_local_hashtag(int nb_arg, struct ast_eval_ctx *ctx)
     char *buffer = xcalloc(15, sizeof(char));
     char *str = my_itoa(nb_arg, buffer);
 
-    char *name = strdup("#");
+    ctx_set_local_variable(ctx, "#", str);
 
-    ctx_set_local_variable(ctx, name, str);
+    free(str);
 }
 
 // $$
@@ -27,9 +27,9 @@ void ctx_init_local_dollar(struct ast_eval_ctx *ctx)
     char *buffer = xcalloc(15, sizeof(char));
     char *str = my_itoa(pid, buffer);
 
-    char *name = strdup("$");
+    ctx_set_local_variable(ctx, "$", str);
 
-    ctx_set_local_variable(ctx, name, str);
+    free(str);
 }
 
 // $?
@@ -38,9 +38,9 @@ void ctx_update_local_qm(struct ast_eval_ctx *ctx, int return_value)
     char *buffer = xcalloc(15, sizeof(char));
     char *str = my_itoa(return_value, buffer);
 
-    char *name = strdup("?");
+    ctx_set_local_variable(ctx, "?", str);
 
-    ctx_set_local_variable(ctx, name, str);
+    free(str);
 }
 
 //$UID
@@ -54,6 +54,9 @@ void ctx_init_local_UID(struct ast_eval_ctx *ctx)
     char *name = strdup("UID");
 
     ctx_set_local_variable(ctx, name, str);
+
+    free(str);
+    free(name);
 }
 // inits $1, $2, $3, $n + the arobase and the star
 // @return the numbers of $ args
@@ -75,21 +78,18 @@ int ctx_init_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
 
         char *buffer = xcalloc(12, sizeof(char));
         char *name = my_itoa(i - 1, buffer);
-        char *str = strdup(argv[i]);
+        char *str = argv[i];
 
         ctx_set_local_variable(ctx, name, str);
+        free(name);
     }
 
-    char *name = strdup("@");
-    char *str = strdup(arobase_args->data);
+    char *str = arobase_args->data;
 
-    ctx_set_local_variable(ctx, name, str);
+    ctx_set_local_variable(ctx, "@", str);
 
     // Until I understand it better, the arobase is the same as the star
-    name = strdup("*");
-    str = strdup(arobase_args->data);
-
-    ctx_set_local_variable(ctx, name, str);
+    ctx_set_local_variable(ctx, "*", str);
 
     mbt_str_free(arobase_args);
 
