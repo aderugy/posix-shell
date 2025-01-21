@@ -38,12 +38,14 @@ void ast_eval_ctx_free(struct ast_eval_ctx *ctx)
     }
 }
 
-// @RENAME
+/*
+ * // @RENAME
 // @REFACTOR: n'est pas censé calloc la return value.
 
 // @ANSWER
 // rename the way that pleases you, i can't guess it if you don't tell me
-struct mbt_str *env_vars(char *name)
+
+ * struct mbt_str *env_vars(char *name)
 {
     struct mbt_str *value = mbt_str_init(8);
 
@@ -59,7 +61,7 @@ struct mbt_str *env_vars(char *name)
     }
 
     return value;
-}
+}*/
 
 // @RENAME
 // @REFACTOR: env_vars renvoie une valeur a free, et pas hash_map_get.
@@ -67,12 +69,27 @@ struct mbt_str *env_vars(char *name)
 // @ANSWER
 // rename the way that pleases you, i can't guess it if you don't tell me
 // @DONE Both values must now be freed
-struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
+//
+
+char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name)
 {
     // env vars
-    struct mbt_str *value = env_vars(name->data);
+    char *value = NULL;
+    if ((value = getenv(name->data)) == NULL)
+    {
+        struct mbt_str *tmp = hash_map_get(ctx->value, name->data);
+        if (tmp)
+        {
+            value = tmp->data;
+        }
+        else
+        {
+            warnx("there is no variable named %s\n", name->data);
+        }
+    }
 
-    // local vars
+    return value;
+    /* local vars
     if (value == NULL)
     {
         struct mbt_str *tmp = hash_map_get(ctx->value, name->data);
@@ -81,9 +98,7 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
             value = mbt_str_init(8);
             mbt_str_pushcstr(value, tmp->data);
         }
-    }
-
-    return value;
+    }*/
 }
 
 // @RENAME
@@ -100,7 +115,7 @@ struct mbt_str *get(struct ast_eval_ctx *ctx, struct mbt_str *name)
 // for example : in the function ast_eval_element
 // this aims at removing redundant code in evaluation
 // feel free to split it
-void insert(struct ast_eval_ctx *ctx, struct token *token)
+int insert(struct ast_eval_ctx *ctx, struct token *token)
 {
     struct mbt_str *expanded = expand(ctx, token);
 
@@ -108,10 +123,11 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     char *eq = strchr(data, '=');
     if (!eq)
     {
-        errx(EXIT_FAILURE, "insert: no '=' in token");
+        warnx("insert: no '=' in token");
     }
 
-    char *name = strndup(expanded->data, eq - data);
+    char *name = strndup(data, eq - data); // ok on re alloue
+    // pour garder un pointeur convenable
 
     // Basically the value after '='
     // this will be freed by the hashmap
@@ -119,7 +135,11 @@ void insert(struct ast_eval_ctx *ctx, struct token *token)
     mbt_str_pushcstr(value, ++eq);
     mbt_str_free(expanded);
 
-    hash_map_insert(ctx->value, name, (void *)value);
+    int return_value = hash_map_insert(ctx->value, name, (void *)value);
+
+    free(name);
+
+    return return_value;
 }
 
 /*
