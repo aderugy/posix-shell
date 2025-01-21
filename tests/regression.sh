@@ -196,14 +196,6 @@ test_comment() {
     tes echo "Ya un commentaire m c chill #de ouf c chill"
     echo "========== COMMENT END =========="
 }
-test_pipeline() {
-    echo "========== PIPELINE BEGIN =========="
-    tes "echo Hello | tr a e"
-    tes "echo Hello | tr a e | tr e a"
-    tes "echo Hello | tr a e | tr e a | tr a e"
-    tes "tree -L 2 | echo | tr e a | tr c b"
-    echo "========== PIPELINE END =========="
-}
 test_neg_pipeline() {
     echo "========== NEGATION PIPELINE BEGIN =========="
     test_code_error 0 "! false | true | true | true | false"
@@ -270,6 +262,9 @@ test_quoting() {
         test_from_file $i
         test_from_stdin $i
     done
+    tes "echo Hello World!"
+    tes "'echo' hello 'my' dream"
+    tes "'ls'"
     echo "========== QUOTING END =========="
 }
 test_pipeline() {
@@ -279,9 +274,6 @@ test_pipeline() {
     tes "echo Hello | tr a e | tr e a | tr a e"
     tes "find -name *.c | echo"
     tes "tree -L 2 | echo | tr e a | tr c b"
-    tes "echo Hello World!"
-    tes "'echo' hello 'my' dream"
-    tes "'ls'"
     echo "========== PIPELINE END =========="
 }
 test_neg_pipeline() {
