@@ -20,3 +20,26 @@ char *my_strcat(char *dst, const char *src)
     }
     return dst;
 }
+
+char *my_reverse_strcat(char *src, char *dest)
+{
+    size_t total_len = strlen(src) + strlen(dest);
+    char *result = xmalloc(total_len + 1);
+    size_t i = 0;
+    size_t j = 0;
+    while (dest[j] != 0)
+    {
+        result[i] = dest[j];
+        j++;
+        i++;
+    }
+    j = 0;
+    while (src[j] != 0)
+    {
+        result[i] = src[j];
+        j++;
+        i++;
+    }
+    result[i] = 0;
+    return result;
+}

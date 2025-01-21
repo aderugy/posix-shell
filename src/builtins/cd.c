@@ -12,6 +12,7 @@
 #include "builtins.h"
 #include "commands.h"
 #include "utils/logger.h"
+#include "utils/my_strcat.h"
 #include "utils/xalloc.h"
 
 #define MAX_PATH 4096
@@ -32,41 +33,15 @@ char *get_current_path(void)
 
     for (; ptr == NULL; size *= 2)
     {
-        if ((buf = realloc(buf, size)) == NULL)
-        {
-            errx(1, "cd: out of memory");
-        }
-
+        buf = xrealloc(buf, size);
         ptr = getcwd(buf, size);
         if (ptr == NULL)
         {
-            errx(1, "cd: ptr NULL");
+            warnx("cd: ptr NULL"); // 1
+            return NULL;
         }
     }
     return buf;
-}
-
-static char *my_strcat(char *src, char *dest)
-{
-    size_t total_len = strlen(src) + strlen(dest);
-    char *result = xcalloc(1, total_len + 1);
-    size_t i = 0;
-    size_t j = 0;
-    while (dest[j] != 0)
-    {
-        result[i] = dest[j];
-        j++;
-        i++;
-    }
-    j = 0;
-    while (src[j] != 0)
-    {
-        result[i] = src[j];
-        j++;
-        i++;
-    }
-    result[i] = 0;
-    return result;
 }
 
 char *normalize_path(const char *path)
@@ -87,7 +62,8 @@ char *normalize_path(const char *path)
     {
         if (!getcwd(resolved_path, sizeof(resolved_path)))
         {
-            errx(2, "cd: normalize_path: not a good path");
+            warnx("cd: normalize_path: not a good path");
+            return NULL;
         }
         resolved = resolved_path + strlen(resolved_path);
     }
@@ -127,14 +103,24 @@ char *normalize_path(const char *path)
     return resolved_path;
 }
 
-void move_cd(char *oldpwd, char *pwd)
+int move_cd(char *oldpwd, char *pwd)
 {
     if (setenv("OLDPWD", oldpwd, 1) != 0)
-        errx(1, "cd: setenv: error");
+    {
+        warnx("cd: setenv: error");
+        return 1;
+    }
     if (setenv("PWD", pwd, 1) != 0)
-        errx(1, "cd: setenv: error");
+    {
+        warnx("cd: setenv: error");
+        return 1;
+    }
     if (chdir(pwd) != 0)
-        errx(1, "cd: chdir: error");
+    {
+        warnx("cd: chdir: error");
+        return 1;
+    }
+    return 0;
 }
 
 int cd(int argc, char **argv,
@@ -142,54 +128,71 @@ int cd(int argc, char **argv,
 {
     if (argc > 2)
     {
-        errx(2, "cd: too many arguments");
+        warnx("cd: too many arguments");
+        return 2;
     }
 
     if (argc == 1)
     {
         char *home = getenv("HOME");
         if (home == NULL || strlen(home) == 0) // RULE 1
-            errx(2, "cd: empty or unddefined HOME environment");
+        {
+            warnx("cd: empty or unddefined HOME environment");
+            return 2;
+        }
         char *current_path = get_current_path(); // RULE 2
-        move_cd(current_path, home);
+        if (!current_path)
+            return 1;
+        int verification = move_cd(current_path, home);
         free(current_path);
-        return 0;
+        return verification;
     }
 
     if (strcmp("-", argv[1]) == 0)
     {
         char *oldpwd = getenv("OLDPWD");
         char *current_path = get_current_path(); // RULE 2
-        move_cd(current_path, oldpwd);
-        printf("%s\n", oldpwd);
+        if (!current_path)
+        {
+            return 2;
+        }
+        int verification = move_cd(current_path, oldpwd);
+        if (verification == 0)
+            printf("%s\n", oldpwd);
         free(current_path);
-        return 0;
+        return verification;
     }
 
     struct stat path_stat;
     if (stat(argv[1], &path_stat) != 0)
     {
-        errx(1, "cd: No such file or directory");
+        warnx("cd: No such file or directory");
+        return 1;
     }
 
     if (!S_ISDIR(path_stat.st_mode))
     {
-        errx(1, "cd: Not a directory");
+        warnx("cd: Not a directory");
+        return 1;
     }
 
     char *resolved_path = normalize_path(argv[1]);
+    if (!resolved_path)
+        return 2;
 
     char *current_path = get_current_path(); // RULE 2
+    if (!current_path)
+        return 1;
     logger("current_path: %s !", resolved_path);
+    int verification;
     if (argv[1][0] == '/')
     {
-        resolved_path = my_strcat(resolved_path, "/");
-        move_cd(current_path, resolved_path);
+        resolved_path = my_reverse_strcat(resolved_path, "/");
+        verification = move_cd(current_path, resolved_path);
         free(resolved_path);
     }
     else
-        move_cd(current_path, resolved_path);
+        verification = move_cd(current_path, resolved_path);
     free(current_path);
-
-    return 0;
+    return verification;
 }

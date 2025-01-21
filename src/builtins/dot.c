@@ -26,7 +26,8 @@ int dot(__attribute__((unused)) int argc, __attribute__((unused)) char **argv,
     logger("pass stream_from_file\n");
     if (!stream)
     {
-        errx(2, "dot: stream error");
+        warnx("dot: stream error");
+        return 2;
     }
     struct lexer *lexer = lexer_create(stream);
     struct ast_node *node;
