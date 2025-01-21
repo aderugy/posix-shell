@@ -22,7 +22,9 @@
 #include "simple_command.h"
 #include "until.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 #include "while.h"
+
 extern int logger_stack_idx;
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
@@ -116,11 +118,7 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
         return NULL;
     }
 
-    struct ast_node *root = calloc(1, sizeof(struct ast_node));
-    if (!root)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
+    struct ast_node *root = xcalloc(1, sizeof(struct ast_node));
 
     root->type = type;
     root->value = value;

@@ -1,5 +1,6 @@
 #include "stdlib.h"
 #include "str.h"
+#include "utils/xalloc.h"
 
 bool mbt_str_pushc(struct mbt_str *str, char c)
 {
@@ -8,8 +9,8 @@ bool mbt_str_pushc(struct mbt_str *str, char c)
         size_t new_capacity = 3 + str->capacity * 2;
 
         char *tmp = str->data
-            ? realloc(str->data, (new_capacity + 1) * sizeof(char))
-            : calloc(new_capacity + 1, sizeof(char));
+            ? xrealloc(str->data, (new_capacity + 1) * sizeof(char))
+            : xcalloc(new_capacity + 1, sizeof(char));
         if (tmp == NULL)
         {
             return false;

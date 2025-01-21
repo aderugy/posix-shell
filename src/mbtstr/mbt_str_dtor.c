@@ -5,6 +5,7 @@ void mbt_str_dtor(struct mbt_str *str)
 {
     str->size = 0;
     str->capacity = 0;
-
-    free(str->data);
+    if (str->data)
+        free(str->data);
+    str->data = NULL;
 }

@@ -48,7 +48,7 @@ struct hash_map *hash_map_init(size_t size)
 // @REFACTOR
 // Pourquoi key et pas name comme les fonctions qui appelle celle ci et pourquoi
 // refaire un dup ?
-int hash_map_insert(struct hash_map *hash_map, char *key, struct mbt_str *value)
+int hash_map_insert(struct hash_map *hash_map, char *key, char *value)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
@@ -72,16 +72,17 @@ int hash_map_insert(struct hash_map *hash_map, char *key, struct mbt_str *value)
     {
         p = xcalloc(1, sizeof(struct pair_list));
 
-        p->key = strdup(key);
-        p->value = value;
+        p->key = strdup(key); // Pourquoi strdup ?
+        p->value = mbt_str_init(42);
         p->next = hash_map->data[index];
         hash_map->data[index] = p;
     }
     else
     {
-        mbt_str_free(p->value);
-        p->value = value;
+        mbt_str_dtor(p->value);
     }
+
+    mbt_str_pushcstr(p->value, value);
     return 0;
 }
 

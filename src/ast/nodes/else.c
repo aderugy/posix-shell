@@ -9,6 +9,7 @@
 #include "lexer/lexer.h"
 #include "node.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /*
   else_clause =
@@ -18,7 +19,7 @@
 
 struct ast_else_node *ast_parse_else(struct lexer *lexer)
 {
-    struct ast_else_node *node = calloc(1, sizeof(struct ast_else_node));
+    struct ast_else_node *node = xcalloc(1, sizeof(struct ast_else_node));
     struct token *token = lexer_peek(lexer);
 
     logger("\tParsing ELSE_CLAUSE\n");

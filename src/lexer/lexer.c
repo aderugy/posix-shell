@@ -1,10 +1,12 @@
 #include "lexer.h"
 
+#include <ctype.h>
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "shard.h"
 #include "splitter.h"
 #include "token.h"
 #include "utils/err_utils.h"
@@ -129,6 +131,19 @@ void lexer_free(struct lexer *lexer)
     free(lexer);
 }
 
+static int token_get_keyword_type(char *str)
+{
+    for (size_t i = 0; i < KEYWORDS_LEN; i++)
+    {
+        if (strcmp(KEYWORDS[i].name, str) == 0)
+        {
+            return KEYWORDS[i].type;
+        }
+    }
+
+    return TOKEN_ERROR;
+}
+
 static struct token *lex(struct lexer *lexer)
 {
     if (lexer->eof)
@@ -160,6 +175,10 @@ static struct token *lex(struct lexer *lexer)
 
     switch (shard->type)
     {
+    case SHARD_REDIR:
+        token->type = token_get_keyword_type(shard->data + (isdigit(*shard->data) ? 1 : 0));
+        break;
+
     case SHARD_WORD:
     case SHARD_OPERATOR:
         if (!*shard->data)
@@ -170,14 +189,7 @@ static struct token *lex(struct lexer *lexer)
         }
         if (shard->quote_type == SHARD_UNQUOTED && !token->next)
         {
-            for (size_t i = 0; i < KEYWORDS_LEN; i++)
-            {
-                if (strcmp(KEYWORDS[i].name, shard->data) == 0)
-                {
-                    token->type = KEYWORDS[i].type;
-                    break;
-                }
-            }
+            token->type = token_get_keyword_type(shard->data);
 
             if (token->type == TOKEN_ERROR)
             {
@@ -215,6 +227,8 @@ static struct token *lex(struct lexer *lexer)
     {
         goto error;
     }
+
+    logger("%s (%s)\n", shard->data, get_token_name(token->type));
     shard_free(shard);
     return token;
 

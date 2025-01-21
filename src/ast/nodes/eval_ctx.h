@@ -15,7 +15,7 @@ struct ast_eval_ctx
 struct ast_eval_ctx *ast_eval_ctx_init(void);
 void ast_eval_ctx_free(struct ast_eval_ctx *ctx);
 
-int insert(struct ast_eval_ctx *ctx, struct token *token);
+int ctx_insert_value(struct ast_eval_ctx *ctx, struct token *token);
 char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name);
 
 void ast_eval_ctx_set_local_var(struct ast_eval_ctx *ctx, char *name,

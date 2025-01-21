@@ -75,6 +75,20 @@ int ast_eval_until(struct ast_until_node *node, void **out,
         {
             return ret_val;
         }
+        if (ctx->break_count > 0)
+        {
+            ctx->break_count--;
+            return ret_val;
+        }
+        if (ctx->continue_count > 1)
+        {
+            ctx->continue_count--;
+            return ret_val;
+        }
+        else if (ctx->continue_count == 1)
+        {
+            ctx->continue_count--;
+        }
     }
     return EXIT_SUCCESS;
 }

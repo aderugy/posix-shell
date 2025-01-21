@@ -10,6 +10,7 @@
 #include "node.h"
 #include "utils/err_utils.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 /*
    rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
               {'\n'} 'do' compound_list 'done' ;
@@ -25,7 +26,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");
 
-    struct ast_for_node *ast = calloc(1, sizeof(struct ast_for_node));
+    struct ast_for_node *ast = xcalloc(1, sizeof(struct ast_for_node));
     CHECK_MEMORY_ERROR(ast);
     ast->items = list_init();
 
@@ -135,16 +136,30 @@ int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
      * expression, subshell or globbing must be separated by the character
      */
 
-    int status = AST_EVAL_SUCCESS;
+    int ret_val = AST_EVAL_SUCCESS;
     struct linked_list_element *item = node->items->head;
     while (item)
     {
         ast_eval_ctx_set_local_var(ctx, node->name, item->data);
-        status = ast_eval(node->body, NULL, ctx);
+        ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
+        if (ctx->break_count > 0)
+        {
+            ctx->break_count--;
+            return ret_val;
+        }
+        if (ctx->continue_count > 1)
+        {
+            ctx->continue_count--;
+            return ret_val;
+        }
+        else if (ctx->continue_count == 1)
+        {
+            ctx->continue_count--;
+        }
     }
 
-    return status;
+    return ret_val;
 }
 
 void ast_free_for(struct ast_for_node *node)

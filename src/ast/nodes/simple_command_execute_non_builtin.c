@@ -46,7 +46,8 @@ int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
         int result = WEXITSTATUS(stat);
         if (result == 255)
         {
-            errx(127, "simple_command: command not found");
+            warnx("simple_command: command not found");
+            result = 127;
         }
         return result;
     }

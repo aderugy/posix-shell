@@ -10,13 +10,14 @@
 
 #include "ast/nodes/node.h"
 #include "linked_list.h"
+#include "xalloc.h"
 
 int exec_pipeline(struct linked_list *linked_list, struct ast_eval_ctx *ctx)
 {
     int status;
     size_t n = linked_list->size;
-    int *pipefds = calloc(2 * n, sizeof(int));
-    pid_t *pid_tab = calloc(n, sizeof(pid_t));
+    int *pipefds = xcalloc(2 * n, sizeof(int));
+    pid_t *pid_tab = xcalloc(n, sizeof(pid_t));
     for (size_t l = 0; l < n; l++)
     {
         if (pipe(pipefds + l * 2) < 0)
