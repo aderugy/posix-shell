@@ -403,6 +403,10 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                               SHARD_DOUBLE_QUOTED);
 
         case '\\':
+            if (NOT_EMPTY(str))
+            {
+                return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
+            }
             splitter_handle_backslash(ctx, str);
             return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
 
