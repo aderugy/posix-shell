@@ -15,7 +15,8 @@ int break_builtin(__attribute__((unused)) int argc, char **argv,
     {
         ast_eval_ctx->break_count = strtol(argv[1], NULL, 10);
     }
-    else {
+    else
+    {
         ast_eval_ctx->break_count++;
     }
 

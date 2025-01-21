@@ -13,22 +13,29 @@
 #include "utils/xalloc.h"
 
 static const char *token_names[] = {
-    "TOKEN_SEMICOLON", // ; [5]
-    "TOKEN_NEW_LINE", // \n [6]
-    "TOKEN_QUOTE", // ' [7]
-    "TOKEN_WORD", // word [8]
-    "TOKEN_PIPE", // | [9]
-    "TOKEN_NOT", // ! [10]
-    "TOKEN_EOF", // end of input marker [11]
+    "TOKEN_SEMICOLON", // ;
+    "TOKEN_NEW_LINE", // \n
+    "TOKEN_QUOTE", // '
+    "TOKEN_WORD", // word
+    "TOKEN_PIPE", // |
+    "TOKEN_NOT", // !
+    "TOKEN_EOF", // end of input marker
     "TOKEN_ERROR", // it is not a real token, it is returned in case of invalid
-                   // input [12]
-    "TOKEN_AND", // and [18]
-    "TOKEN_OR", // or [19]
-    "TOKEN_REDIR_STDOUT_FILE", "TOKEN_REDIR_FILE_STDIN",
-    "TOKEN_REDIR_STDOUT_FILE_A", "TOKEN_REDIR_STDOUT_FD",
-    "TOKEN_REDIR_STDIN_FD", "TOKEN_REDIR_STDOUT_FILE_NOTRUNC",
-    "TOKEN_REDIR_FOPEN_RW", "TOKEN_COMPLEX_WORD", "TOKEN_SUBSHELL",
-    "TOKEN_VARIABLE", "TOKEN_ARITH", "TOKEN_GLOBBING_STAR", "TOKEN_GLOBBING_QM"
+    "TOKEN_AND", // and
+    "TOKEN_OR", // or
+    "TOKEN_REDIR_STDOUT_FILE",
+    "TOKEN_REDIR_FILE_STDIN",
+    "TOKEN_REDIR_STDOUT_FILE_A",
+    "TOKEN_REDIR_STDOUT_FD",
+    "TOKEN_REDIR_STDIN_FD",
+    "TOKEN_REDIR_STDOUT_FILE_NOTRUNC",
+    "TOKEN_REDIR_FOPEN_RW",
+    "TOKEN_COMPLEX_WORD",
+    "TOKEN_SUBSHELL",
+    "TOKEN_VARIABLE",
+    "TOKEN_ARITH",
+    "TOKEN_GLOBBING_STAR",
+    "TOKEN_GLOBBING_QM"
 };
 
 const char *get_token_name(enum token_type token)
