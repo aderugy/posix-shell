@@ -25,7 +25,7 @@ int export_builtin(int argc, char **argv,
     {
         struct mbt_str *n = mbt_str_init(8);
         mbt_str_pushcstr(n, name);
-        word = get(ast_eval_ctx, n)->data;
+        word = ctx_get_value(ast_eval_ctx, n);
     }
     else
     {

@@ -45,12 +45,15 @@ struct hash_map *hash_map_init(size_t size)
     return hm;
 }
 
-void hash_map_insert(struct hash_map *hash_map, char *key,
-                     struct mbt_str *value)
+// @REFACTOR
+// Pourquoi key et pas name comme les fonctions qui appelle celle ci et pourquoi
+// refaire un dup ?
+int hash_map_insert(struct hash_map *hash_map, char *key, struct mbt_str *value)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
-        errx(EXIT_FAILURE, "hashmap not initialized");
+        warnx("hash map inset error");
+        return 1;
     }
 
     // AND index with capacity - 1 to ensure index < capacity
@@ -79,6 +82,7 @@ void hash_map_insert(struct hash_map *hash_map, char *key,
         mbt_str_free(p->value);
         p->value = value;
     }
+    return 0;
 }
 
 void hash_map_free(struct hash_map *hash_map)
