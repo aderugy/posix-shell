@@ -22,6 +22,22 @@
 #include "utils/naming.h"
 #include "utils/xcalloc.h"
 
+static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
+                            "done", "while", "until", "{",  "}",    NULL };
+
+bool is_keyword(char *word)
+{
+    for (size_t i = 0; keywords[i]; i++)
+    {
+        if (strcmp(keywords[i], word) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+>>>>>>> origin/newlexer
+
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
     struct ast_simple_cmd *cmd = xcalloc(1, sizeof(struct ast_simple_cmd));
@@ -48,8 +64,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD
-        || (token->value.c && is_keyword(token->value.c)))
+    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
     {
         goto error;
     }
@@ -90,7 +105,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
     int argc = cmd->args->size + 1;
-    char **argv = calloc(argc + 1, sizeof(char *));
+    char **argv = xcalloc(argc + 1, sizeof(char *));
 
     argv[0] = cmd->cmd;
 

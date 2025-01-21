@@ -1,5 +1,6 @@
 #include "redirection.h"
 
+#include <ctype.h>
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -21,25 +22,8 @@
  * WORD ;
  */
 
-static const char *DIGITS_CHARS = "0123456789";
-/*int redir_stdout_file(struct ast_redir *redir, __attribute((unused)) void
-**out,
-                      __attribute((unused)) struct ast_eval_ctx *ctx);
-int redir_stdout_file_a(struct ast_redir *redir,
-                        __attribute((unused)) void **out,
-                        __attribute((unused)) struct ast_eval_ctx *ctx);
-int redir_stdout_file_notrunc(struct ast_redir *redir,
-                              __attribute((unused)) void **out,
-                              __attribute((unused)) struct ast_eval_ctx *ctx);*/
-// int redir_file_stdin(struct ast_redir *redir, __attribute((unused)) void
-// **out,
-//                     __attribute((unused)) struct ast_eval_ctx *ctx);
-// int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
-//                   __attribute((unused)) struct ast_eval_ctx *ctx);
 int redir_fopen_rw(struct ast_redir *redir, __attribute((unused)) void **out,
                    __attribute((unused)) struct ast_eval_ctx *ctx);
-// int redir_stdin_fd(struct ast_redir *redir, __attribute((unused)) void **out,
-//                    __attribute((unused)) struct ast_eval_ctx *ctx);
 
 static const struct redirection REDIR_LIST[] = {
     { TOKEN_REDIR_STDOUT_FILE, redir_stdout_file, ">" },
@@ -80,13 +64,9 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     redir->number = -1;
     char number = 1;
     size_t i = 0;
-    for (; token->value.c[i]; i++)
+    if (isdigit(*token->value.c))
     {
-        if (!strchr(DIGITS_CHARS, token->value.c[i]))
-        {
-            number = 0;
-            break;
-        }
+        number = *token->value.c - '0';
     }
 
     if (number == 1 && i > 0)

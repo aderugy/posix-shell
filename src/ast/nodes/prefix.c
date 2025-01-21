@@ -1,6 +1,5 @@
+#include "eval_ctx.h"
 #define _POSIX_C_SOURCE 200809L
-
-#include "prefix.h"
 
 #include <err.h>
 #include <stdbool.h>
@@ -11,6 +10,7 @@
 #include "eval_ctx.h"
 #include "lexer/lexer.h"
 #include "node.h"
+#include "prefix.h"
 #include "redirection.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"

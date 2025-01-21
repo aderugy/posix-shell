@@ -31,8 +31,14 @@ int exit_builtin(int argc, char **argv,
         exit(0);
     }
     if (argc != 2)
-        errx(1, "exit: too many arguments");
+    {
+        warnx("exit: too many arguments");
+        return 1;
+    }
     if (is_valid_number(argv[1]) == 0)
-        errx(2, "exit: a: numeric argument required");
+    {
+        warnx("exit: a: numeric argument required");
+        return 2;
+    }
     exit(atoi(argv[1]) % 255);
 }

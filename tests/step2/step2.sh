@@ -24,6 +24,8 @@ G="\033[0;32m"
 R="\033[0;31m"
 D="\033[0m"
 
+OUTPUT_CODE_RETURN=0
+
 # @brief runs a test on all possible input ways
 # @params: a list of strings
 tes() {
@@ -37,6 +39,7 @@ tes() {
 test_from_stdin() {
   bash --posix <"$@" >"$EXPECTED_OUT" 2>"$EXPECTED_ERR_OUT"
   "$F" <"$@" >"$ACTUAL_OUT" 2>"$ACTUAL_ERR_OUT"
+  $OUTPUT_CODE_RETURN=$?
   output_test "./$BIN < $@"
 }
 
@@ -94,7 +97,7 @@ output_test() {
   diff -y --color="always" "$EXPECTED_OUT" "$ACTUAL_OUT" >"$DIFF_OUT" 2>&1
   if [ $? -eq 0 ]; then
     diff -y --color="always" "$EXPECTED_ERR_OUT" "$ACTUAL_ERR_OUT" >"$DIFF_ERR" 2>&1
-    if [ $? -eq 0 ]; then
+    if [ $? -eq 0 ] && [ $OUTPUT_CODE_RETURN -eq 0 ]; then
       echo "$G[OK]$D $FA \""$@"\""
       PASSED_TEST=$((PASSED_TEST + 1))
     else

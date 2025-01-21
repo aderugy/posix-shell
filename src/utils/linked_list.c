@@ -3,14 +3,10 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "xalloc.h"
 struct linked_list *list_init(void)
 {
-    struct linked_list *list = calloc(1, sizeof(struct linked_list));
-    if (!list)
-    {
-        errx(EXIT_FAILURE, "out of memory");
-    }
-
+    struct linked_list *list = xcalloc(1, sizeof(struct linked_list));
     return list;
 }
 
@@ -35,11 +31,7 @@ void list_free(struct linked_list *list, void (*free_fn)(void *))
 void list_append(struct linked_list *list, void *data)
 {
     struct linked_list_element *el =
-        calloc(1, sizeof(struct linked_list_element));
-    if (!el)
-    {
-        err(EXIT_FAILURE, "out of memory");
-    }
+        xcalloc(1, sizeof(struct linked_list_element));
     el->data = data;
 
     if (!list->head)

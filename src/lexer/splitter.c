@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "mbtstr/str.h"
+#include "shard.h"
 #include "utils/logger.h"
 #include "utils/xalloc.c"
 
@@ -81,7 +82,9 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 {
                     mbt_str_pop(str); // Not an operator -> We delimit
 
-                    return shard_init(str, false, SHARD_OPERATOR,
+                    return shard_init(str, false,
+                                      shard_is_redir(str) ? SHARD_REDIR
+                                                          : SHARD_OPERATOR,
                                       SHARD_UNQUOTED);
                 }
             }
@@ -319,10 +322,21 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
             if (!is_valid_identifier(str))
             {
                 mbt_str_pop(str);
+                if (!str->size)
+                {
+                    break;
+                }
+
                 return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
             }
 
             stream_read(ctx->stream);
+        }
+
+        if (!str->size)
+        {
+            mbt_str_pushc(str, '$');
+            return shard_init(str, true, SHARD_WORD, type);
         }
 
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);

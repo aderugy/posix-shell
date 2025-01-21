@@ -83,7 +83,7 @@ int ast_eval_while(struct ast_while_node *node, void **out,
             ctx->continue_count--;
             return ret_val;
         }
-        else if (ctx->continue_count == 0)
+        else if (ctx->continue_count == 1)
         {
             ctx->continue_count--;
         }

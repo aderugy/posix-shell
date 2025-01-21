@@ -8,6 +8,7 @@
 #include "node.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 /* compound_list =
  *  {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} ;
@@ -16,11 +17,7 @@
 struct ast_clist *ast_parse_clist(struct lexer *lexer)
 {
     logger("Parse CLIST\n");
-    struct ast_clist *node = calloc(1, sizeof(struct ast_clist));
-    if (!node)
-    {
-        errx(2, "out of memory");
-    }
+    struct ast_clist *node = xcalloc(1, sizeof(struct ast_clist));
 
     struct token *token;
     while ((token = lexer_peek(lexer))->type == TOKEN_NEW_LINE)
@@ -40,13 +37,14 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     list_append(node->list, and_or);
 
     token = lexer_peek(lexer);
-    while (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON)
+    while (token
+           && (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON))
     {
         lexer_pop(lexer);
         token_free(token);
 
         token = lexer_peek(lexer);
-        while (token->type == TOKEN_NEW_LINE)
+        while (token && token->type == TOKEN_NEW_LINE)
         {
             lexer_pop(lexer);
             token_free(token);
@@ -65,7 +63,9 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         token = lexer_peek(lexer);
         if (!token)
         {
-            errx(2, "clist : not token\n");
+            lexer_error(lexer, "unexpected eof");
+            ast_free_clist(node);
+            return NULL;
         }
     }
 

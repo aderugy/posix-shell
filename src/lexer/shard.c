@@ -84,7 +84,7 @@ int shard_is_redir(struct mbt_str *str)
 {
     int status = IS_REDIR_FALSE;
 
-    if (NOT_EMPTY(str))
+    if (!str->size)
     {
         return status;
     }
