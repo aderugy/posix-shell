@@ -9,6 +9,7 @@
 #include "lexer/token.h"
 #include "mbtstr/str.h"
 #include "node.h"
+#include "utils/linked_list.h"
 #include "utils/logger.h"
 #include "utils/mergestr.h"
 #include "utils/xalloc.h"
@@ -18,43 +19,54 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 {
     if (!node->next)
     {
-        *out = strdup(node->data);
+        struct eval_output *eval_output = eval_output_init();
+
+        eval_output->value.str = strdup(node->data);
+
+        list_append(out, eval_output);
+
         return AST_EVAL_SUCCESS;
     }
 
-    char *right = NULL;
-    if (ast_eval_cword(node->next, (void **)&right, ctx) != AST_EVAL_SUCCESS)
+    struct linked_list *right = NULL;
+    if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
     {
         return AST_EVAL_ERROR;
     }
 
-    *out = merge_str(node->data, right);
+    char *right_str = right->head->data;
+
+    struct eval_output *eval_output = eval_output_init();
+
+    eval_output->value.str = merge_str(node->data, right_str);
+
+    list_append(out, eval_output);
     free(right);
 
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_complex_word(const struct ast_cword *node, void **out,
-                             struct ast_eval_ctx *ctx)
+static int eval_complex_word(const struct ast_cword *node,
+                             struct linked_list *out, struct ast_eval_ctx *ctx)
 {
     return eval_word(node, out, ctx);
 }
 
 static int eval_subshell(__attribute((unused)) const struct ast_cword *node,
-                         __attribute((unused)) void **out,
+                         __attribute((unused)) struct linked_list *out,
                          __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     errx(EXIT_FAILURE, "not implemented");
 }
 
 static int eval_arith(__attribute((unused)) const struct ast_cword *node,
-                      __attribute((unused)) void **out,
+                      __attribute((unused)) struct linked_list *out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     errx(EXIT_FAILURE, "not implemented");
 }
 
-static int eval_variable(const struct ast_cword *node, void **out,
+static int eval_variable(const struct ast_cword *node, struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
     char *var = ctx_get_variable(ctx, node->data);
@@ -63,21 +75,25 @@ static int eval_variable(const struct ast_cword *node, void **out,
     {
         var = "";
     }
+    out = list_init();
+    struct eval_output *eval_output = eval_output_init();
 
-    *out = strdup(var);
+    eval_output->value.str = strdup(var);
+
+    list_append(out, eval_output);
     return AST_EVAL_SUCCESS;
 }
 
 static int eval_globbing_star(__attribute((unused))
                               const struct ast_cword *node,
-                              __attribute((unused)) void **out,
+                              __attribute((unused)) struct linked_list *out,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     errx(EXIT_FAILURE, "not implemented");
 }
 
 static int eval_globbing_qm(__attribute((unused)) const struct ast_cword *node,
-                            __attribute((unused)) void **out,
+                            __attribute((unused)) struct linked_list *out,
                             __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     errx(EXIT_FAILURE, "not implemented");
@@ -86,7 +102,7 @@ static int eval_globbing_qm(__attribute((unused)) const struct ast_cword *node,
 struct token_eval_entry
 {
     enum token_type type;
-    int (*eval_fn)(const struct ast_cword *node, void **out,
+    int (*eval_fn)(const struct ast_cword *node, struct linked_list *out,
                    struct ast_eval_ctx *ctx);
 };
 
@@ -152,7 +168,8 @@ struct ast_cword *ast_parse_cword(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_cword(struct ast_cword *node, void **out, struct ast_eval_ctx *ctx)
+int ast_eval_cword(struct ast_cword *node, struct linked_list *out,
+                   struct ast_eval_ctx *ctx)
 {
     if (!node)
     {

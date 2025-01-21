@@ -89,20 +89,27 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
     int argc = cmd->args->size + 1;
-    char **argv = xcalloc(argc + 1, sizeof(char *));
+    char **argv = xcalloc(1, sizeof(char *));
 
-    argv[0] = cmd->cmd;
+    argv[0] = strdup(cmd->cmd);
 
     size_t elt = 1;
 
+    struct linked_list *linked_list;
     for (int i = 1; i < argc; i++)
     {
         ctx->check_redir = false;
         struct ast_node *children = list_get(cmd->args, i - 1);
-        if (ast_eval(children, (void **)argv + elt, ctx) == 0)
+        linked_list = list_init();
+        if (ast_eval(children, /*(void **)argv + elt*/ linked_list, ctx) == 0)
         {
+            struct eval_output *output = linked_list->head->data;
+            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+            argv[elt] = strdup(output->value.str);
+            logger("simple_command.c : get value from output %s\n", argv[elt]);
             elt++;
         }
+        list_free(linked_list, NULL);
     }
 
     struct runnable *cmd_runnable =
@@ -118,7 +125,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, argc);
     }
 
-    for (size_t i = 1; i <= elt; i++)
+    for (size_t i = 0; i <= elt; i++)
     {
         free(argv[i]);
     }

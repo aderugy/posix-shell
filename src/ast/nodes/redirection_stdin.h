@@ -21,7 +21,7 @@ struct ast_redir
 struct redirection
 {
     enum token_type type;
-    int (*redir)(struct ast_redir *, void **, struct ast_eval_ctx *);
+    int (*redir)(struct ast_redir *, struct linked_list*, struct ast_eval_ctx *);
     char *token;
 };
 int redir_file_stdin(struct ast_redir *node,

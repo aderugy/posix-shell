@@ -26,6 +26,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
 
     int argc = 1;
 
+    struct linked_list *linked_list = list_init();
     for (int i = 1; i < element_count; i++)
     {
         ctx->check_redir = true;
@@ -33,7 +34,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
 
         int element_eval_result;
         if ((element_eval_result =
-                 ast_eval(children, (void **)&fd_pointer, ctx))
+                 ast_eval(children, /*(void **)&fd_pointer*/ linked_list, ctx))
             == -1)
         {
             fd_pointer += 3; // for the 3 files descriptor that we need to close
@@ -50,6 +51,10 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     }
 
     logger("simple command : execute : %s\n", argv[0]);
+    for (int i = 0; i < argc; i++)
+    {
+        logger("builtin execute : %s\n", argv[i]);
+    }
 
     ret_value = run_command(argc, argv, ctx);
 

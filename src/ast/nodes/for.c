@@ -141,7 +141,8 @@ int ast_eval_for(struct ast_for_node *node,
     while (item)
     {
         char *value = NULL;
-        if (ast_eval(item->data, (void **)&value, ctx))
+        struct linked_list *linked_list = list_init();
+        if (ast_eval(item->data, linked_list, ctx))
         {
             warnx("for: unexpected error");
             return AST_EVAL_ERROR;

@@ -85,7 +85,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, struct linked_list *out,
                        struct ast_eval_ctx *ctx)
 {
-    return ast_eval(cmd->ast_node, ptr, ctx);
+    return ast_eval(cmd->ast_node, out, ctx);
 }
 void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 {

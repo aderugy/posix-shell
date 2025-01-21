@@ -63,13 +63,14 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
     return node;
 }
 
-int ast_eval_prefix(struct ast_prefix *node, void **out,
+int ast_eval_prefix(struct ast_prefix *node, struct linked_list *out,
                     struct ast_eval_ctx *ctx)
 {
     if (node->type == AST_PREFIX_ASSIGNMENT)
     {
         char *value = NULL;
-        if (ast_eval_cword(node->child.word, (void **)&value, ctx)
+        struct linked_list *linked_list = list_init();
+        if (ast_eval_cword(node->child.word, linked_list, ctx)
             == AST_EVAL_ERROR)
         {
             return AST_EVAL_ERROR;

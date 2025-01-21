@@ -45,7 +45,7 @@ struct ast_node
 struct ast_node_operations
 {
     void *(*parse)(struct lexer *lexer);
-    int (*eval)(void *node, void **out, void *ctx);
+    int (*eval)(void *node, struct linked_list *out, void *ctx);
     void (*free)(void *node);
     void (*print)(void *node);
 };
