@@ -63,6 +63,16 @@ void lexer_free(struct lexer *lexer);
 struct token *lexer_peek(struct lexer *lexer);
 
 /**
+ * \brief Returns the second next token, but doesn't move forward:
+  calling lexer_peek_two multiple times in a row always returns the same result.
+ * This function is meant to help the parser during the fundec parsing
+ * there is indeed a conflict between the SIMPLE_CMD grammar
+ * and the FUNDEC grammar. Look at the SCL for further information.
+ * information ACU verified
+ */
+struct token *lexer_peek_two(struct lexer *lexer);
+
+/**
  * \brief Returns the next token, and removes it from the stream:
  *   calling lexer_pop in a loop will iterate over all tokens until EOF.
  */
