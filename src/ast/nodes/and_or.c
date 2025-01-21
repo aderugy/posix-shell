@@ -11,7 +11,7 @@
 
 struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
 {
-    struct ast_and_or_node *root = calloc(1, sizeof(struct ast_and_or_node));
+    struct ast_and_or_node *root = xcalloc(1, sizeof(struct ast_and_or_node));
     CHECK_MEMORY_ERROR(root);
     root->type = NONE;
 
@@ -29,7 +29,7 @@ struct ast_and_or_node *ast_parse_and_or(struct lexer *lexer)
     {
         node = root;
 
-        root = calloc(1, sizeof(struct ast_and_or_node));
+        root = xcalloc(1, sizeof(struct ast_and_or_node));
         CHECK_MEMORY_ERROR(root);
 
         root->right = node;
