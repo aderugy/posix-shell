@@ -82,7 +82,6 @@ char *ctx_get_value(struct ast_eval_ctx *ctx, struct mbt_str *name)
         {
             value = tmp->data;
         }
-        
     }
 
     return value;
