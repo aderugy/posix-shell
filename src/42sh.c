@@ -36,7 +36,8 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     /*
      * Process input line by line (AST_INPUT after AST_INPUT)
      */
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    while (!lexer->eof && !lexer->error && (node = ast_create(lexer, AST_INPUT))
+           && !return_value)
     {
         ast_print(node);
         return_value = ast_eval(node, NULL, *ctx);
@@ -44,7 +45,7 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
         ast_free(node);
     }
 
-    if (!node && lexer->stream)
+    if (lexer->error)
     {
         warnx("Syntax error");
         return_value = 2;

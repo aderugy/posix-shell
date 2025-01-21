@@ -6,44 +6,41 @@
 
 #include "list.h"
 #include "node.h"
-#include "utils/err_utils.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
 
 struct ast_input *ast_parse_input(struct lexer *lexer)
 {
     struct ast_input *input = calloc(1, sizeof(struct ast_input));
-    CHECK_MEMORY_ERROR(input);
+    if (!input)
+    {
+        errx(EXIT_FAILURE, "out of memory");
+    }
 
-    logger("PARSE INPUT\n");
-    input->list = ast_create(lexer, AST_LIST);
+    struct ast_node *list = ast_create(lexer, AST_LIST);
+    input->list = list;
 
     struct token *token = lexer_peek(lexer);
     if (!token)
     {
-        goto error;
+        ast_free_input(input);
+        return NULL;
     }
 
     if (token->type == TOKEN_NEW_LINE)
     {
         free(lexer_pop(lexer));
-        logger("PARSE INPUT (SUCCESS)\n");
         return input;
     }
 
     if (token->type != TOKEN_EOF)
     {
-        goto error;
+        ast_free_input(input);
+        return NULL;
     }
 
     free(lexer_pop(lexer));
-    logger("PARSE INPUT (SUCCESS)\n");
     return input;
-
-error:
-    ast_free_input(input);
-    logger("PARSE INPUT (ERROR)\n");
-    return NULL;
 }
 
 int ast_eval_input(struct ast_input *node, void **out, struct ast_eval_ctx *ctx)

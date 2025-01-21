@@ -29,6 +29,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     {
         ctx->check_redir = true;
         struct ast_node *children = list_get(cmd->args, i - 1);
+
         int element_eval_result;
         if ((element_eval_result =
                  ast_eval(children, (void **)&fd_pointer, ctx))

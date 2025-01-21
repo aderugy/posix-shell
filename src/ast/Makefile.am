@@ -12,6 +12,8 @@ libast_a_SOURCES =  \
   nodes/and_or.h \
   nodes/command.c \
   nodes/command.h \
+  nodes/cword.c \
+  nodes/cword.h \
   nodes/element.c \
   nodes/element.h \
   nodes/if.c \

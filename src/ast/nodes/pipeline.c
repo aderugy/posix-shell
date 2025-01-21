@@ -13,6 +13,7 @@
 #include "utils/err_utils.h"
 #include "utils/logger.h"
 #include "utils/mypipe.h"
+#include "utils/xalloc.h"
 
 /*
  * pipeline = ['!'] command { '|' {'\n'} command } ;
@@ -20,8 +21,9 @@
 
 struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
 {
-    struct ast_pipeline *node = calloc(1, sizeof(struct ast_pipeline));
-    CHECK_MEMORY_ERROR(node);
+    struct ast_node *command = NULL;
+
+    struct ast_pipeline *node = xcalloc(1, sizeof(struct ast_pipeline));
     node->commands = list_init();
 
     logger("Parse PIPELINE\n");
@@ -40,16 +42,14 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         token = lexer_peek(lexer);
     }
 
-    struct ast_node *command = ast_create(lexer, AST_COMMAND);
+    command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
         goto error;
     }
-
-    token = lexer_peek(lexer);
-
     list_append(node->commands, command);
-    while (token->type == TOKEN_PIPE)
+
+    while ((token = lexer_peek(lexer)) && token->type == TOKEN_PIPE)
     {
         lexer_pop(lexer);
         token_free(token);
@@ -62,11 +62,11 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
             token = lexer_peek(lexer);
         }
 
-        struct ast_node *command = ast_create(lexer, AST_COMMAND);
+        command = ast_create(lexer, AST_COMMAND);
         if (!command)
         {
-            errx(2, "ast_pipeline: no command found");
-            // goto error;
+            lexer_error(lexer, "expected command");
+            goto error;
         }
 
         list_append(node->commands, command);
@@ -77,6 +77,11 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     return node;
 
 error:
+    if (command)
+    {
+        ast_free(command);
+    }
+
     ast_free_pipeline(node);
     logger("Exit PIPELINE (ERROR)\n");
     return NULL;
@@ -94,7 +99,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, void **out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not == 1)
+    if (node->not== 1)
     {
         result = !result;
     }

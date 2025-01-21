@@ -40,33 +40,29 @@ const char *get_token_name(enum token_type token)
     return "UNKNOWN_TOKEN";
 }
 
-static const struct keyword KEYWORDS[] = { { "<>", TOKEN_REDIR_FOPEN_RW },
-                                           { ">>", TOKEN_REDIR_STDOUT_FILE_A },
-                                           { ">&", TOKEN_REDIR_STDOUT_FD },
-                                           { "<&", TOKEN_REDIR_STDIN_FD },
-                                           { ">|",
-                                             TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
-                                           { ">", TOKEN_REDIR_STDOUT_FILE },
-                                           { "<", TOKEN_REDIR_FILE_STDIN },
-                                           { ";", TOKEN_SEMICOLON },
-                                           { "\n", TOKEN_NEW_LINE },
-                                           { "'", TOKEN_QUOTE },
-                                           { "|", TOKEN_PIPE },
-                                           { "&&", TOKEN_AND },
-                                           { "||", TOKEN_OR },
-<<<<<<< HEAD
-                                           { "<>", TOKEN_REDIR_FOPEN_RW },
-                                           { ">>", TOKEN_REDIR_STDOUT_FILE_A },
-                                           { ">&", TOKEN_REDIR_STDOUT_FD },
-                                           { "<&", TOKEN_REDIR_STDIN_FD },
-                                           { ">|",
-                                             TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
-                                           { ">", TOKEN_REDIR_STDOUT_FILE },
-                                           { "<", TOKEN_REDIR_FILE_STDIN },
-=======
-
->>>>>>> main
-                                           { NULL, TOKEN_EOF } };
+static const struct keyword KEYWORDS[] = {
+    { "<>", TOKEN_REDIR_FOPEN_RW },
+    { ">>", TOKEN_REDIR_STDOUT_FILE_A },
+    { ">&", TOKEN_REDIR_STDOUT_FD },
+    { "<&", TOKEN_REDIR_STDIN_FD },
+    { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
+    { ">", TOKEN_REDIR_STDOUT_FILE },
+    { "<", TOKEN_REDIR_FILE_STDIN },
+    { ";", TOKEN_SEMICOLON },
+    { "\n", TOKEN_NEW_LINE },
+    { "'", TOKEN_QUOTE },
+    { "|", TOKEN_PIPE },
+    { "&&", TOKEN_AND },
+    { "||", TOKEN_OR },
+    { "<>", TOKEN_REDIR_FOPEN_RW },
+    { ">>", TOKEN_REDIR_STDOUT_FILE_A },
+    { ">&", TOKEN_REDIR_STDOUT_FD },
+    { "<&", TOKEN_REDIR_STDIN_FD },
+    { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
+    { ">", TOKEN_REDIR_STDOUT_FILE },
+    { "<", TOKEN_REDIR_FILE_STDIN },
+    { NULL, TOKEN_EOF }
+};
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
@@ -128,6 +124,11 @@ void lexer_free(struct lexer *lexer)
 
 static struct token *lex(struct lexer *lexer)
 {
+    if (lexer->eof)
+    {
+        return NULL;
+    }
+
     struct token *token = xcalloc(1, sizeof(struct token));
     token->type = TOKEN_ERROR;
 
@@ -136,26 +137,13 @@ static struct token *lex(struct lexer *lexer)
     {
         if (lexer->ctx->err)
         {
-<<<<<<< HEAD
             lexer_error(lexer, NULL);
-=======
-            token->type = KEYWORDS[i].type;
-            logger("type found : %s for%s\n", get_token_name(token->type),
-                   shard->data);
-            if (token->type > TOKEN_OR
-                && token->type < TOKEN_AWORD) // if it is a redir
-            {
-                logger("is a redir\n");
-                size_t s = first_occurence_of_chevron - shard->data;
-                token->value.c = malloc((s + 1) * sizeof(char));
-                strncpy(token->value.c, shard->data, s);
-                token->value.c[s] = 0;
-            }
-            break;
->>>>>>> main
+            goto error;
         }
 
-        goto error;
+        token->type = TOKEN_EOF;
+        lexer->eof = true;
+        return token;
     }
 
     if (shard->can_chain)

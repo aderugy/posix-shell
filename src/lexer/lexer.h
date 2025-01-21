@@ -31,7 +31,9 @@ struct lexer
     struct stack *tokens;
 
     struct splitter_ctx *ctx;
+
     bool error;
+    bool eof;
 };
 
 struct keyword

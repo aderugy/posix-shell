@@ -110,7 +110,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         struct ast_node *children = list_get(cmd->args, i - 1);
         if (ast_eval(children, (void **)argv + elt, ctx) == 0)
         {
-            // logger("  simple_connad.c : found arg : %s\n", argv[elt]);
             elt++;
         }
     }
@@ -119,7 +118,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         get_command(argv[0], NULL); // get the builtin if exists
 
     int ret_value = 0;
-
     if (cmd_runnable) // check if it is a builtin
     {
         ret_value = simple_command_execute_builtin(cmd, argv, ctx);
@@ -129,6 +127,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, argc);
     }
 
+    for (size_t i = 1; i <= elt; i++)
+    {
+        free(argv[i]);
+    }
     free(argv);
     return ret_value;
 }
