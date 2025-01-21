@@ -15,7 +15,6 @@ DIFF_ERR="diff_err.out"
 SCRIPT="script.sh"
 
 # bin name and path
-
 F="$BIN_PATH"
 # for colors
 G=""
@@ -118,6 +117,8 @@ testsuite() {
 }
 
 testsuite
+
+echo $F
 #================== making sure every file exists before deleting them
 touch $EXPECTED_OUT
 touch $ACTUAL_OUT
