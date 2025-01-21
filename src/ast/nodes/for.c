@@ -32,48 +32,52 @@ static void skip_new_line(struct lexer *lexer)
     }
 }
 
-static void check_word_done(struct lexer *lexer)
+static void *check_word_done(struct lexer *lexer)
 {
     struct token *tok = NULL;
     if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
         || strcmp(tok->value.c, "done"))
     {
         lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
-        goto error;
+        return NULL;
     }
+    return tok;
 }
 
-static void check_newline_colon(struct lexer *lexer)
+static void *check_newline_colon(struct lexer *lexer)
 {
     struct token *tok = NULL;
     if (!(tok = lexer_peek(lexer))
         || !(tok->type == TOKEN_NEW_LINE || tok->type == TOKEN_SEMICOLON))
     {
         lexer_error(lexer, "expected delimiter");
-        goto error;
+        return NULL;
     }
+    return tok;
 }
 
-static void check_word_in(struct lexer *lexer)
+static void *check_word_in(struct lexer *lexer)
 {
     struct token *tok = NULL;
     if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
         || strcmp(tok->value.c, "in"))
     {
-        errx(2, "ast_for_node: Syntax error: Bad for loop variable");
-        //      goto error;
+        lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
+        return NULL;
     }
+    return tok;
 }
 
-static void check_word_do(struct lexer *lexer)
+static void *check_word_do(struct lexer *lexer)
 {
     struct token *tok = NULL;
     if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
         || strcmp(tok->value.c, "do"))
     {
         lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
-        goto error;
+        return NULL;
     }
+    return tok;
 }
 
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
@@ -112,7 +116,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
         skip_new_line(lexer);
 
         // 'in'
-        check_word_in(lexer);
+        if (!check_word_in(lexer))
+            goto error;
 
         token_free(lexer_pop(lexer));
 
@@ -123,7 +128,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
             list_append(ast->items, child);
         }
 
-        check_newline_colon(lexer);
+        if (!check_newline_colon(lexer))
+            goto error;
         token_free(lexer_pop(lexer));
     }
 
@@ -131,7 +137,9 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     skip_new_line(lexer);
 
     // 'do'
-    check_word_do(lexer);
+    if (!check_word_do(lexer))
+        goto error;
+
     token_free(lexer_pop(lexer));
 
     if (!(ast->body = ast_create(lexer, AST_CLIST)))
@@ -140,7 +148,8 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
         goto error;
     }
 
-    check_word_done(lexer);
+    if (!check_word_done(lexer))
+        goto error;
     token_free(lexer_pop(lexer));
 
     logger("EXIT FOR (SUCCESS)\n");

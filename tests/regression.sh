@@ -268,12 +268,14 @@ test_redirections() {
 
 }
 test_quoting() {
-<<<<<<< HEAD
   echo "========== QUOTING BEGIN =========="
   for i in $(find step2/quoting -name "*sh"); do
     test_from_file $i
     test_from_stdin $i
   done
+  tes "echo Hello World!"
+  tes "'echo' hello 'my' dream"
+  tes "'ls'"
   echo "========== QUOTING END =========="
 }
 test_pipeline() {
@@ -283,30 +285,7 @@ test_pipeline() {
   tes "echo Hello | tr a e | tr e a | tr a e"
   tes "find -name *.c | echo"
   tes "tree -L 2 | echo | tr e a | tr c b"
-  tes "echo Hello World!"
-  tes "'echo' hello 'my' dream"
-  tes "'ls'"
   echo "========== PIPELINE END =========="
-=======
-    echo "========== QUOTING BEGIN =========="
-    for i in $(find step2/quoting -name "*sh"); do
-        test_from_file $i
-        test_from_stdin $i
-    done
-    tes "echo Hello World!"
-    tes "'echo' hello 'my' dream"
-    tes "'ls'"
-    echo "========== QUOTING END =========="
-}
-test_pipeline() {
-    echo "========== PIPELINE BEGIN =========="
-    tes "echo Hello | tr a e"
-    tes "echo Hello | tr a e | tr e a"
-    tes "echo Hello | tr a e | tr e a | tr a e"
-    tes "find -name *.c | echo"
-    tes "tree -L 2 | echo | tr e a | tr c b"
-    echo "========== PIPELINE END =========="
->>>>>>> 801b57cd3d6aee4a2232abdc5fcf8510e3c854ea
 }
 test_neg_pipeline() {
   echo "========== NEGATION PIPELINE BEGIN =========="
