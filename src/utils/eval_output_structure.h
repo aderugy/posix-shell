@@ -5,8 +5,8 @@ struct eval_output
 {
     union
     {
-        char *str; // null terminated char list
-        int fd; // null terminated int list
+        char *str;
+        int fd;
     } value;
 };
 

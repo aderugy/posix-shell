@@ -107,11 +107,11 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         {
             struct eval_output *output = linked_list->head->data;
             argv = xrealloc(argv, (elt + 1) * sizeof(char *));
-            argv[elt] = strdup(output->value.str);
+            argv[elt] = output->value.str;
             logger("simple_command.c : get value from output %s\n", argv[elt]);
             elt++;
         }
-        list_free(linked_list, NULL);
+        list_free(linked_list, (void (*)(void *))eval_output_free);
     }
 
     struct runnable *cmd_runnable =

@@ -26,9 +26,10 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
 
     int argc = 1;
 
-    struct linked_list *linked_list = list_init();
     for (int i = 1; i < element_count; i++)
     {
+        logger("builtin: log %i\n", i);
+        struct linked_list *linked_list = list_init();
         ctx->check_redir = true;
         struct ast_node *children = list_get(cmd->args, i - 1);
 
@@ -51,6 +52,8 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
         {
             argc++;
         }
+
+        list_free(linked_list, (void (*)(void *))eval_output_free);
     }
 
     logger("simple command : execute : %s\n", argv[0]);

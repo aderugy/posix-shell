@@ -3,6 +3,7 @@
 #include <err.h>
 #include <stdlib.h>
 
+#include "logger.h"
 #include "xalloc.h"
 struct linked_list *list_init(void)
 {
