@@ -32,6 +32,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     {
         goto error;
     }
+    node->name = strdup(token->value.c);
     token_free(lexer_pop(lexer));
 
     // '('
@@ -42,7 +43,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     // ')'
-    if (!(token = lexer_peek(lexer)) || token->type != TOKEN_LEFT_PARENTHESIS)
+    if (!(token = lexer_peek(lexer)) || token->type != TOKEN_RIGHT_PARENTHESIS)
     {
         lexer_error(lexer, "unmatched parenthesis");
         goto error;
@@ -105,7 +106,7 @@ void ast_free_fundec(struct ast_fundec *f)
 }
 void ast_print_fundec(struct ast_fundec *f)
 {
-    logger("%s () { ", f->name);
+    logger("%s () {\n", f->name);
     ast_print(f->fun);
     if (f->redirs->size)
     {
@@ -117,5 +118,5 @@ void ast_print_fundec(struct ast_fundec *f)
             head = head->next;
         }
     }
-    logger(" }");
+    logger("\n}\n");
 }

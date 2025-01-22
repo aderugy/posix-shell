@@ -47,16 +47,15 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         return cmd;
     }
 
-    // { prefix } WORD { element }
-    token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
+    struct token *parenthesis = lexer_peek_two(lexer);
+    if (parenthesis && parenthesis->type == TOKEN_LEFT_PARENTHESIS)
     {
         goto error;
     }
 
-    struct token *parenthese = lexer_peek_two(lexer);
-
-    if (parenthese && parenthese->type == TOKEN_SUBSHELL)
+    // { prefix } WORD { element }
+    token = lexer_peek(lexer);
+    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
     {
         goto error;
     }
@@ -150,8 +149,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
         else
         {
-            ret_value =
-                simple_command_execute_non_builtin(cmd, argv, ctx, elt);
+            ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
         }
     }
 
