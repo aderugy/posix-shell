@@ -1,7 +1,6 @@
 #include "redirection.h"
 
 #include <ctype.h>
-#include "redirection_definition.h"
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -13,6 +12,7 @@
 #include "element.h"
 #include "ionumber.h"
 #include "node.h"
+#include "redirection_definition.h"
 #include "redirection_stdin.h"
 #include "redirection_stdout.h"
 #include "utils/logger.h"
@@ -38,8 +38,6 @@ static const struct redirection REDIR_LIST[] = {
 };
 
 #define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
-
-
 
 static int is_redir(struct token *token)
 {
@@ -93,13 +91,15 @@ int redir_fopen_rw(struct ast_redir *node,
                    __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int fd2 = 0;
+    int fd = -1;
+    int fd2 = -1;
+    int saved_stdout = -1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
 
-    int saved_stdout = dup(fd2);
+     saved_stdout = dup(fd2);
 
     struct linked_list *filenames = list_init();
     if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
@@ -120,7 +120,7 @@ int redir_fopen_rw(struct ast_redir *node,
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
 
-    int fd = open(file, O_RDWR);
+ fd = open(file, O_RDWR);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", file);
@@ -136,6 +136,18 @@ int redir_fopen_rw(struct ast_redir *node,
     return AST_EVAL_SUCCESS;
 
 error:
+    if (fd != -1)
+    {
+        close(fd);
+    }
+    if (fd2 != -1)
+    {
+        close(fd2);
+    }
+    if (saved_stdout != -1)
+    {
+        close(saved_stdout);
+    }
     list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_ERROR;
 }
