@@ -42,7 +42,6 @@ struct keyword
     enum token_type type;
 };
 
-
 /**
  * \brief Creates a new lexer given an input string.
  */
