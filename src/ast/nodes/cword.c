@@ -4,8 +4,11 @@
 #include <err.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "eval_ctx.h"
+#include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"
 #include "node.h"
@@ -49,11 +52,75 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_subshell(__attribute((unused)) const struct ast_cword *node,
-                         __attribute((unused)) struct linked_list *out,
-                         __attribute((unused)) struct ast_eval_ctx *ctx)
+static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
+                         struct ast_eval_ctx *ctx)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    int pipefd[2];
+    pid_t pid;
+
+    if (pipe(pipefd) == -1)
+    {
+        warnx("eval_subshell: pipe error");
+        return 1;
+    }
+
+    pid = fork();
+    if (pid == -1)
+    {
+        warnx("eval_subshell: pid error");
+        return 1;
+    }
+
+    if (pid == 0) // CHILD
+    {
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+        struct stream *stream = stream_from_str(node->data);
+        struct lexer *lexer2 = lexer_create(stream);
+        struct ast_node *node = ast_create(lexer2, AST_INPUT);
+        int return_value = node ? 0 : 2;
+        do
+        {
+            ast_print(node);
+            return_value = ast_eval(node, NULL, ctx);
+            ast_free(node);
+
+            node = ast_create(lexer2, AST_INPUT);
+        } while (!lexer2->eof && !lexer2->error && node && !return_value);
+        lexer_free(lexer2);
+        if (node)
+        {
+            ast_free(node);
+        }
+
+        exit(return_value);
+    }
+    else
+    {
+        close(pipefd[1]);
+        int status;
+        waitpid(pid, &status, 0);
+        char *buffer = xcalloc(1, 128);
+        size_t buffer_size = 128;
+        size_t total_read = 0;
+        ssize_t bytes_read;
+        while ((bytes_read = read(pipefd[0], buffer + total_read,
+                                  buffer_size - total_read - 1))
+               > 0)
+        {
+            total_read += bytes_read;
+            if (total_read >= buffer_size - 1)
+            {
+                buffer_size *= 2;
+                buffer = xrealloc(buffer, buffer_size);
+            }
+        }
+        buffer[total_read] = 0;
+        list_append(out, buffer);
+        close(pipefd[0]);
+        return WEXITSTATUS(status);
+    }
 }
 
 static int eval_arith(__attribute((unused)) const struct ast_cword *node,

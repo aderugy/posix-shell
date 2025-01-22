@@ -51,11 +51,8 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 
     if (token && token->type == TOKEN_SUBSHELL)
     {
-        logger("Subshell !!!!\n");
-        token_print(token);
         struct stream *stream = stream_from_str(token->value.c);
         struct lexer *lexer2 = lexer_create(stream);
-        token_print(lexer_peek(lexer2));
         struct ast_node *clist = ast_create(lexer2, AST_CLIST);
         if (clist)
         {
@@ -66,11 +63,6 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
             token_free(lexer_pop(lexer));
             return node;
         }
-        else
-        {
-            logger("Flop\n");
-        }
-
         lexer_free(lexer2);
         token_free(lexer_pop(lexer));
         ast_free_shell_cmd(node);
