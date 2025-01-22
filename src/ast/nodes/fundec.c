@@ -44,6 +44,7 @@ int sub_parse_fundec(struct lexer *lexer, struct token *token)
             token = lexer_peek(lexer);
         }
 
+        /*
         if (!(TOKEN_OK) || strcmp(token->value.c, "{") != 0)
         {
             lexer_error(lexer, "function_def : no {");
@@ -51,6 +52,7 @@ int sub_parse_fundec(struct lexer *lexer, struct token *token)
         }
 
         token_free(lexer_pop(lexer));
+        */
     }
     else
     {
