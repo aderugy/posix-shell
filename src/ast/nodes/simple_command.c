@@ -152,10 +152,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
     }
 
-    for (size_t i = 0; i < elt; i++)
+    /*for (size_t i = 0; i < elt; i++)
     {
         free(argv[i]);
-    }
+    }*/
     free(argv);
     return ret_value;
 }
