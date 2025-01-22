@@ -28,20 +28,23 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
         return AST_EVAL_SUCCESS;
     }
 
-    struct linked_list *right = NULL;
+    struct linked_list *right = list_init();
     if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
     {
         return AST_EVAL_ERROR;
     }
 
-    char *right_str = right->head->data;
+    struct eval_output *right_eval_output = right->head->data;
+
+    char *right_str = right_eval_output->value.str;
 
     struct eval_output *eval_output = eval_output_init();
 
     eval_output->value.str = merge_str(node->data, right_str);
 
     list_append(out, eval_output);
-    free(right);
+    free(right_str);
+    list_free(right, (void (*)(void *))eval_output_free);
 
     return AST_EVAL_SUCCESS;
 }
@@ -159,8 +162,7 @@ struct ast_cword *ast_parse_cword(struct lexer *lexer)
     struct ast_cword *node = ast_parse_cword_from_token(token);
     if (node)
     {
-        lexer_pop(lexer);
-        token_free(token);
+        token_free(lexer_pop(lexer));
     }
 
     logger("Parse CWORD (%s)\n", node ? "SUCCESS" : "ERROR");

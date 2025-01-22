@@ -39,7 +39,7 @@ tes() {
 test_from_stdin() {
   bash --posix <"$@" >"$EXPECTED_OUT" 2>"$EXPECTED_ERR_OUT"
   "$F" <"$@" >"$ACTUAL_OUT" 2>"$ACTUAL_ERR_OUT"
-  $OUTPUT_CODE_RETURN=$?
+  OUTPUT_CODE_RETURN=$?
   output_test "./$BIN < $@"
 }
 
@@ -206,7 +206,7 @@ test_errs() {
 
 test_special_vars() {
   echo "========== SPE_VARS BEGIN =========="
-  for i in $(find tests/step2/special_var -name "*sh"); do
+  for i in $(find step2/special_var -name "*sh"); do
     test_from_file $i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
     test_from_stdin $i
   done

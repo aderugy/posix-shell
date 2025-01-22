@@ -48,6 +48,7 @@ static void discard_comment(struct splitter_ctx *ctx);
 // @TIDY
 static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
+    logger("splitter_next\n");
     struct mbt_str *str = mbt_str_init(64);
 
     if (ctx->expect->size)
@@ -69,6 +70,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         char c;
         while ((c = stream_peek(ctx->stream)) > 0)
         {
+            logger("c = %c\n", c);
             // Case 1: EOF handled by exiting the loop
             if (shard_is_operator(str) || shard_is_redir(str))
             {
@@ -108,6 +110,12 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     stream_read(ctx->stream);
                     splitter_read_until(ctx, str, '\'');
                     stream_read(ctx->stream);
+
+                    if (!str->size)
+                    {
+                        continue;
+                    }
+
                     return shard_init(str, true, SHARD_WORD,
                                       SHARD_SINGLE_QUOTED);
                 }
@@ -271,6 +279,7 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     }
     else if (c == '(')
     {
+        logger("SUBSHELLLL\n");
         stream_read(ctx->stream);
         c = stream_peek(ctx->stream);
 
@@ -403,6 +412,10 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                               SHARD_DOUBLE_QUOTED);
 
         case '\\':
+            if (NOT_EMPTY(str))
+            {
+                return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
+            }
             splitter_handle_backslash(ctx, str);
             return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
 
