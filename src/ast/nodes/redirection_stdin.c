@@ -11,7 +11,7 @@ int redir_file_stdin(struct ast_redir *node,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     if (node->number != -1)
     {
@@ -74,7 +74,7 @@ int redir_stdin_fd(struct ast_redir *node,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
 
     struct linked_list *filenames = list_init();

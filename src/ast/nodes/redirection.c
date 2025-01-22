@@ -65,16 +65,12 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
 
     redir->number = -1;
     char number = 1;
-    size_t i = 0;
     if (isdigit(*token->value.c))
     {
         number = *token->value.c - '0';
+        redir->number = number;
     }
 
-    if (number == 1 && i > 0)
-    {
-        redir->number = atoi(token->value.c);
-    }
     redir->pipe = token->type;
     token_free(lexer_pop(lexer));
 
@@ -92,14 +88,14 @@ int redir_fopen_rw(struct ast_redir *node,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
 
-     saved_stdout = dup(fd2);
+    saved_stdout = dup(fd2);
 
     struct linked_list *filenames = list_init();
     if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
@@ -120,7 +116,7 @@ int redir_fopen_rw(struct ast_redir *node,
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
 
- fd = open(file, O_RDWR);
+    fd = open(file, O_RDWR);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", file);

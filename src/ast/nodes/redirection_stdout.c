@@ -11,7 +11,7 @@ int redir_stdout_file_a(struct ast_redir *node,
                         __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     if (node->number != -1)
     {
@@ -73,7 +73,7 @@ int redir_stdout_fd(struct ast_redir *node,
                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     struct linked_list *filenames = list_init();
     if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
@@ -104,7 +104,7 @@ int redir_stdout_fd(struct ast_redir *node,
     }
 
     saved_stdout = dup(fd2);
-     fd = atoi(val);
+    fd = atoi(val);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
@@ -141,7 +141,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     if (node->number != -1)
     {
@@ -200,12 +200,15 @@ int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = -1;
+    int fd2 = 1;
     int saved_stdout = -1;
     if (node->number != -1)
     {
         logger("found node->number %i\n", node->number);
         fd2 = node->number;
+    }
+    else {
+    logger("there is no ionumber\n");
     }
 
     saved_stdout = dup(fd2);
