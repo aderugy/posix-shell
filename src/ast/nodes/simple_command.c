@@ -113,7 +113,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
             argv = xrealloc(argv, (elt + 1) * sizeof(char *));
 
-            argv[elt] = output->value.str;
+            argv[elt] = strdup(output->value.str);
 
             logger("simple_command.c : get value from output %s\n", argv[elt]);
 
