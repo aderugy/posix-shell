@@ -183,11 +183,16 @@ int ast_eval_for(struct ast_for_node *node,
             return AST_EVAL_ERROR;
         }
 
+        struct eval_output *eval_output = linked_list->head->data;
+        value = eval_output->value.str;
+
         ctx_set_local_variable(ctx, node->name, value);
+
 
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
         free(value);
+        list_free(linked_list, (void (*)(void *))eval_output_free);
 
         if (ctx->break_count > 0)
         {
