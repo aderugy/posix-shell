@@ -39,7 +39,7 @@ struct ast_prefix *ast_parse_prefix(struct lexer *lexer)
             memmove(token->value.c, eq, strlen(eq) + 1);
 
             node->type = AST_PREFIX_ASSIGNMENT;
-            node->child.word = ast_parse_cword_from_token(token);
+            node->child.word = ast_parse_cword_from_token(token, lexer);
             token_free(lexer_pop(lexer));
 
             logger("PARSE PREFIX (SUCCESS)\n");
