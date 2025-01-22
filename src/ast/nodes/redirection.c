@@ -1,6 +1,7 @@
 #include "redirection.h"
 
 #include <ctype.h>
+#include "redirection_definition.h"
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -37,6 +38,8 @@ static const struct redirection REDIR_LIST[] = {
 };
 
 #define REDIR_LEN (sizeof(REDIR_LIST) / sizeof(REDIR_LIST[0]))
+
+
 
 static int is_redir(struct token *token)
 {
@@ -127,20 +130,7 @@ int redir_fopen_rw(struct ast_redir *node,
     {
         errx(2, "redir_eval: dup: error");
     }
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
 
     list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_SUCCESS;

@@ -25,6 +25,7 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 
         list_append(out, eval_output);
 
+
         return AST_EVAL_SUCCESS;
     }
 

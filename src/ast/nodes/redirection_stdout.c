@@ -3,6 +3,7 @@
 #include <ctype.h>
 
 #include "node.h"
+#include "redirection_definition.h"
 #include "utils/logger.h"
 
 int redir_stdout_file_a(struct ast_redir *node,
@@ -45,20 +46,7 @@ int redir_stdout_file_a(struct ast_redir *node,
 
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
     return 0;
 
 error:
@@ -110,20 +98,7 @@ int redir_stdout_fd(struct ast_redir *node,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
 
     return 0;
 
@@ -169,20 +144,7 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
 
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
     return 0;
 
 error:
@@ -226,20 +188,7 @@ int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
     }
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
     return 0;
 
 error:
