@@ -46,7 +46,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (token_is_valid_keyword(token, "then"))
+        if (!token_is_valid_keyword(token, "then"))
         {
             return NULL;
         }
