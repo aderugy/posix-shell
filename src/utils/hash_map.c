@@ -75,27 +75,33 @@ static bool hash_map_remove(struct hash_map *hash_map, char *key,
         return false;
     }
     size_t index = hash(key);
+
     if (index >= hash_map->size)
     {
         index %= hash_map->size;
     }
+
     struct hash_map_elt *prev = NULL;
     struct hash_map_elt *p = hash_map->data[index];
+
     if (p && strcmp(p->key, key) == 0 && p->type == type)
     {
         hash_map->data[index] = p->next;
         hash_map_elt_free(p);
         return true;
     }
+
     while (p && strcmp(p->key, key) && p->type != type)
     {
         prev = p;
         p = p->next;
     }
+
     if (p == NULL)
     {
         return false;
     }
+
     prev->next = p->next;
     hash_map_elt_free(p);
     return true;

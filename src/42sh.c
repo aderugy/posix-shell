@@ -99,7 +99,6 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
-            nb_args = ctx_init_local_args(argc, argv, ctx);
         }
         else
         {
@@ -124,6 +123,8 @@ int main(int argc, char *argv[])
         lexer_free(lexer);
         return 0;
     }
+
+    nb_args = ctx_init_local_args(argc, argv, ctx);
 
     return sub_main(&stream, &ctx, nb_args);
 }

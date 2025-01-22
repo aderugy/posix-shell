@@ -21,7 +21,8 @@ struct ast_cmd
 };
 
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer);
-int ast_eval_cmd(struct ast_cmd *node, struct linked_list *out, struct ast_eval_ctx *ctx);
+int ast_eval_cmd(struct ast_cmd *node, struct linked_list *out,
+                 struct ast_eval_ctx *ctx);
 void ast_free_cmd(struct ast_cmd *node);
 
 void ast_print_cmd(struct ast_cmd *node);

@@ -74,7 +74,8 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     ast_free_fundec(node);
     return NULL;
 }
-int ast_eval_fundec(struct ast_fundec *f, struct linked_list *ptr, struct ast_eval_ctx *ctx)
+int ast_eval_fundec(struct ast_fundec *f, struct linked_list *ptr,
+                    struct ast_eval_ctx *ctx)
 {
     if (!(f->is_declared))
     {

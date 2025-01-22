@@ -14,7 +14,5 @@ struct eval_output *eval_output_init(void)
 
 void eval_output_free(struct eval_output *eval_output)
 {
-    
-
     free(eval_output); // free the struct
 }

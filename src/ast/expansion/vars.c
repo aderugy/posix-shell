@@ -66,6 +66,9 @@ int ctx_init_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
     // FOR $@ = $1 + IFS + $2 + IFS + etc
     struct mbt_str *arobase_args = mbt_str_init(64);
 
+    // $0
+    ctx_set_local_variable(ctx, "0", argv[0]);
+
     for (int i = 2; i < argc; i++)
     {
         // Accumlution to form the list of arguments
