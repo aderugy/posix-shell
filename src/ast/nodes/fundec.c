@@ -99,7 +99,6 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
             }
             logger("Exit FUNDEC (SUCCESS)\n");
             node->ast_node = shell_cmd;
-            node->is_declared = false;
             return node;
         }
         goto error;
@@ -109,16 +108,13 @@ error:
     ast_free_fundec(node);
     return NULL;
 }
-int ast_eval_fundec(struct ast_fundec *f, struct linked_list *ptr,
+int ast_eval_fundec(struct ast_fundec *f,
+                    __attribute__((unused)) struct linked_list *ptr,
                     struct ast_eval_ctx *ctx)
 {
-    if (!(f->is_declared))
-    {
-        f->is_declared = true;
-        ctx_set_function(ctx, f->name, f->ast_node);
-        return EXIT_SUCCESS;
-    }
-    return ast_eval(f->ast_node, ptr, ctx);
+    ctx_set_function(ctx, f->name, f->ast_node);
+    f->ast_node = NULL;
+    return EXIT_SUCCESS;
 }
 void ast_free_fundec(struct ast_fundec *f)
 {

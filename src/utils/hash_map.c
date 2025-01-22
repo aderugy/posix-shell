@@ -47,7 +47,7 @@ static void hash_map_elt_free(struct hash_map_elt *elt)
         free(elt->key);
         if (elt->type == HASH_FUNCTION)
         {
-            // ast_free(elt->value);
+            ast_free(elt->value);
         }
         else
         {
