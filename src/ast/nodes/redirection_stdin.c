@@ -69,6 +69,10 @@ int redir_stdin_fd(struct ast_redir *node,
                    __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    int fd = -1;
+    int fd2 = -1;
+    int saved_stdout = -1;
+
     struct linked_list *filenames = list_init();
     if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
         || filenames->size != 1)
@@ -91,27 +95,27 @@ int redir_stdin_fd(struct ast_redir *node,
         }
     }
 
-    int fd2 = 1;
+    fd2 = 1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
 
-    int saved_stdout = dup(fd2);
-    int fd = atoi(val);
+    saved_stdout = dup(fd2);
+    fd = atoi(val);
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
-        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
+        goto error;
     }
 
     if (fcntl(fd, F_SETFD) == -1)
     {
-        errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
+        goto error;
     }
 
     if (dup2(fd, fd2) == -1)
     {
-        errx(2, "redir_eval: dup: error");
+        goto error;
     }
     if (out)
     {
@@ -131,5 +135,19 @@ int redir_stdin_fd(struct ast_redir *node,
     return 0;
 
 error:
+    if (fd != -1)
+    {
+        close(fd);
+    }
+    if (fd2 != -1)
+    {
+        close(fd2);
+    }
+    if (saved_stdout != -1)
+    {
+        close(saved_stdout);
+    }
+
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_ERROR;
 }
