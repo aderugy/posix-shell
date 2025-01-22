@@ -31,30 +31,38 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
         token_free(token);
 
         token = lexer_peek(lexer);
-        if (token && token->type == TOKEN_SUBSHELL)
+        if (TOKEN_OK && strcmp(token->value.c, "(") == 0)
         {
             lexer_pop(lexer);
             token_free(token);
             token = lexer_peek(lexer);
-            while (token && token->type == TOKEN_NEW_LINE)
+
+            if (TOKEN_OK && strcmp(token->value.c, ")") == 0)
             {
                 lexer_pop(lexer);
                 token_free(token);
                 token = lexer_peek(lexer);
-            }
+                while (token && token->type == TOKEN_NEW_LINE)
+                {
+                    lexer_pop(lexer);
+                    token_free(token);
+                    token = lexer_peek(lexer);
+                }
 
-            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-            if (!shell_cmd)
-            {
-                ast_free_fundec(node);
-                logger("no shell command was found after () { \\n }\n");
-                logger("Exit FUNDEC (FAILED)\n");
-                return NULL;
+                struct ast_node *shell_cmd =
+                    ast_create(lexer, AST_SHELL_COMMAND);
+                if (!shell_cmd)
+                {
+                    ast_free_fundec(node);
+                    logger("no shell command was found after () { \\n }\n");
+                    logger("Exit FUNDEC (FAILED)\n");
+                    return NULL;
+                }
+                logger("Exit FUNDEC (SUCCESS)\n");
+                node->ast_node = shell_cmd;
+                node->is_declared = false;
+                return node;
             }
-            logger("Exit FUNDEC (SUCCESS)\n");
-            node->ast_node = shell_cmd;
-            node->is_declared = false;
-            return node;
         }
 
         ast_free_fundec(node);
