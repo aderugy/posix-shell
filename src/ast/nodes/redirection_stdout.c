@@ -140,9 +140,11 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
 int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    logger("eval the redirection\n");
     int fd2 = 1;
     if (node->number != -1)
     {
+        logger("found node->number %i\n", node->number);
         fd2 = node->number;
     }
 

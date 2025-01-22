@@ -99,16 +99,22 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     for (int i = 1; i < argc; i++)
     {
         ctx->check_redir = false;
-        struct ast_node *children = list_get(cmd->args, i - 1);
-        linked_list = list_init();
-        ast_eval(children, linked_list, ctx);
 
+        struct ast_node *children = list_get(cmd->args, i - 1);
+
+        linked_list = list_init();
+
+        ast_eval(children, linked_list, ctx);
         if (linked_list->head)
         {
             struct eval_output *output = linked_list->head->data;
+
             argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+
             argv[elt] = output->value.str;
+
             logger("simple_command.c : get value from output %s\n", argv[elt]);
+
             elt++;
         }
         list_free(linked_list, (void (*)(void *))eval_output_free);
@@ -124,7 +130,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
     else
     {
-        ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+        ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
     }
 
     for (size_t i = 0; i < elt; i++)
