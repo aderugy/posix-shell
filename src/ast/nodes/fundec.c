@@ -79,7 +79,7 @@ int ast_eval_fundec(struct ast_fundec *f, struct linked_list *ptr, struct ast_ev
     if (!(f->is_declared))
     {
         f->is_declared = true;
-        ctx_set_function(ctx, f->name, (void *)f->ast_node);
+        ctx_set_function(ctx, f->name, f->ast_node);
         return EXIT_SUCCESS;
     }
     return ast_eval(f->ast_node, ptr, ctx);

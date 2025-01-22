@@ -13,6 +13,7 @@
 #include "builtins/builtins.h"
 #include "builtins/commands.h"
 #include "builtins/run_command.h"
+#include "expansion/vars.h"
 #include "lexer/token.h"
 #include "node.h"
 #include "simple_command_execute_builtin.h"
@@ -126,7 +127,14 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
     if (local_function) // checks if the function exists in the hashmap
     {
+        // cf src/ast/expansion/vars.c
+        // struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
+
         ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
+
+        // cf src/ast/expansion/vars.c
+        // ctx_restore_spe_vars(ctx, params_ctx);
+        // list_free(params_ctx, free);
     }
     else
     {
