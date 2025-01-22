@@ -105,8 +105,13 @@ int redir_fopen_rw(struct ast_redir *node,
         goto error;
     }
 
-    char *file = node->file;
+    struct eval_output *filename = filenames->head->data;
+    if (filename->type != EVAL_STR)
+    {
+        goto error;
+    }
 
+    char *file = filename->value.str;
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
@@ -115,7 +120,7 @@ int redir_fopen_rw(struct ast_redir *node,
     int fd = open(file, O_RDWR);
     if (fd == -1)
     {
-        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+        errx(EXIT_FAILURE, "eval_redir: no such file: %s", file);
     }
 
     if (dup2(fd, fd2) == -1)
@@ -137,7 +142,8 @@ int redir_fopen_rw(struct ast_redir *node,
         list_append(out, eval_output_fd_3);
     }
 
-    return 0;
+    list_free(filenames, (void (*)(void *))eval_output_free);
+    return AST_EVAL_SUCCESS;
 
 error:
     list_free(filenames, (void (*)(void *))eval_output_free);
@@ -160,7 +166,10 @@ int ast_eval_redir(struct ast_redir *node, struct linked_list *out,
 
 void ast_free_redir(struct ast_redir *node)
 {
-    free(node->file);
+    if (node->file)
+    {
+        ast_free(node->file);
+    }
     free(node);
 }
 

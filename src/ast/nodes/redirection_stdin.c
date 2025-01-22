@@ -1,8 +1,10 @@
 #include "redirection_stdin.h"
 
+#include <ctype.h>
 #include <stdio.h>
 
-static const char *DIGITS = "0123456789";
+#include "node.h"
+
 int redir_file_stdin(struct ast_redir *node,
                      __attribute((unused)) struct linked_list *out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
@@ -14,7 +16,20 @@ int redir_file_stdin(struct ast_redir *node,
     }
 
     int saved_stdout = dup(fd2);
-    char *file = node->file;
+    struct linked_list *filenames = list_init();
+    if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
+        || filenames->size != 1)
+    {
+        goto error;
+    }
+
+    struct eval_output *filename = filenames->head->data;
+    if (filename->type != EVAL_STR)
+    {
+        goto error;
+    }
+
+    char *file = filename->value.str;
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
@@ -23,7 +38,7 @@ int redir_file_stdin(struct ast_redir *node,
     int fd = open(file, O_RDONLY);
     if (fd == -1)
     {
-        fprintf(stderr, "eval_redir: no such file: %s\n", node->file);
+        fprintf(stderr, "eval_redir: no such file: %s\n", file);
         return 1;
     }
 
@@ -46,15 +61,31 @@ int redir_file_stdin(struct ast_redir *node,
         list_append(out, eval_output_fd_3);
     }
     return 0;
+error:
+    // @TODO
+    return AST_EVAL_ERROR;
 }
 int redir_stdin_fd(struct ast_redir *node,
                    __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    char *val = node->file;
+    struct linked_list *filenames = list_init();
+    if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
+        || filenames->size != 1)
+    {
+        goto error;
+    }
+
+    struct eval_output *filename = filenames->head->data;
+    if (filename->type != EVAL_STR)
+    {
+        goto error;
+    }
+
+    char *val = filename->value.str;
     for (size_t i = 0; val[i]; i++)
     {
-        if (!strchr(DIGITS, val[i]))
+        if (!isdigit(val[i]))
         {
             errx(2, "redir_stdout_fd: not a number");
         }
@@ -98,4 +129,7 @@ int redir_stdin_fd(struct ast_redir *node,
     }
 
     return 0;
+
+error:
+    return AST_EVAL_ERROR;
 }
