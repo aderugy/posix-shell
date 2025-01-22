@@ -56,7 +56,8 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     struct token *parenthese = lexer_peek_two(lexer);
 
-    if (parenthese && parenthese->type == TOKEN_SUBSHELL)
+    if (parenthese && parenthese->type == TOKEN_WORD
+        && strcmp(parenthese->value.c, "()") == 0)
     {
         goto error;
     }
@@ -128,13 +129,13 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     if (local_function) // checks if the function exists in the hashmap
     {
         // cf src/ast/expansion/vars.c
-        // struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
+        struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
 
         ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
 
         // cf src/ast/expansion/vars.c
-        // ctx_restore_spe_vars(ctx, params_ctx);
-        // list_free(params_ctx, free);
+        ctx_restore_spe_vars(ctx, params_ctx);
+        list_free(params_ctx, free);
     }
     else
     {

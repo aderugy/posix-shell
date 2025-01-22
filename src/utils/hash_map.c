@@ -76,27 +76,33 @@ bool hash_map_remove(struct hash_map *hash_map, char *key,
         return false;
     }
     size_t index = hash(key);
+
     if (index >= hash_map->size)
     {
         index %= hash_map->size;
     }
+
     struct hash_map_elt *prev = NULL;
     struct hash_map_elt *p = hash_map->data[index];
+
     if (p && strcmp(p->key, key) == 0 && p->type == type)
     {
         hash_map->data[index] = p->next;
         hash_map_elt_free(p);
         return true;
     }
-    while (p && strcmp(p->key, key) && p->type != type)
+
+    while (p && (strcmp(p->key, key) || p->type != type))
     {
         prev = p;
         p = p->next;
     }
+
     if (p == NULL)
     {
         return false;
     }
+
     prev->next = p->next;
     hash_map_elt_free(p);
     return true;
@@ -120,7 +126,7 @@ int hash_map_insert(struct hash_map *hash_map, char *name, void *value,
 
     // Loops through entries
     struct hash_map_elt *p = hash_map->data[index];
-    while (p && strcmp(p->key, name) && p->type != type)
+    while (p && (strcmp(p->key, name) || p->type != type))
     {
         p = p->next;
     }
@@ -179,7 +185,7 @@ void *hash_map_get(struct hash_map *hash_map, char *key,
     }
 
     struct hash_map_elt *p = hash_map->data[index];
-    while (p && strcmp(p->key, key) && p->type != type)
+    while (p && (strcmp(p->key, key) || p->type != type))
     {
         p = p->next;
     }

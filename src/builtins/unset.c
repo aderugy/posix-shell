@@ -12,8 +12,7 @@ static struct option l_opts[] = { { "f", no_argument, 0, 'f' },
                                   { "v", no_argument, 0, 'v' },
                                   { 0, 0, 0, 0 } };
 
-int unset_builtin(int argc, char **argv,
-                  struct ast_eval_ctx *ast_eval_ctx)
+int unset_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
 {
     int c;
     int opt_idx = 0;
