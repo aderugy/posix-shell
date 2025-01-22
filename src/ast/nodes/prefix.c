@@ -79,6 +79,7 @@ int ast_eval_prefix(struct ast_prefix *node, struct linked_list *out,
 
         ctx_set_local_variable(ctx, node->name, value);
         free(value);
+        list_free(linked_list, (void (*)(void *))eval_output_free);
         return AST_EVAL_SUCCESS;
     }
     else
