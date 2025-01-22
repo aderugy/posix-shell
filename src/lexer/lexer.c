@@ -36,7 +36,11 @@ static const char *token_names[] = {
     "TOKEN_VARIABLE",
     "TOKEN_ARITH",
     "TOKEN_GLOBBING_STAR",
-    "TOKEN_GLOBBING_QM"
+    "TOKEN_GLOBBING_QM",
+    "TOKEN_LEFT_PARENTHESIS",
+    "TOKEN_RIGHT_PARENTHESIS",
+    "TOKEN_LEFT_BRACKET",
+    "TOKEN_RIGHT_BRACKET",
 };
 
 const char *get_token_name(enum token_type token)
@@ -69,6 +73,10 @@ static const struct keyword KEYWORDS[] = {
     { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
     { ">", TOKEN_REDIR_STDOUT_FILE },
     { "<", TOKEN_REDIR_FILE_STDIN },
+    { "(", TOKEN_LEFT_PARENTHESIS },
+    { ")", TOKEN_RIGHT_PARENTHESIS },
+    { "{", TOKEN_LEFT_BRACKET },
+    { "}", TOKEN_RIGHT_BRACKET },
     { NULL, TOKEN_EOF }
 };
 
@@ -174,11 +182,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     }
 
     token->quote_type = shard->quote_type;
-    if (shard->can_chain)
-    {
-        token->next = lexer_chain(lexer);
-    }
-
+    struct shard *next;
     switch (shard->type)
     {
     case SHARD_REDIR:
@@ -201,6 +205,33 @@ static struct token *lex(struct lexer *lexer, bool nullable)
 
             return lex(lexer, nullable);
         }
+
+        if (shard_is_operator(shard, "("))
+        {
+            splitter_ctx_expect(lexer->ctx,
+                                SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
+
+            next = splitter_peek(lexer->ctx);
+            if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
+            {
+                shard_free(splitter_pop(lexer->ctx));
+                token->type = TOKEN_LEFT_PARENTHESIS;
+            }
+            else
+            {
+                shard_free(shard);
+                shard = splitter_pop(lexer->ctx);
+                if (!shard || !splitter_peek(lexer->ctx))
+                {
+                    goto error;
+                }
+                shard_free(splitter_pop(lexer->ctx));
+                token->type = TOKEN_SUBSHELL;
+            }
+
+            break;
+        }
+
         if (shard->quote_type == SHARD_UNQUOTED && !token->next)
         {
             token->type = token_get_keyword_type(shard->data);
@@ -239,6 +270,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         {
             return NULL;
         }
+
         return lex(lexer, nullable);
     }
 
@@ -248,12 +280,21 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         goto error;
     }
 
+    if (shard->can_chain)
+    {
+        token->next = lexer_chain(lexer);
+    }
     shard_free(shard);
+
     return token;
 
 error:
     token_free(token);
+    if (shard)
+    {
+
     shard_free(shard);
+    }
     lexer_error(lexer, "erreur inconnue");
     return NULL;
 }

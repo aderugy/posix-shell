@@ -30,6 +30,10 @@ enum token_type
     TOKEN_ARITH,
     TOKEN_GLOBBING_STAR,
     TOKEN_GLOBBING_QM, // Questionmark '?'
+    TOKEN_LEFT_PARENTHESIS,
+    TOKEN_RIGHT_PARENTHESIS,
+    TOKEN_LEFT_BRACKET,
+    TOKEN_RIGHT_BRACKET,
 };
 
 struct token

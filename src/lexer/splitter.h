@@ -24,7 +24,8 @@
 #define DELIMITER(str) shard_init(str, false, SHARD_DELIMITER, SHARD_UNQUOTED);
 
 #define DEFINE_OPERATORS                                                       \
-    static const char *OPERATORS[] = { ";", "&&", "&", "|", "||", "(", NULL }
+    static const char *OPERATORS[] = { ";", "&&", "&", "|", "||",              \
+                                       "(", ")",  "{", "}", NULL }
 
 #define DEFINE_REDIRS                                                          \
     static const char *REDIRS[] = {                                            \
@@ -39,6 +40,7 @@ enum shard_ctx_type
     SHARD_CONTEXT_NONE = 0,
     SHARD_CONTEXT_DOUBLE_QUOTES,
     SHARD_CONTEXT_EXPANSION,
+    SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS
 };
 
 struct splitter_ctx_exp

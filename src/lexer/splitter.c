@@ -24,7 +24,8 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                                                    struct mbt_str *str);
 
 static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
-                                               struct mbt_str *str);
+                                               struct mbt_str *str,
+                                               bool popped);
 
 static void splitter_handle_backslash(struct splitter_ctx *ctx,
                                       struct mbt_str *str);
@@ -54,10 +55,14 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
     {
         struct splitter_ctx_exp *exp = stack_peek(ctx->expect);
 
-        if (exp->value == SHARD_CONTEXT_EXPANSION)
+        if (exp->value == SHARD_CONTEXT_EXPANSION
+            || exp->value == SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS)
         {
-            stack_pop(ctx->expect);
-            return splitter_handle_expansion(ctx, str);
+            enum shard_ctx_type exp_meta = exp->value;
+            free(stack_pop(ctx->expect));
+            return splitter_handle_expansion(
+                ctx, str,
+                exp_meta == SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
         }
         else if (exp->value == SHARD_CONTEXT_DOUBLE_QUOTES)
         {
@@ -70,10 +75,10 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         while ((c = stream_peek(ctx->stream)) > 0)
         {
             // Case 1: EOF handled by exiting the loop
-            if (shard_is_operator(str) || shard_is_redir(str))
+            if (shard_is_any_operator(str) || shard_is_redir(str))
             {
                 mbt_str_pushc(str, c);
-                if (shard_is_operator(str) || shard_is_redir(str)) // Case 2
+                if (shard_is_any_operator(str) || shard_is_redir(str)) // Case 2
                 {
                     stream_read(ctx->stream);
                     continue;
@@ -136,7 +141,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 break;
             }
 
-            if (c == '`' || c == '$' || c == '(')
+            if (c == '`' || c == '$')
             {
                 if (NOT_EMPTY(str))
                 {
@@ -148,15 +153,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     stream_read(ctx->stream);
                 }
 
-                struct shard *out = splitter_handle_expansion(ctx, str);
-                if (c == '(' && !*out->data)
-                {
-                    free(out->data);
-                    out->data = strdup("()");
-                    out->type = SHARD_WORD;
-                }
-
-                return out;
+                return splitter_handle_expansion(ctx, str, false);
             }
 
             // Case 5: Expansions
@@ -239,7 +236,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
     if (NOT_EMPTY(str))
     {
-        if (shard_is_operator(str))
+        if (shard_is_any_operator(str))
         {
             return shard_init(str, false, SHARD_OPERATOR, SHARD_UNQUOTED);
         }
@@ -274,7 +271,7 @@ struct shard *splitter_pop(struct splitter_ctx *ctx)
 
 // @TIDY
 static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
-                                               struct mbt_str *str)
+                                               struct mbt_str *str, bool popped)
 {
     enum shard_quote_type type = splitter_ctx_get_active_quote(ctx);
 
@@ -287,13 +284,16 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
             warnx("Syntax error: unmatched bracked");
             goto error;
         }
-
         stream_read(ctx->stream);
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
     }
-    else if (c == '(')
+    else if (c == '(' || popped)
     {
-        stream_read(ctx->stream);
+        if (!popped)
+        {
+            stream_read(ctx->stream);
+        }
+
         while ((c = stream_peek(ctx->stream)) > 0 && c == ' ')
         {
             stream_read(ctx->stream);
@@ -309,6 +309,11 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
         {
             warnx("Syntax error: unmatched parenthesis");
             goto error;
+        }
+
+        if (!popped)
+        {
+            stream_read(ctx->stream);
         }
 
         if (is_arith)
@@ -409,10 +414,10 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             }
 
             stream_read(ctx->stream); // Discard $
-            return splitter_handle_expansion(ctx, str);
+            return splitter_handle_expansion(ctx, str, false);
 
         case '`':
-            return splitter_handle_expansion(ctx, str);
+            return splitter_handle_expansion(ctx, str, false);
 
         case '?':
         case '*':
@@ -503,7 +508,7 @@ static bool splitter_read_between(struct splitter_ctx *ctx, struct mbt_str *str,
 {
     char c;
     int pcount = 0;
-    while ((c = stream_read(ctx->stream)) > 0)
+    while ((c = stream_peek(ctx->stream)) > 0)
     {
         if (c == '\\')
         {
@@ -526,6 +531,7 @@ static bool splitter_read_between(struct splitter_ctx *ctx, struct mbt_str *str,
         }
 
         mbt_str_pushc(str, c);
+        stream_read(ctx->stream);
     }
 
     return c <= 0;

@@ -1,3 +1,5 @@
+#include "lexer/shard.h"
+#include "lexer/splitter.h"
 #define _POSIX_C_SOURCE 200809L
 #include <err.h>
 #include <getopt.h>
@@ -71,7 +73,8 @@ int main(int argc, char *argv[])
     int nb_args = 0;
 
     bool disp_lex = false;
-    while ((c = getopt_long(argc, argv, "vc:t", l_opts, &opt_idx)) != -1)
+    bool disp_shards = false;
+    while ((c = getopt_long(argc, argv, "vc:ts", l_opts, &opt_idx)) != -1)
     {
         switch (c)
         {
@@ -80,6 +83,10 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             stream = stream_from_str(optarg);
+            break;
+        case 's':
+            logger(NULL, NULL);
+            disp_shards = true;
             break;
         case 't':
             logger(NULL, NULL);
@@ -110,6 +117,19 @@ int main(int argc, char *argv[])
     if (!stream)
     {
         errx(1, "stream error");
+    }
+
+    if (disp_shards)
+    {
+        struct shard *shard;
+        struct splitter_ctx *ctx = splitter_ctx_init(stream);
+        while ((shard = splitter_pop(ctx)))
+        {
+            shard_print(shard);
+            shard_free(shard);
+        }
+        splitter_ctx_free(ctx);
+        return 0;
     }
 
     if (disp_lex)
