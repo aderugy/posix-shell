@@ -5,12 +5,13 @@
 
 #include "lexer/lexer.h"
 #include "node.h"
+#include "utils/linked_list.h"
 
 struct ast_fundec
 {
     char *name;
-    struct ast_node *ast_node; // shell_command
-    bool is_declared; // bool
+    struct linked_list *redirs;
+    struct ast_node *fun; // NE PAS FREE
 };
 
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer);

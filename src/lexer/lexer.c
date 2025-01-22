@@ -292,8 +292,7 @@ error:
     token_free(token);
     if (shard)
     {
-
-    shard_free(shard);
+        shard_free(shard);
     }
     lexer_error(lexer, "erreur inconnue");
     return NULL;

@@ -46,7 +46,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
     token = lexer_pop(lexer);
-    if (token_is_valid_keyword(token, "fi"))
+    if (!token_is_valid_keyword(token, "fi"))
     {
         lexer_error(lexer, "expected fi");
         goto error;
