@@ -10,7 +10,7 @@ struct ast_simple_cmd
     struct ast_node *prefix;
     struct linked_list *prefixes;
 
-    char *cmd;
+    struct ast_node *cmd;
     struct linked_list *args;
 };
 

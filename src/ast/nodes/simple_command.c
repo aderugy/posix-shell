@@ -55,13 +55,16 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
+    if (!token || (token->value.c && is_keyword(token->value.c)))
     {
         goto error;
     }
 
-    cmd->cmd = strdup(token->value.c);
-    token_free(lexer_pop(lexer));
+    cmd->cmd = ast_create(lexer, AST_COMPLEX_WORD);
+    if (!cmd->cmd)
+    {
+        goto error;
+    }
 
     struct ast_node *element;
     while ((element = ast_create(lexer, AST_ELEMENT)))
@@ -88,13 +91,24 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
+    struct linked_list *cmd_eval = list_init();
+    if (ast_eval(cmd->cmd, cmd_eval, ctx) == AST_EVAL_ERROR
+        || cmd_eval->size != 1)
+    {
+        list_free(cmd_eval, (void (*)(void *))eval_output_free);
+        warnx("here");
+        return AST_EVAL_ERROR;
+    }
+
+    struct eval_output *name_out = cmd_eval->head->data;
+    char *name = name_out->value.str;
+
     int argc = cmd->args->size + 1;
     char **argv = xcalloc(1, sizeof(char *));
 
-    argv[0] = strdup(cmd->cmd);
+    argv[0] = strdup(name);
 
     size_t elt = 1;
-
     struct linked_list *linked_list;
     /* LOOP TO TAKE ARGUMENT OF THE CMD AND ADD THEM IN ARGV */
     for (int i = 1; i < argc; i++)
@@ -102,7 +116,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ctx->check_redir = false;
 
         struct ast_node *children = list_get(cmd->args, i - 1);
-
         linked_list = list_init();
 
         ast_eval(children, linked_list, ctx);
@@ -158,6 +171,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         free(argv[i]);
     }
     free(argv);
+    list_free(cmd_eval, (void (*)(void *))eval_output_free);
     return ret_value;
 }
 
@@ -176,7 +190,7 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
     if (cmd->cmd)
     {
-        free(cmd->cmd);
+        ast_free(cmd->cmd);
     }
     list_free(cmd->args, (void (*)(void *))ast_free);
 
@@ -185,7 +199,12 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    logger("command");
+    logger("command ");
+    if (cmd->cmd)
+    {
+        ast_print(cmd->cmd);
+        logger(" ");
+    }
 
     struct linked_list_element *head = cmd->args->head;
     while (head)
