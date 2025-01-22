@@ -1,5 +1,4 @@
 #include "simple_command_execute_non_builtin.h"
-#include "utils/xalloc.h"
 
 #include <err.h>
 #include <stddef.h>
@@ -10,6 +9,7 @@
 #include <unistd.h>
 
 #include "utils/logger.h"
+#include "utils/xalloc.h"
 
 int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
                                        struct ast_eval_ctx *ctx, int argc)
@@ -24,6 +24,7 @@ int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
 
     if (p == 0)
     {
+        /* LOOP TO RUN ALL REDIRECTIONS AND SAVE FILE DESCRIPTORS */
         for (int i = 1; i < element_count; i++)
         {
             ctx->check_redir = true;
@@ -37,7 +38,7 @@ int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
         {
             logger("execute non built : %s\n", argv[i]);
         }
-
+        /* ENSURE THAT ARGV IS A NULL TERMINATED ARRAY*/
         argv = xrealloc(argv, (argc + 1) * sizeof(char *));
         argv[argc] = NULL;
 

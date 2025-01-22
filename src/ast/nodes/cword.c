@@ -43,6 +43,7 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     eval_output->value.str = merge_str(node->data, right_str);
 
     list_append(out, eval_output);
+
     free(right_str);
     list_free(right, (void (*)(void *))eval_output_free);
 

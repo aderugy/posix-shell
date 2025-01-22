@@ -26,6 +26,7 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
 
     int argc = 1;
 
+    /* LOOP TO RUN ALL REDIRECTIONS AND SAVE FILE DESCRIPTORS */
     for (int i = 1; i < element_count; i++)
     {
         logger("builtin: log %i\n", i);

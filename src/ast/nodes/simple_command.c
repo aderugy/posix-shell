@@ -96,6 +96,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     size_t elt = 1;
 
     struct linked_list *linked_list;
+    /* LOOP TO TAKE ARGUMENT OF THE CMD AND ADD THEM IN ARGV */
     for (int i = 1; i < argc; i++)
     {
         ctx->check_redir = false;
