@@ -48,6 +48,7 @@ static void discard_comment(struct splitter_ctx *ctx);
 // @TIDY
 static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
+    logger("splitter_next\n");
     struct mbt_str *str = mbt_str_init(64);
 
     if (ctx->expect->size)
@@ -69,6 +70,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         char c;
         while ((c = stream_peek(ctx->stream)) > 0)
         {
+            logger("c = %c\n", c);
             // Case 1: EOF handled by exiting the loop
             if (shard_is_operator(str) || shard_is_redir(str))
             {
@@ -277,6 +279,7 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     }
     else if (c == '(')
     {
+        logger("SUBSHELLLL\n");
         stream_read(ctx->stream);
         c = stream_peek(ctx->stream);
 

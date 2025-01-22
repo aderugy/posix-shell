@@ -70,6 +70,7 @@ static const struct keyword KEYWORDS[] = {
     { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
     { ">", TOKEN_REDIR_STDOUT_FILE },
     { "<", TOKEN_REDIR_FILE_STDIN },
+    { "(", TOKEN_SUBSHELL },
     { NULL, TOKEN_EOF }
 };
 
@@ -155,6 +156,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     token->type = TOKEN_ERROR;
 
     struct shard *shard = splitter_pop(lexer->ctx);
+    shard_print(shard);
     if (!shard)
     {
         if (lexer->ctx->err)
