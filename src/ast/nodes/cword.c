@@ -35,7 +35,6 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     }
 
     struct eval_output *right_eval_output = right->head->data;
-
     char *right_str = right_eval_output->value.str;
 
     struct eval_output *eval_output = eval_output_init();
@@ -48,12 +47,6 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     list_free(right, (void (*)(void *))eval_output_free);
 
     return AST_EVAL_SUCCESS;
-}
-
-static int eval_complex_word(const struct ast_cword *node,
-                             struct linked_list *out, struct ast_eval_ctx *ctx)
-{
-    return eval_word(node, out, ctx);
 }
 
 static int eval_subshell(__attribute((unused)) const struct ast_cword *node,
@@ -111,7 +104,6 @@ struct token_eval_entry
 
 static const struct token_eval_entry eval_table[] = {
     { TOKEN_WORD, eval_word },
-    { TOKEN_COMPLEX_WORD, eval_complex_word },
     { TOKEN_SUBSHELL, eval_subshell },
     { TOKEN_ARITH, eval_arith },
     { TOKEN_VARIABLE, eval_variable },
@@ -119,17 +111,18 @@ static const struct token_eval_entry eval_table[] = {
     { TOKEN_GLOBBING_QM, eval_globbing_qm },
 };
 
-struct ast_cword *ast_parse_cword_from_token(struct token *token)
+struct ast_cword *ast_parse_cword_from_token(struct token *token,
+                                             struct lexer *lexer)
 {
     if (!token)
     {
         return NULL;
     }
 
+    struct ast_cword *node = xcalloc(1, sizeof(struct ast_cword));
     switch (token->type)
     {
     case TOKEN_WORD:
-    case TOKEN_COMPLEX_WORD:
     case TOKEN_SUBSHELL:
     case TOKEN_ARITH:
     case TOKEN_VARIABLE:
@@ -137,16 +130,16 @@ struct ast_cword *ast_parse_cword_from_token(struct token *token)
     case TOKEN_GLOBBING_QM:
         break;
     default:
+        ast_free_cword(node);
         return NULL;
     }
 
-    struct ast_cword *node = xcalloc(1, sizeof(struct ast_cword));
     node->type = token->type;
     node->data = strdup(token->value.c);
 
     if (token->next)
     {
-        node->next = ast_parse_cword_from_token(token->next);
+        node->next = ast_parse_cword_from_token(token->next, lexer);
     }
 
     return node;
@@ -160,7 +153,7 @@ struct ast_cword *ast_parse_cword(struct lexer *lexer)
         return NULL;
     }
 
-    struct ast_cword *node = ast_parse_cword_from_token(token);
+    struct ast_cword *node = ast_parse_cword_from_token(token, lexer);
     if (node)
     {
         token_free(lexer_pop(lexer));

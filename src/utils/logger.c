@@ -13,6 +13,36 @@ void logger(const char *s, ...)
 {
     static bool log = false;
 
+#ifdef LOG_BLAME
+    void *buffer[10];
+    char **symbols;
+    int num_frames;
+
+    // Get the backtrace
+    num_frames = backtrace(buffer, 10);
+
+    // Get function names
+    symbols = backtrace_symbols(buffer, num_frames);
+
+    if (symbols == NULL)
+    {
+        perror("backtrace_symbols");
+        exit(EXIT_FAILURE);
+    }
+
+    // Print the function above the current one
+    if (num_frames > 2)
+    {
+        printf("Function above current: %s\n", symbols[2]);
+    }
+    else
+    {
+        printf("No function above the current one.\n");
+    }
+
+    free(symbols);
+#endif /* ifdef LOG_BLAME */
+
     if (s == NULL)
     {
         log = true;

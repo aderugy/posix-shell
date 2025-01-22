@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
             token_free(token);
         }
         lexer_free(lexer);
+        ctx_free(ctx);
         return 0;
     }
 

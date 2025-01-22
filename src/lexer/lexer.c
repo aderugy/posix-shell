@@ -32,7 +32,6 @@ static const char *token_names[] = {
     "TOKEN_REDIR_STDIN_FD",
     "TOKEN_REDIR_STDOUT_FILE_NOTRUNC",
     "TOKEN_REDIR_FOPEN_RW",
-    "TOKEN_COMPLEX_WORD",
     "TOKEN_SUBSHELL",
     "TOKEN_VARIABLE",
     "TOKEN_ARITH",
@@ -111,11 +110,6 @@ void token_free(struct token *token)
             free(token->value.c);
         }
 
-        if (token->state)
-        {
-            free(token->state);
-        }
-
         free(token);
     }
 }
@@ -144,6 +138,17 @@ static int token_get_keyword_type(char *str)
     return TOKEN_ERROR;
 }
 
+bool token_is_valid_identifier(struct token *token)
+{
+    return token->type == TOKEN_WORD && token->quote_type == SHARD_UNQUOTED
+        && !token->next;
+}
+
+bool token_is_valid_keyword(struct token *token, const char *str)
+{
+    return token_is_valid_identifier(token) && strcmp(token->value.c, str) == 0;
+}
+
 static struct token *lex(struct lexer *lexer, bool nullable)
 {
     if (lexer->eof)
@@ -155,7 +160,6 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     token->type = TOKEN_ERROR;
 
     struct shard *shard = splitter_pop(lexer->ctx);
-    shard_print(shard);
     if (!shard)
     {
         if (lexer->ctx->err)
@@ -169,6 +173,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         return token;
     }
 
+    token->quote_type = shard->quote_type;
     if (shard->can_chain)
     {
         token->next = lexer_chain(lexer);
@@ -207,7 +212,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         }
         else
         {
-            token->type = TOKEN_COMPLEX_WORD;
+            token->type = TOKEN_WORD;
         }
         break;
     case SHARD_EXPANSION_VARIABLE:
