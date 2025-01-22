@@ -144,7 +144,9 @@ struct ast_cword *ast_parse_cword(struct lexer *lexer)
     struct ast_cword *node = ast_parse_cword_from_token(token);
     if (node)
     {
-        token_free(lexer_pop(lexer));
+        lexer_pop(lexer);
+        token_free(token);
+        // token_free(lexer_pop(lexer));
     }
 
     logger("Parse CWORD (%s)\n", node ? "SUCCESS" : "ERROR");
