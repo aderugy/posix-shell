@@ -204,11 +204,7 @@ int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
     int saved_stdout = -1;
     if (node->number != -1)
     {
-        logger("found node->number %i\n", node->number);
         fd2 = node->number;
-    }
-    else {
-    logger("there is no ionumber\n");
     }
 
     saved_stdout = dup(fd2);

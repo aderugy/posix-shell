@@ -195,7 +195,6 @@ int ast_eval_for(struct ast_for_node *node,
 
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
-        free(value);
         list_free(linked_list, (void (*)(void *))eval_output_free);
 
         if (ctx->break_count > 0)

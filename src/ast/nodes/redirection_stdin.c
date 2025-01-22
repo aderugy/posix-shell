@@ -5,13 +5,14 @@
 
 #include "node.h"
 #include "redirection_definition.h"
+#include "utils/logger.h"
 
 int redir_file_stdin(struct ast_redir *node,
                      __attribute((unused)) struct linked_list *out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = 1;
+    int fd2 = 0;
     int saved_stdout = -1;
     if (node->number != -1)
     {
@@ -74,7 +75,7 @@ int redir_stdin_fd(struct ast_redir *node,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd = -1;
-    int fd2 = 1;
+    int fd2 = 0;
     int saved_stdout = -1;
 
     struct linked_list *filenames = list_init();
@@ -89,6 +90,7 @@ int redir_stdin_fd(struct ast_redir *node,
     {
         goto error;
     }
+    logger("found filenames");
 
     char *val = filename->value.str;
     for (size_t i = 0; val[i]; i++)
