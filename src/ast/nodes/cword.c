@@ -19,10 +19,9 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 {
     if (!node->next)
     {
-        struct eval_output *eval_output = eval_output_init();
+        struct eval_output *eval_output = eval_output_init(EVAL_STR);
 
         eval_output->value.str = strdup(node->data);
-        eval_output->type = EVAL_STR;
 
         list_append(out, eval_output);
 
@@ -39,10 +38,9 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 
     char *right_str = right_eval_output->value.str;
 
-    struct eval_output *eval_output = eval_output_init();
+    struct eval_output *eval_output = eval_output_init(EVAL_STR);
 
     eval_output->value.str = merge_str(node->data, right_str);
-    eval_output->type = EVAL_STR;
 
     list_append(out, eval_output);
 
@@ -74,7 +72,7 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
     {
         var = "";
     }
-    struct eval_output *eval_output = eval_output_init();
+    struct eval_output *eval_output = eval_output_init(EVAL_STR);
 
     eval_output->value.str = strdup(var);
 

@@ -5,9 +5,10 @@
 #include "logger.h"
 #include "xalloc.h"
 
-struct eval_output *eval_output_init(void)
+struct eval_output *eval_output_init(enum eval_output_type type)
 {
     struct eval_output *eval_output = xcalloc(1, sizeof(struct eval_output));
+    eval_output->eval_output_type = type;
 
     return eval_output;
 }
