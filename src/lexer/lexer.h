@@ -42,7 +42,6 @@ struct keyword
     enum token_type type;
 };
 
-void token_print(struct token *token);
 
 /**
  * \brief Creates a new lexer given an input string.
@@ -80,7 +79,4 @@ struct token *lexer_pop(struct lexer *lexer);
 
 void lexer_error(struct lexer *lexer, const char *msg);
 
-const char *get_token_name(enum token_type token);
-
-void token_free(struct token *token);
 #endif /* !LEXER_H */

@@ -188,10 +188,6 @@ void ast_free_cword(struct ast_cword *node)
     {
         ast_free_cword(node->next);
     }
-    if (node->ast_node)
-    {
-        ast_free(node->ast_node);
-    }
     free(node->data);
     free(node);
 }

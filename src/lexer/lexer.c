@@ -144,6 +144,11 @@ bool token_is_valid_identifier(struct token *token)
         && !token->next;
 }
 
+bool token_is_valid_keyword(struct token *token, const char *str)
+{
+    return token_is_valid_identifier(token) && strcmp(token->value.c, str) == 0;
+}
+
 static struct token *lex(struct lexer *lexer, bool nullable)
 {
     if (lexer->eof)

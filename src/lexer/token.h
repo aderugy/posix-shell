@@ -45,5 +45,10 @@ struct token
     enum shard_quote_type quote_type;
 };
 
+void token_print(struct token *token);
+bool token_is_valid_keyword(struct token *token, const char *str);
+const char *get_token_name(enum token_type token);
+
+void token_free(struct token *token);
 bool token_is_valid_identifier(struct token *token);
 #endif /* !TOKEN_H */
