@@ -105,17 +105,27 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
     }
 
-    struct runnable *cmd_runnable =
-        get_command(argv[0], NULL); // get the builtin if exists
-
     int ret_value = 0;
-    if (cmd_runnable) // check if it is a builtin
+
+    struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
+    if (local_function) // checks if the function exists in the hashmap
     {
-        ret_value = simple_command_execute_builtin(cmd, argv, ctx);
+        ret_value = ast_eval(local_function, (void **)argv + 1, ctx);
     }
     else
     {
-        ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+        struct runnable *cmd_runnable =
+            get_command(argv[0], NULL); // get the builtin if exists
+
+        if (cmd_runnable) // check if it is a builtin
+        {
+            ret_value = simple_command_execute_builtin(cmd, argv, ctx);
+        }
+        else
+        {
+            ret_value =
+                simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+        }
     }
 
     for (size_t i = 1; i <= elt; i++)
