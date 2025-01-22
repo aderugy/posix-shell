@@ -49,6 +49,7 @@ int redir_stdout_file_a(struct ast_redir *node,
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
     SAVE_FD
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return 0;
 
 error:
@@ -118,6 +119,7 @@ int redir_stdout_fd(struct ast_redir *node,
         errx(2, "redir_eval: dup: error");
     SAVE_FD
 
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return 0;
 
 error:
@@ -178,6 +180,8 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
     SAVE_FD
+
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return 0;
 
 error:

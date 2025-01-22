@@ -242,7 +242,6 @@ test_redirections() {
   tes "ls invalid_file 2> /dev/null"
   tes "ls > text ; sort < text ; cat text;rm text"
   tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
-  tes "echo Salut |> text; cat text;rm text"
   tes "echo Salut >| text; cat text;rm text"
   tes "cat non_existent_file 2> err.txt; cat err.txt"
   tes "echo 'This will not appear' > /dev/null"

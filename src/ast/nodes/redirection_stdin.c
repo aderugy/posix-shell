@@ -51,6 +51,8 @@ int redir_file_stdin(struct ast_redir *node,
         errx(2, "redir_eval: dup: error");
     }
     SAVE_FD
+
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return 0;
 error:
     // @TODO
@@ -125,6 +127,7 @@ int redir_stdin_fd(struct ast_redir *node,
     }
     SAVE_FD
 
+    list_free(filenames, (void (*)(void *))eval_output_free);
     return 0;
 
 error:
