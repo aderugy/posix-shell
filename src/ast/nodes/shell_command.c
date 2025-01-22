@@ -27,54 +27,32 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     struct ast_shell_cmd *node = xcalloc(1, sizeof(struct ast_shell_cmd));
 
     struct token *token = lexer_peek(lexer);
-    if (TOKEN_OK && strcmp(token->value.c, "{") == 0)
+    if (!token)
+    {
+        goto error;
+    }
+
+    if (token->type == TOKEN_LEFT_BRACKET)
     {
         token_free(lexer_pop(lexer));
 
         struct ast_node *clist = ast_create(lexer, AST_CLIST);
-        if (clist)
+        if (!clist)
         {
-            token = lexer_pop(lexer);
-            if (TOKEN_OK && strcmp(token->value.c, "}") == 0)
-            {
-                token_free(token);
-                node->ast_node = clist;
-                return node;
-            }
-            token_free(token);
+            lexer_error(lexer, "expected body");
+            goto error;
         }
 
-        lexer_error(lexer, "unmatched bracket");
-        ast_free_shell_cmd(node);
-        return NULL;
-    }
-
-    if (token && token->type == TOKEN_SUBSHELL)
-    {
-        logger("Subshell !!!!\n");
-        token_print(token);
-        struct stream *stream = stream_from_str(token->value.c);
-        struct lexer *lexer2 = lexer_create(stream);
-        token_print(lexer_peek(lexer2));
-        struct ast_node *clist = ast_create(lexer2, AST_CLIST);
-        if (clist)
+        token = lexer_peek(lexer);
+        if (!token || token->type != TOKEN_RIGHT_BRACKET)
         {
-            logger("clist\n");
-            node->ast_node = clist;
-            node->is_sub_shell = 1;
-            lexer_free(lexer2);
-            token_free(lexer_pop(lexer));
-            return node;
-        }
-        else
-        {
-            logger("Flop\n");
+            lexer_error(lexer, "unmatched bracket");
+            goto error;
         }
 
-        lexer_free(lexer2);
         token_free(lexer_pop(lexer));
-        ast_free_shell_cmd(node);
-        return NULL;
+        node->ast_node = clist;
+        return node;
     }
 
     // CASE 1 IF
@@ -105,13 +83,16 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     rule = ast_create(lexer, AST_FOR);
     if (!rule)
     {
-        ast_free_shell_cmd(node);
-        logger("Exit SHELL COMMAND (FAILED)\n");
-        return NULL;
+        goto error;
     }
 
     node->ast_node = rule;
     return node;
+
+error:
+    logger("Exit SHELL COMMAND (FAILED)\n");
+    ast_free_shell_cmd(node);
+    return NULL;
 }
 int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, struct linked_list *out,
                        struct ast_eval_ctx *ctx)
