@@ -12,6 +12,7 @@
 #include "element.h"
 #include "ionumber.h"
 #include "node.h"
+#include "redirection_definition.h"
 #include "redirection_stdin.h"
 #include "redirection_stdout.h"
 #include "utils/logger.h"
@@ -64,16 +65,12 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
 
     redir->number = -1;
     char number = 1;
-    size_t i = 0;
     if (isdigit(*token->value.c))
     {
         number = *token->value.c - '0';
+        redir->number = number;
     }
 
-    if (number == 1 && i > 0)
-    {
-        redir->number = atoi(token->value.c);
-    }
     redir->pipe = token->type;
     token_free(lexer_pop(lexer));
 
@@ -90,13 +87,15 @@ int redir_fopen_rw(struct ast_redir *node,
                    __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int fd2 = 0;
+    int fd = -1;
+    int fd2 = 1;
+    int saved_stdout = -1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
 
-    int saved_stdout = dup(fd2);
+    saved_stdout = dup(fd2);
 
     struct linked_list *filenames = list_init();
     if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
@@ -117,7 +116,7 @@ int redir_fopen_rw(struct ast_redir *node,
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
 
-    int fd = open(file, O_RDWR);
+    fd = open(file, O_RDWR);
     if (fd == -1)
     {
         errx(EXIT_FAILURE, "eval_redir: no such file: %s", file);
@@ -127,25 +126,24 @@ int redir_fopen_rw(struct ast_redir *node,
     {
         errx(2, "redir_eval: dup: error");
     }
-    if (out)
-    {
-        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
-        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
-    }
+    SAVE_FD
 
     list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_SUCCESS;
 
 error:
+    if (fd != -1)
+    {
+        close(fd);
+    }
+    if (fd2 != -1)
+    {
+        close(fd2);
+    }
+    if (saved_stdout != -1)
+    {
+        close(saved_stdout);
+    }
     list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_ERROR;
 }

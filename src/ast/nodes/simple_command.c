@@ -110,14 +110,17 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         if (linked_list->head)
         {
             struct eval_output *output = linked_list->head->data;
+            if (output->type == EVAL_STR)
+            {
+                argv = xrealloc(argv, (elt + 1) * sizeof(char *));
 
-            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+                argv[elt] = strdup(output->value.str);
 
-            argv[elt] = strdup(output->value.str);
+                logger("simple_command.c : get value from output %s\n",
+                       argv[elt]);
 
-            logger("simple_command.c : get value from output %s\n", argv[elt]);
-
-            elt++;
+                elt++;
+            }
         }
         list_free(linked_list, (void (*)(void *))eval_output_free);
     }
@@ -148,7 +151,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         else
         {
             ret_value =
-                simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+                simple_command_execute_non_builtin(cmd, argv, ctx, elt);
         }
     }
 
