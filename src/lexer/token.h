@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 
+#include "shard.h"
+
 enum token_type
 {
     TOKEN_SEMICOLON, // ; [5]
@@ -23,7 +25,6 @@ enum token_type
     TOKEN_REDIR_STDIN_FD,
     TOKEN_REDIR_STDOUT_FILE_NOTRUNC,
     TOKEN_REDIR_FOPEN_RW,
-    TOKEN_COMPLEX_WORD,
     TOKEN_SUBSHELL,
     TOKEN_VARIABLE,
     TOKEN_ARITH,
@@ -40,7 +41,9 @@ struct token
         ssize_t s;
     } value; // value of the token if neccessary
 
-    char *state; // @DEPRECATED
     struct token *next;
+    enum shard_quote_type quote_type;
 };
+
+bool token_is_valid_identifier(struct token *token);
 #endif /* !TOKEN_H */

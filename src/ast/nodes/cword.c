@@ -35,7 +35,6 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     }
 
     struct eval_output *right_eval_output = right->head->data;
-
     char *right_str = right_eval_output->value.str;
 
     struct eval_output *eval_output = eval_output_init();
@@ -48,12 +47,6 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     list_free(right, (void (*)(void *))eval_output_free);
 
     return AST_EVAL_SUCCESS;
-}
-
-static int eval_complex_word(const struct ast_cword *node,
-                             struct linked_list *out, struct ast_eval_ctx *ctx)
-{
-    return eval_word(node, out, ctx);
 }
 
 static int eval_subshell(__attribute((unused)) const struct ast_cword *node,
@@ -111,7 +104,6 @@ struct token_eval_entry
 
 static const struct token_eval_entry eval_table[] = {
     { TOKEN_WORD, eval_word },
-    { TOKEN_COMPLEX_WORD, eval_complex_word },
     { TOKEN_SUBSHELL, eval_subshell },
     { TOKEN_ARITH, eval_arith },
     { TOKEN_VARIABLE, eval_variable },
@@ -129,7 +121,6 @@ struct ast_cword *ast_parse_cword_from_token(struct token *token)
     switch (token->type)
     {
     case TOKEN_WORD:
-    case TOKEN_COMPLEX_WORD:
     case TOKEN_SUBSHELL:
     case TOKEN_ARITH:
     case TOKEN_VARIABLE:

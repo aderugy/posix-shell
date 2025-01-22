@@ -2,6 +2,7 @@
 #define AST_CWORD_H
 
 #include "eval_ctx.h"
+#include "lexer/shard.h"
 #include "lexer/token.h"
 #include "utils/linked_list.h"
 
@@ -9,6 +10,7 @@ struct ast_cword
 {
     char *data;
     enum token_type type;
+    enum shard_quote_type quote_type;
 
     struct ast_cword *next;
 };
