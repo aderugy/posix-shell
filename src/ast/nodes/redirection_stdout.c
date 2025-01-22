@@ -4,7 +4,7 @@
 
 static const char *DIGITS_OUT = "0123456789";
 int redir_stdout_file_a(struct ast_redir *node,
-                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct linked_list *out,
                         __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
@@ -31,15 +31,23 @@ int redir_stdout_file_a(struct ast_redir *node,
         errx(2, "redir_eval: dup: error");
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
     return 0;
 }
 
-int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_stdout_fd(struct ast_redir *node,
+                    __attribute((unused)) struct linked_list *out,
                     __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;
@@ -72,15 +80,23 @@ int redir_stdout_fd(struct ast_redir *node, __attribute((unused)) void **out,
         errx(2, "redir_eval: dup: error");
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
+
     return 0;
 }
 int redir_stdout_file_notrunc(struct ast_redir *node,
-                              __attribute((unused)) void **out,
+                              __attribute((unused)) struct linked_list *out,
                               __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 1;
@@ -107,19 +123,28 @@ int redir_stdout_file_notrunc(struct ast_redir *node,
         errx(2, "redir_eval: dup: error");
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
     return 0;
 }
-int redir_stdout_file(struct ast_redir *node, void **out,
+int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
                       __attribute((unused)) struct ast_eval_ctx *ctx)
 {
+    logger("eval the redirection\n");
     int fd2 = 1;
     if (node->number != -1)
     {
+        logger("found node->number %i\n", node->number);
         fd2 = node->number;
     }
 
@@ -138,10 +163,17 @@ int redir_stdout_file(struct ast_redir *node, void **out,
         errx(2, "redir_eval: dup: error");
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
     return 0;
 }

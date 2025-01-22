@@ -31,38 +31,30 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
         token_free(token);
 
         token = lexer_peek(lexer);
-        if (TOKEN_OK && strcmp(token->value.c, "(") == 0)
+        if (token && token->type == TOKEN_SUBSHELL)
         {
             lexer_pop(lexer);
             token_free(token);
             token = lexer_peek(lexer);
-
-            if (TOKEN_OK && strcmp(token->value.c, ")") == 0)
+            while (token && token->type == TOKEN_NEW_LINE)
             {
                 lexer_pop(lexer);
                 token_free(token);
                 token = lexer_peek(lexer);
-                while (token && token->type == TOKEN_NEW_LINE)
-                {
-                    lexer_pop(lexer);
-                    token_free(token);
-                    token = lexer_peek(lexer);
-                }
-
-                struct ast_node *shell_cmd =
-                    ast_create(lexer, AST_SHELL_COMMAND);
-                if (!shell_cmd)
-                {
-                    ast_free_fundec(node);
-                    logger("no shell command was found after () { \\n }\n");
-                    logger("Exit FUNDEC (FAILED)\n");
-                    return NULL;
-                }
-                logger("Exit FUNDEC (SUCCESS)\n");
-                node->ast_node = shell_cmd;
-                node->is_declared = false;
-                return node;
             }
+
+            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
+            if (!shell_cmd)
+            {
+                ast_free_fundec(node);
+                logger("no shell command was found after () { \\n }\n");
+                logger("Exit FUNDEC (FAILED)\n");
+                return NULL;
+            }
+            logger("Exit FUNDEC (SUCCESS)\n");
+            node->ast_node = shell_cmd;
+            node->is_declared = false;
+            return node;
         }
 
         ast_free_fundec(node);
@@ -74,12 +66,13 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     ast_free_fundec(node);
     return NULL;
 }
-int ast_eval_fundec(struct ast_fundec *f, void **ptr, struct ast_eval_ctx *ctx)
+int ast_eval_fundec(struct ast_fundec *f, struct linked_list *ptr,
+                    struct ast_eval_ctx *ctx)
 {
     if (!(f->is_declared))
     {
         f->is_declared = true;
-        ctx_set_function(ctx, f->name, (void *)f->ast_node);
+        ctx_set_function(ctx, f->name, f->ast_node);
         return EXIT_SUCCESS;
     }
     return ast_eval(f->ast_node, ptr, ctx);

@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "lexer/splitter.h"
+#include "utils/linked_list.h"
 #include "utils/xalloc.h"
 
 // $#
@@ -94,4 +95,53 @@ int ctx_init_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
     mbt_str_free(arobase_args);
 
     return argc - 2;
+}
+
+// classic variables are global but function parameters are local
+// saves the parameters value before entering a function
+// so we save them to restore them right after the function call
+struct linked_list *ctx_save_spe_vars(struct ast_eval_ctx *ctx)
+{
+    struct linked_list *list = list_init();
+
+    list_append(list, strdup(ctx_get_variable(ctx, "@")));
+    list_append(list, strdup(ctx_get_variable(ctx, "*")));
+    list_append(list, strdup(ctx_get_variable(ctx, "?")));
+    list_append(list, strdup(ctx_get_variable(ctx, "$")));
+    list_append(list, strdup(ctx_get_variable(ctx, "#")));
+
+    int nb_args = atoi(ctx_get_variable(ctx, "#"));
+
+    // handles $1, $2, $3, etc
+    for (int i = 1; i <= nb_args; i++)
+    {
+        char *buffer = xcalloc(12, sizeof(char));
+        char *name = my_itoa(i, buffer);
+
+        list_append(list, strdup(ctx_get_variable(ctx, name)));
+        free(name);
+    }
+
+    return list;
+}
+// Restore a previous parameter context
+// use right after a function call to restore the parameters
+void ctx_restore_spe_vars(struct ast_eval_ctx *ctx, struct linked_list *old_ctx)
+{
+    ctx_set_local_variable(ctx, "@", list_get(old_ctx, 0));
+    ctx_set_local_variable(ctx, "*", list_get(old_ctx, 1));
+    ctx_set_local_variable(ctx, "?", list_get(old_ctx, 2));
+    ctx_set_local_variable(ctx, "$", list_get(old_ctx, 3));
+    ctx_set_local_variable(ctx, "#", list_get(old_ctx, 4));
+
+    for (unsigned int i = 5; i < old_ctx->size; i++)
+    {
+        char *buffer = xcalloc(12, sizeof(char));
+        // shift to get i at the correct value eg: $1, $2, etc
+        char *name = my_itoa(i - 4, buffer);
+
+        ctx_set_local_variable(ctx, name, list_get(old_ctx, i));
+
+        free(name);
+    }
 }

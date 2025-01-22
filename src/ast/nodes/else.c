@@ -71,7 +71,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     }
 }
 
-int ast_eval_else(struct ast_else_node *node, void **out,
+int ast_eval_else(struct ast_else_node *node, struct linked_list *out,
                   struct ast_eval_ctx *ctx)
 {
     if (node->condition == NULL) // else

@@ -13,6 +13,7 @@
 #include "builtins/builtins.h"
 #include "builtins/commands.h"
 #include "builtins/run_command.h"
+#include "expansion/vars.h"
 #include "lexer/token.h"
 #include "node.h"
 #include "simple_command_execute_builtin.h"
@@ -54,8 +55,8 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
     }
 
     struct token *parenthese = lexer_peek_two(lexer);
-    if (parenthese && parenthese->type == TOKEN_WORD
-        && strcmp(parenthese->value.c, "(") == 0)
+
+    if (parenthese && parenthese->type == TOKEN_SUBSHELL)
     {
         goto error;
     }
@@ -78,7 +79,7 @@ error:
 }
 
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
-                        __attribute((unused)) void **out,
+                        __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
 {
     if (!cmd->cmd)
@@ -89,20 +90,36 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
     int argc = cmd->args->size + 1;
-    char **argv = xcalloc(argc + 1, sizeof(char *));
+    char **argv = xcalloc(1, sizeof(char *));
 
-    argv[0] = cmd->cmd;
+    argv[0] = strdup(cmd->cmd);
 
     size_t elt = 1;
 
+    struct linked_list *linked_list;
+    /* LOOP TO TAKE ARGUMENT OF THE CMD AND ADD THEM IN ARGV */
     for (int i = 1; i < argc; i++)
     {
         ctx->check_redir = false;
+
         struct ast_node *children = list_get(cmd->args, i - 1);
-        if (ast_eval(children, (void **)argv + elt, ctx) == 0)
+
+        linked_list = list_init();
+
+        ast_eval(children, linked_list, ctx);
+        if (linked_list->head)
         {
+            struct eval_output *output = linked_list->head->data;
+
+            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+
+            argv[elt] = output->value.str;
+
+            logger("simple_command.c : get value from output %s\n", argv[elt]);
+
             elt++;
         }
+        list_free(linked_list, (void (*)(void *))eval_output_free);
     }
 
     int ret_value = 0;
@@ -110,7 +127,14 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
     if (local_function) // checks if the function exists in the hashmap
     {
-        ret_value = ast_eval(local_function, (void **)argv + 1, ctx);
+        // cf src/ast/expansion/vars.c
+        // struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
+
+        ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
+
+        // cf src/ast/expansion/vars.c
+        // ctx_restore_spe_vars(ctx, params_ctx);
+        // list_free(params_ctx, free);
     }
     else
     {
@@ -128,7 +152,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
     }
 
-    for (size_t i = 1; i <= elt; i++)
+    for (size_t i = 0; i < elt; i++)
     {
         free(argv[i]);
     }

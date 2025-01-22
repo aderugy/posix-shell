@@ -82,7 +82,7 @@ error:
     return NULL;
 }
 
-int ast_eval_pipeline(struct ast_pipeline *node, void **out,
+int ast_eval_pipeline(struct ast_pipeline *node, struct linked_list *out,
                       struct ast_eval_ctx *ctx)
 {
     int result;

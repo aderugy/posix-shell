@@ -28,6 +28,30 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 
     struct token *token = lexer_peek(lexer);
     logger("token_value: %s\n", token->value.c);
+
+    // CASE 0 '{' compound_list '}'
+    if (TOKEN_OK && strcmp(token->value.c, "{") == 0)
+    {
+        token_free(lexer_pop(lexer));
+
+        struct ast_node *clist = ast_create(lexer, AST_CLIST);
+        if (clist)
+        {
+            token = lexer_pop(lexer);
+            if (TOKEN_OK && strcmp(token->value.c, "}") == 0)
+            {
+                token_free(token);
+                node->ast_node = clist;
+                return node;
+            }
+            token_free(token);
+        }
+
+        lexer_error(lexer, "unmatched bracket");
+        ast_free_shell_cmd(node);
+        return NULL;
+    }
+
     if (token && token->type == TOKEN_SUBSHELL)
     {
         logger("Subshell !!!!\n");
@@ -52,29 +76,6 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 
         lexer_free(lexer2);
         token_free(lexer_pop(lexer));
-        ast_free_shell_cmd(node);
-        return NULL;
-    }
-
-    // CASE 0 '{' compound_list '}'
-    if (TOKEN_OK && strcmp(token->value.c, "{") == 0)
-    {
-        token_free(lexer_pop(lexer));
-
-        struct ast_node *clist = ast_create(lexer, AST_CLIST);
-        if (clist)
-        {
-            token = lexer_pop(lexer);
-            if (TOKEN_OK && strcmp(token->value.c, "}") == 0)
-            {
-                token_free(token);
-                node->ast_node = clist;
-                return node;
-            }
-            token_free(token);
-        }
-
-        lexer_error(lexer, "unmatched bracket");
         ast_free_shell_cmd(node);
         return NULL;
     }
@@ -115,7 +116,7 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     node->ast_node = rule;
     return node;
 }
-int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr,
+int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, struct linked_list *out,
                        struct ast_eval_ctx *ctx)
 {
     if (cmd->is_sub_shell == 1)
@@ -135,7 +136,7 @@ int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, void **ptr,
         waitpid(p, &status, 0);
         return WEXITSTATUS(status);
     }
-    return ast_eval(cmd->ast_node, ptr, ctx);
+    return ast_eval(cmd->ast_node, out, ctx);
 }
 void ast_free_shell_cmd(struct ast_shell_cmd *cmd)
 {

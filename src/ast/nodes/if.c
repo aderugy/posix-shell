@@ -58,7 +58,8 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     return ast;
 }
 
-int ast_eval_if(struct ast_if_node *node, void **out, struct ast_eval_ctx *ctx)
+int ast_eval_if(struct ast_if_node *node, struct linked_list *out,
+                struct ast_eval_ctx *ctx)
 {
     int value = ast_eval(node->condition, out, ctx);
 

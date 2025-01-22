@@ -22,7 +22,8 @@
  * WORD ;
  */
 
-int redir_fopen_rw(struct ast_redir *redir, __attribute((unused)) void **out,
+int redir_fopen_rw(struct ast_redir *redir,
+                   __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx);
 
 static const struct redirection REDIR_LIST[] = {
@@ -102,7 +103,8 @@ error:
  * @MEHDI @JULES
  * Enlever ces errx
  */
-int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_fopen_rw(struct ast_redir *node,
+                   __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
@@ -131,17 +133,22 @@ int redir_fopen_rw(struct ast_redir *node, __attribute((unused)) void **out,
     }
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2; // smiley deux yeux grand ouverts
-        // Les crochets ont été inventés en 2026. Jules en 2025:
-        *(origin_fd + 2) = saved_stdout;
-        // Blague rendue possible grace a GIT BLAME
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
     return 0;
 }
 
-int ast_eval_redir(struct ast_redir *node, void **out,
+int ast_eval_redir(struct ast_redir *node, struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     for (size_t i = 0; i < REDIR_LEN; i++)

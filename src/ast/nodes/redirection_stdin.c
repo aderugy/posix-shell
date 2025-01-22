@@ -3,7 +3,8 @@
 #include <stdio.h>
 
 static const char *DIGITS = "0123456789";
-int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_file_stdin(struct ast_redir *node,
+                     __attribute((unused)) struct linked_list *out,
                      __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     int fd2 = 0;
@@ -30,18 +31,24 @@ int redir_file_stdin(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(2, "redir_eval: dup: error");
     }
-
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
-    }
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
 
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
+    }
     return 0;
 }
-int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
+int redir_stdin_fd(struct ast_redir *node,
+                   __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
     char *val = node->file;
@@ -75,13 +82,19 @@ int redir_stdin_fd(struct ast_redir *node, __attribute((unused)) void **out,
     {
         errx(2, "redir_eval: dup: error");
     }
-
     if (out)
     {
-        int *origin_fd = *out;
-        *origin_fd = fd;
-        *(origin_fd + 1) = fd2;
-        *(origin_fd + 2) = saved_stdout;
+        struct eval_output *eval_output_fd_1 = eval_output_init();
+        struct eval_output *eval_output_fd_2 = eval_output_init();
+        struct eval_output *eval_output_fd_3 = eval_output_init();
+
+        eval_output_fd_1->value.fd = fd;
+        eval_output_fd_2->value.fd = fd2;
+        eval_output_fd_3->value.fd = saved_stdout;
+
+        list_append(out, eval_output_fd_1);
+        list_append(out, eval_output_fd_2);
+        list_append(out, eval_output_fd_3);
     }
 
     return 0;

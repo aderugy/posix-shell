@@ -13,7 +13,7 @@ struct ast_list
 };
 
 struct ast_list *ast_parse_list(struct lexer *lexer);
-int ast_eval_list(struct ast_list *node, void **out,
+int ast_eval_list(struct ast_list *node, struct linked_list *out,
                   __attribute((unused)) struct ast_eval_ctx *ctx);
 void ast_free_list(struct ast_list *node);
 

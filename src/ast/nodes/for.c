@@ -161,7 +161,8 @@ error:
     return NULL;
 }
 
-int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
+int ast_eval_for(struct ast_for_node *node,
+                 __attribute((unused)) struct linked_list *out,
                  struct ast_eval_ctx *ctx)
 {
     /*
@@ -175,17 +176,23 @@ int ast_eval_for(struct ast_for_node *node, __attribute((unused)) void **out,
     while (item)
     {
         char *value = NULL;
-        if (ast_eval(item->data, (void **)&value, ctx))
+        struct linked_list *linked_list = list_init();
+        if (ast_eval(item->data, linked_list, ctx))
         {
             warnx("for: unexpected error");
             return AST_EVAL_ERROR;
         }
 
+        struct eval_output *eval_output = linked_list->head->data;
+        value = eval_output->value.str;
+
         ctx_set_local_variable(ctx, node->name, value);
+
 
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;
         free(value);
+        list_free(linked_list, (void (*)(void *))eval_output_free);
 
         if (ctx->break_count > 0)
         {

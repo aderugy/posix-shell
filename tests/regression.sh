@@ -356,6 +356,17 @@ test_blocks() {
   tes '{ { { { { { { echo a; } } } } } } } | tr a h'
   echo "========== BLOCKS END ====="
 }
+test_function() {
+  echo "========== FUNCTIONS BEGIN ==="
+  tes 'fun ( ) { echo a; }; fun'
+  tes 'ls ( ) { echo a; }; ls'
+  tes 'fun ( ) { echo a; }; fun'
+  tes 'fun ( ) { echo a; }; fun; fun ( ) { echo b; }; fun'
+  tes 'fun ( ) { foo ( ) { echo b; }; echo a; foo; }; fun'
+  tes 'fun ( ) { foo ( ) { ls; }; echo a; foo; }; ls fun fun'
+  tes 'A=1; echo $A; fun ( ) { A=2; echo $A; }; fun ;echo $A'
+  echo "========== FUNCTIONS END ====="
+}
 testsuite() {
   test_echo_basic
   test_non_builtin
@@ -379,6 +390,7 @@ testsuite() {
   test_export
   test_unset
   test_blocks
+  test_function
 }
 
 if [ "$COVERAGE" = "yes" ]; then

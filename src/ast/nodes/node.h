@@ -5,6 +5,8 @@
 #include "eval_ctx.h"
 #include "lexer/lexer.h"
 #include "lexer/splitter.h"
+#include "utils/eval_output_structure.h"
+#include "utils/linked_list.h"
 
 #define AST_EVAL_SUCCESS 0
 #define AST_EVAL_ERROR 1
@@ -43,13 +45,14 @@ struct ast_node
 struct ast_node_operations
 {
     void *(*parse)(struct lexer *lexer);
-    int (*eval)(void *node, void **out, void *ctx);
+    int (*eval)(void *node, struct linked_list *out, void *ctx);
     void (*free)(void *node);
     void (*print)(void *node);
 };
 
 struct ast_node *ast_create(struct lexer *lexer, enum ast_type type);
-int ast_eval(struct ast_node *node, void **out, struct ast_eval_ctx *ctx);
+int ast_eval(struct ast_node *node, struct linked_list *out,
+             struct ast_eval_ctx *ctx);
 void ast_free(struct ast_node *node);
 void ast_print(struct ast_node *node);
 

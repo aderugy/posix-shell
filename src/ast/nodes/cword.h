@@ -19,7 +19,7 @@ struct ast_cword_out
 };
 
 struct ast_cword *ast_parse_cword(struct lexer *lexer);
-int ast_eval_cword(struct ast_cword *node, void **out,
+int ast_eval_cword(struct ast_cword *node, struct linked_list *out,
                    struct ast_eval_ctx *ctx);
 void ast_free_cword(struct ast_cword *node);
 

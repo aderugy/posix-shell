@@ -1,6 +1,8 @@
 lib_LIBRARIES = libutils.a
 
 libutils_a_SOURCES =  \
+	eval_output_structure.h \
+	eval_output_structure.c \
   logger.c \
   logger.h \
   fill_input.h \
