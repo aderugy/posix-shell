@@ -30,6 +30,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     if (!and_or)
     {
         ast_free_clist(node);
+        logger("Exit CLIST(ERROR)\n");
         return NULL;
     }
     list_append(node->list, and_or);
@@ -47,6 +48,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
         if (!and_or)
         {
+            logger("Exit CLIST(SUCCESS)\n");
             return node;
         }
 
@@ -64,6 +66,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         token_free(lexer_pop(lexer));
     }
 
+    logger("Exit CLIST(SUCCESS)\n");
     return node;
 }
 

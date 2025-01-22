@@ -7,6 +7,7 @@
 struct ast_shell_cmd
 {
     struct ast_node *ast_node;
+    char is_sub_shell;
 };
 
 struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer);
