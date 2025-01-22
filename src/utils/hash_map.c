@@ -88,7 +88,7 @@ bool hash_map_remove(struct hash_map *hash_map, char *key,
         hash_map_elt_free(p);
         return true;
     }
-    while (p && strcmp(p->key, key) && p->type != type)
+while (p && (strcmp(p->key, key) || p->type != type))
     {
         prev = p;
         p = p->next;
