@@ -107,7 +107,15 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 {
                     stream_read(ctx->stream);
                     splitter_read_until(ctx, str, '\'');
-                    stream_read(ctx->stream);
+                    char end_quote = stream_read(ctx->stream);
+
+                    if (end_quote != '\'')
+                    {
+                        warnx("Syntax error: unmatched simple quote");
+                        ctx->err = true;
+                        mbt_str_free(str);
+                        return NULL;
+                    }
 
                     if (!str->size)
                     {
