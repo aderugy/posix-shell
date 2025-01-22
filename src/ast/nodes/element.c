@@ -55,7 +55,7 @@ int ast_eval_element(struct ast_element *node, struct linked_list *out,
             return redir_eval_result;
         }
 
-        return -1;
+        return AST_EVAL_SUCCESS;
     }
 
     return 0;

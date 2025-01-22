@@ -32,21 +32,24 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
         ctx->check_redir = true;
         struct ast_node *children = list_get(cmd->args, i - 1);
 
-        int element_eval_result;
-        if ((element_eval_result =
-                 ast_eval(children, /*(void **)&fd_pointer*/ linked_list, ctx))
-            == -1)
+        ast_eval(children, linked_list, ctx);
+
+        if (linked_list->head)
         {
-            fd_pointer += 3; // for the 3 files descriptor that we need to close
-        }
-        else if (element_eval_result == 0)
-        {
-            argc++;
+            struct linked_list_element *output_head = linked_list->head;
+            while (output_head)
+            {
+                struct eval_output *output = output_head->data;
+                *fd_pointer = output->value.fd;
+                output_head = output_head->next;
+                fd_pointer++;
+            }
+            // fd_pointer += 3; // for the 3 files descriptor that we need to
+            // close
         }
         else
         {
-            ret_value = element_eval_result;
-            goto error;
+            argc++;
         }
     }
 
@@ -73,14 +76,5 @@ int simple_command_execute_builtin(struct ast_simple_cmd *cmd, char **argv,
     }
 
     free(fd_ptr);
-    return ret_value;
-error:
-
-    if (fd_ptr)
-    {
-        free(fd_ptr);
-    }
-
-    logger("Exit SIMPLE_COMMAND with error\n");
     return ret_value;
 }
