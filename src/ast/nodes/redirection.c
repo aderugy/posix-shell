@@ -124,9 +124,9 @@ int redir_fopen_rw(struct ast_redir *node,
     }
     if (out)
     {
-        struct eval_output *eval_output_fd_1 = eval_output_init();
-        struct eval_output *eval_output_fd_2 = eval_output_init();
-        struct eval_output *eval_output_fd_3 = eval_output_init();
+        struct eval_output *eval_output_fd_1 = eval_output_init(EVAL_FD);
+        struct eval_output *eval_output_fd_2 = eval_output_init(EVAL_FD);
+        struct eval_output *eval_output_fd_3 = eval_output_init(EVAL_FD);
 
         eval_output_fd_1->value.fd = fd;
         eval_output_fd_2->value.fd = fd2;
