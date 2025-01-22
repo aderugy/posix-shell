@@ -325,7 +325,7 @@ struct token *lexer_pop(struct lexer *lexer)
 {
     if (lexer->error || lexer->eof)
     {
-        return NULL;
+        return lexer->tokens->size ? stack_pop(lexer->tokens) : NULL;
     }
 
     struct token *token =
