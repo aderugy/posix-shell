@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "eval_ctx.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
@@ -78,26 +79,32 @@ error:
     {
         ast_free(fun);
     }
+
     ast_free_fundec(node);
     return NULL;
 }
 
-int ast_eval_fundec(__attribute((unused)) struct ast_fundec *f,
+int ast_eval_fundec(struct ast_fundec *node,
                     __attribute((unused)) struct linked_list *ptr,
-                    __attribute((unused)) struct ast_eval_ctx *ctx)
+                    struct ast_eval_ctx *ctx)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    ctx_set_function(ctx, node->name, node->fun);
+    node->fun = NULL;
+    return AST_EVAL_SUCCESS;
 }
+
 void ast_free_fundec(struct ast_fundec *f)
 {
-    // NE PAS FREE f->fun
-    // Géré par le tableau des fonctions
-    // Dans la struct juste pour le pretty print
     if (f)
     {
         if (f->name)
         {
             free(f->name);
+        }
+
+        if (f->fun)
+        {
+            ast_free(f->fun);
         }
 
         list_free(f->redirs, (void (*)(void *))ast_free);

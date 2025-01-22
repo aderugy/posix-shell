@@ -11,7 +11,7 @@ struct ast_fundec
 {
     char *name;
     struct linked_list *redirs;
-    struct ast_node *fun; // NE PAS FREE
+    struct ast_node *fun;
 };
 
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer);
