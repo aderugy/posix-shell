@@ -70,7 +70,6 @@ static const struct keyword KEYWORDS[] = {
     { ">|", TOKEN_REDIR_STDOUT_FILE_NOTRUNC },
     { ">", TOKEN_REDIR_STDOUT_FILE },
     { "<", TOKEN_REDIR_FILE_STDIN },
-    { "(", TOKEN_SUBSHELL },
     { NULL, TOKEN_EOF }
 };
 
