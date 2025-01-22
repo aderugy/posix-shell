@@ -54,8 +54,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
                 if (!shell_cmd)
                 {
                     ast_free_fundec(node);
-                    logger("no shell command was found after () { \\n }\n");
-                    logger("Exit FUNDEC (FAILED)\n");
+                    lexer_error(lexer, "expected shell command");
                     return NULL;
                 }
                 logger("Exit FUNDEC (SUCCESS)\n");
@@ -93,6 +92,7 @@ void ast_free_fundec(struct ast_fundec *f)
 }
 void ast_print_fundec(struct ast_fundec *f)
 {
-    logger("function name : %s\n", f->name);
+    logger("%s () { ", f->name);
     ast_print(f->ast_node);
+    logger(" }");
 }

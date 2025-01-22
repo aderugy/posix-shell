@@ -148,7 +148,15 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     stream_read(ctx->stream);
                 }
 
-                return splitter_handle_expansion(ctx, str);
+                struct shard *out = splitter_handle_expansion(ctx, str);
+                if (c == '(' && !*out->data)
+                {
+                    free(out->data);
+                    out->data = strdup("()");
+                    out->type = SHARD_WORD;
+                }
+
+                return out;
             }
 
             // Case 5: Expansions
@@ -286,7 +294,10 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     else if (c == '(')
     {
         stream_read(ctx->stream);
-        c = stream_peek(ctx->stream);
+        while ((c = stream_peek(ctx->stream)) > 0 && c == ' ')
+        {
+            stream_read(ctx->stream);
+        }
 
         bool is_arith = c == '(';
         if (is_arith)
