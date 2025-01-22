@@ -298,6 +298,11 @@ struct token *lexer_peek_two(struct lexer *lexer)
         return NULL;
     }
 
+    if (lexer->tokens->size > 1)
+    {
+        return lexer->tokens->head->next->data;
+    }
+
     struct token *token1 = stack_peek(lexer->tokens);
     if (!token1 && !lexer->eof)
     {
@@ -308,28 +313,21 @@ struct token *lexer_peek_two(struct lexer *lexer)
         }
     }
 
-    if (lexer->tokens->size > 1)
+    stack_pop(lexer->tokens);
+    struct token *token2 = lex(lexer, false);
+    if (token2)
     {
-        return lexer->tokens->head->next->data;
+        stack_push(lexer->tokens, token2);
+        stack_push(lexer->tokens, token1);
     }
-    else if (!lexer->eof)
-    {
-        struct token *token2 = lex(lexer, false);
-        if (token2)
-        {
-            stack_push(lexer->tokens, token2);
-        }
-        return token2;
-    }
-
-    return NULL;
+    return token2;
 }
 
 struct token *lexer_pop(struct lexer *lexer)
 {
     if (lexer->error || lexer->eof)
     {
-        return NULL;
+        return lexer->tokens->size ? stack_pop(lexer->tokens) : NULL;
     }
 
     struct token *token =

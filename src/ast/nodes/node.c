@@ -7,10 +7,10 @@
 #include "ast/ast.h"
 #include "clist.h"
 #include "command.h"
-#include "cword.h"
 #include "element.h"
 #include "else.h"
 #include "for.h"
+#include "fundec.h"
 #include "if.h"
 #include "input.h"
 #include "ionumber.h"
@@ -22,9 +22,7 @@
 #include "simple_command.h"
 #include "until.h"
 #include "utils/logger.h"
-#include "utils/xalloc.h"
 #include "while.h"
-
 extern int logger_stack_idx;
 static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_simple_cmd,
@@ -99,6 +97,10 @@ static const struct ast_node_operations AST_FN[] = {
       (int (*)(void *, void **, void *))ast_eval_prefix,
       (void (*)(void *))ast_free_prefix, (void (*)(void *))ast_print_prefix },
 
+    { (void *(*)(struct lexer *))ast_parse_fundec,
+      (int (*)(void *, void **, void *))ast_eval_fundec,
+      (void (*)(void *))ast_free_fundec, (void (*)(void *))ast_print_fundec },
+
     { (void *(*)(struct lexer *))ast_parse_cword,
       (int (*)(void *, void **, void *))ast_eval_cword,
       (void (*)(void *))ast_free_cword, (void (*)(void *))ast_print_cword },
@@ -118,7 +120,11 @@ struct ast_node *ast_create(struct lexer *lexer, enum ast_type type)
         return NULL;
     }
 
-    struct ast_node *root = xcalloc(1, sizeof(struct ast_node));
+    struct ast_node *root = calloc(1, sizeof(struct ast_node));
+    if (!root)
+    {
+        errx(EXIT_FAILURE, "out of memory");
+    }
 
     root->type = type;
     root->value = value;

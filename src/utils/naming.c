@@ -5,6 +5,22 @@
 
 #include "lexer/splitter.h"
 
+static char *keywords[] = { "then", "elif", "if",   "fi",    "else",
+                            "do",   "for",  "done", "while", "until",
+                            "{",    "}",    "(",    ")",     NULL };
+
+bool is_keyword(char *word)
+{
+    for (size_t i = 0; keywords[i]; i++)
+    {
+        if (strcmp(keywords[i], word) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 // @RENAME
 
 // @ANSWER
@@ -22,7 +38,7 @@ int convention_check(char *name, int len)
     }
 
     int i = 0;
-    while (i < len && (isalnum(name[i]) || name[i] == '_'))
+    while (name[i] && (isalnum(name[i]) || name[i] == '_'))
     {
         ++i;
     }
@@ -52,4 +68,19 @@ int dollar_valid(int state)
 int regular(int c)
 {
     return isdigit(c) || strchr("@*#?$", c) || isalnum(c);
+}
+
+int XDB_valid(char *name)
+{
+    if (isdigit(*name))
+    {
+        return 0;
+    }
+
+    while (*name && (isalnum(*name) || *name == '_'))
+    {
+        ++name;
+    }
+
+    return *name == 0;
 }

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "expansion/expansion.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
@@ -24,24 +23,23 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
     struct ast_shell_cmd *node = xcalloc(1, sizeof(struct ast_shell_cmd));
 
     // CASE 0 '{' compound_list '}'
-    struct token *tok = lexer_peek(lexer);
-    logger("token print\n");
-    token_print(tok);
-    if (reserved_word_check(tok) && strcmp(tok->value.c, "{") == 0)
+    struct token *token = lexer_peek(lexer);
+    token_print(token);
+    if (TOKEN_OK && strcmp(token->value.c, "{") == 0)
     {
         token_free(lexer_pop(lexer));
 
         struct ast_node *clist = ast_create(lexer, AST_CLIST);
         if (clist)
         {
-            tok = lexer_pop(lexer);
-            if (reserved_word_check(tok) && strcmp(tok->value.c, "}") == 0)
+            token = lexer_pop(lexer);
+            if (TOKEN_OK && strcmp(token->value.c, "}") == 0)
             {
-                token_free(tok);
+                token_free(token);
                 node->ast_node = clist;
                 return node;
             }
-            token_free(tok);
+            token_free(token);
         }
 
         lexer_error(lexer, "unmatched bracket");

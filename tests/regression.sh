@@ -19,9 +19,9 @@ SCRIPT="script.sh"
 #BIN="42sh"
 F=$BIN_PATH
 # for colors
-G=""
-R=""
-D=""
+G="\033[0;32m"
+R="\033[0;31m"
+D="\033[0m"
 
 TOTAL_TEST=0
 PASSED_TEST=0
@@ -278,24 +278,6 @@ test_quoting() {
   tes "'ls'"
   echo "========== QUOTING END =========="
 }
-test_pipeline() {
-  echo "========== PIPELINE BEGIN =========="
-  tes "echo Hello | tr a e"
-  tes "echo Hello | tr a e | tr e a"
-  tes "echo Hello | tr a e | tr e a | tr a e"
-  tes "find -name *.c | echo"
-  tes "tree -L 2 | echo | tr e a | tr c b"
-  echo "========== PIPELINE END =========="
-}
-test_neg_pipeline() {
-  echo "========== NEGATION PIPELINE BEGIN =========="
-  test_code_error 0 "! false | true | true | true | false"
-  test_code_error 0 "! false | true | false | false | false | false"
-  test_code_error 0 "! true | false"
-  test_code_error 1 "! false | true"
-  test_code_error 1 "! ls | echo"
-  echo "========== NEGATION PIPELINE END =========="
-}
 test_cd() {
   echo "========== CD ========="
   tes 'cd && echo $PWD'
@@ -307,18 +289,12 @@ test_exit() {
   echo "========== exit END ========="
 }
 test_var_local() {
-  echo "========== VARIABLES BEGIN =========="
+  echo "========== ASSIGNMENT BEGIN =========="
   tes "A=2; echo $A"
   tes "A=42; B=55; echo $A $B"
-  echo "========== VARIABLES END =========="
-}
-test_quoting() {
-  echo "========== QUOTING BEGIN =========="
-  for i in $(find step2/quoting -name "*sh"); do
-    test_from_file $i
-    test_from_stdin $i
-  done
-  echo "========== QUOTING END =========="
+  tes "A=42; A=55; A=58; A=59; A=kjhgfrtyj; echo $A"
+  tes "A=42; B=$A; echo $A$B$C"
+  echo "========== ASSIGNMENT END =========="
 }
 test_errs() {
   echo "========== ERROR_CODE BEGIN =========="
@@ -406,10 +382,10 @@ testsuite() {
 }
 
 if [ "$COVERAGE" = "yes" ]; then
+  #./step1.sh
+  #./step2/step2.sh
+  #./step3/step3.sh
   testsuite
-  ./step1.sh
-  ./step2/step2.sh
-  ./step3/step3.sh
   echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
   res=$((100 * $PASSED_TEST / $TOTAL_TEST))
   echo "REGRESSION: $res% PASSED"

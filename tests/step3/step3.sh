@@ -15,12 +15,11 @@ DIFF_ERR="diff_err.out"
 SCRIPT="script.sh"
 
 # bin name and path
-
 F="$BIN_PATH"
 # for colors
-G=""
-R=""
-D=""
+G="\033[0;32m"
+R="\033[0;31m"
+D="\033[0m"
 
 # @brief runs a test on all possible input ways
 # @params: a list of strings
@@ -112,12 +111,31 @@ test_cd() {
   tes 'cd ../ && echo $PWD'
   echo "========== CD END =========="
 }
-
+test_functions() {
+  echo "========== FUNCTIONS BEGIN =========="
+  for i in $(find step3/"functions" -name "*sh"); do
+    test_from_file $i 1 2 4
+    test_from_stdin $i
+  done
+  echo "========== FUNCTIONS END =========="
+}
+test_subshells() {
+  echo "========== SUBSHELL BEGIN =========="
+  for i in $(find step3/"subshell" -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
+  echo "========== SUBSHELL END =========="
+}
 testsuite() {
   test_cd
+  test_functions
+  test_subshells
 }
 
 testsuite
+
+echo $F
 #================== making sure every file exists before deleting them
 touch $EXPECTED_OUT
 touch $ACTUAL_OUT

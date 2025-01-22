@@ -9,6 +9,8 @@
 #define AST_EVAL_SUCCESS 0
 #define AST_EVAL_ERROR 1
 
+#define TOKEN_OK (token && token->type == TOKEN_WORD && !token->next)
+
 enum ast_type
 {
     AST_SIMPLE_COMMAND = 0,
@@ -28,6 +30,7 @@ enum ast_type
     AST_FOR, // 14
     AST_REDIRECTION, // 15
     AST_PREFIX, // 16
+    AST_FUNDEC, // 17
     AST_COMPLEX_WORD
 };
 

@@ -4,8 +4,6 @@ libast_a_SOURCES =  \
   ast.h \
   nodes/eval_ctx.h \
   nodes/eval_ctx.c \
-  expansion/expansion.h \
-  expansion/expansion.c \
   expansion/vars.h \
   expansion/vars.c \
   nodes/and_or.c \
@@ -25,6 +23,8 @@ libast_a_SOURCES =  \
   nodes/pipeline.h \
   nodes/clist.c \
   nodes/clist.h \
+  nodes/fundec.c \
+  nodes/fundec.h \
   nodes/shell_command.c \
   nodes/shell_command.h \
   nodes/simple_command.c \
@@ -51,6 +51,8 @@ libast_a_SOURCES =  \
   nodes/until.h \
   nodes/for.c \
   nodes/for.h \
+  nodes/cword.c \
+  nodes/cword.h \
   nodes/redirection_stdin.h \
   nodes/redirection_stdin.c \
   nodes/redirection_stdout.c \

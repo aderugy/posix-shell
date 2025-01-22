@@ -19,22 +19,8 @@
 #include "simple_command_execute_non_builtin.h"
 #include "utils/linked_list.h"
 #include "utils/logger.h"
+#include "utils/naming.h"
 #include "utils/xalloc.h"
-
-static char *keywords[] = { "then", "elif",  "if",    "fi", "else", "do", "for",
-                            "done", "while", "until", "{",  "}",    NULL };
-
-bool is_keyword(char *word)
-{
-    for (size_t i = 0; keywords[i]; i++)
-    {
-        if (strcmp(keywords[i], word) == 0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
 
 struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 {
@@ -62,8 +48,14 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD
-        || (token->value.c && is_keyword(token->value.c)))
+    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
+    {
+        goto error;
+    }
+
+    struct token *parenthese = lexer_peek_two(lexer);
+    if (parenthese && parenthese->type == TOKEN_WORD
+        && strcmp(parenthese->value.c, "(") == 0)
     {
         goto error;
     }
@@ -113,17 +105,27 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
     }
 
-    struct runnable *cmd_runnable =
-        get_command(argv[0], NULL); // get the builtin if exists
-
     int ret_value = 0;
-    if (cmd_runnable) // check if it is a builtin
+
+    struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
+    if (local_function) // checks if the function exists in the hashmap
     {
-        ret_value = simple_command_execute_builtin(cmd, argv, ctx);
+        ret_value = ast_eval(local_function, (void **)argv + 1, ctx);
     }
     else
     {
-        ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+        struct runnable *cmd_runnable =
+            get_command(argv[0], NULL); // get the builtin if exists
+
+        if (cmd_runnable) // check if it is a builtin
+        {
+            ret_value = simple_command_execute_builtin(cmd, argv, ctx);
+        }
+        else
+        {
+            ret_value =
+                simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+        }
     }
 
     for (size_t i = 1; i <= elt; i++)
