@@ -38,5 +38,7 @@ void *hash_map_get(struct hash_map *hash_map, char *key,
                    enum hash_map_elt_type type);
 
 void hash_map_free(struct hash_map *hash_map);
+bool hash_map_remove(struct hash_map *hash_map, char *key,
+                     enum hash_map_elt_type type);
 
 #endif /* ! HASH_MAP_H */

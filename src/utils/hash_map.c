@@ -1,6 +1,5 @@
+#include "logger.h"
 #define _POSIX_C_SOURCE 200809L
-#include "hash_map.h"
-
 #include <err.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -9,6 +8,7 @@
 #include <string.h>
 
 #include "ast/nodes/node.h"
+#include "hash_map.h"
 #include "mbtstr/str.h"
 #include "utils/logger.h"
 #include "utils/xalloc.h"
@@ -67,8 +67,9 @@ struct hash_map *hash_map_init(size_t size)
 }
 
 // @refactor
-static bool hash_map_remove(struct hash_map *hash_map, char *key,
-                            enum hash_map_elt_type type)
+// return true on success, else false
+bool hash_map_remove(struct hash_map *hash_map, char *key,
+                     enum hash_map_elt_type type)
 {
     if (hash_map == NULL || hash_map->size == 0)
     {
