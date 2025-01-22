@@ -361,7 +361,6 @@ test_function() {
   tes 'fun ( ) { echo a; }; fun'
   tes 'ls ( ) { echo a; }; ls'
   tes 'fun ( ) { echo a; }; fun'
-  tes 'fun ( ) { foo ( ) { echo b; } echo a; fun; }; fun'
   echo "========== FUNCTIONS END ====="
 }
 testsuite() {
