@@ -181,7 +181,9 @@ int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
     }
 
     char *file = filename->value.str;
+
     int fd = open(file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+
     if (fd == -1)
     {
         fprintf(stderr, "eval_redir: no such file: %s", file);
@@ -189,7 +191,7 @@ int redir_stdout_file(struct ast_redir *node, struct linked_list *out,
     if (dup2(fd, fd2) == -1)
         errx(2, "redir_eval: dup: error");
     SAVE_FD
-    return 0;
+    list_free(filenames, (void (*)(void *))eval_output_free); return 0;
 
 error:
     return AST_EVAL_ERROR;
