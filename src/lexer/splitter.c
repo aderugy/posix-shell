@@ -48,7 +48,6 @@ static void discard_comment(struct splitter_ctx *ctx);
 // @TIDY
 static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
-    logger("splitter_next\n");
     struct mbt_str *str = mbt_str_init(64);
 
     if (ctx->expect->size)
@@ -70,7 +69,6 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         char c;
         while ((c = stream_peek(ctx->stream)) > 0)
         {
-            logger("c = %c\n", c);
             // Case 1: EOF handled by exiting the loop
             if (shard_is_operator(str) || shard_is_redir(str))
             {
@@ -138,7 +136,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 break;
             }
 
-            if (c == '`' || c == '$')
+            if (c == '`' || c == '$' || c == '(')
             {
                 if (NOT_EMPTY(str))
                 {
@@ -150,7 +148,15 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     stream_read(ctx->stream);
                 }
 
-                return splitter_handle_expansion(ctx, str);
+                struct shard *out = splitter_handle_expansion(ctx, str);
+                if (c == '(' && !*out->data)
+                {
+                    free(out->data);
+                    out->data = strdup("()");
+                    out->type = SHARD_WORD;
+                }
+
+                return out;
             }
 
             // Case 5: Expansions
@@ -287,9 +293,11 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     }
     else if (c == '(')
     {
-        logger("SUBSHELLLL\n");
         stream_read(ctx->stream);
-        c = stream_peek(ctx->stream);
+        while ((c = stream_peek(ctx->stream)) > 0 && c == ' ')
+        {
+            stream_read(ctx->stream);
+        }
 
         bool is_arith = c == '(';
         if (is_arith)

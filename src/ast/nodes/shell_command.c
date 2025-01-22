@@ -24,7 +24,6 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
 
     // CASE 0 '{' compound_list '}'
     struct token *token = lexer_peek(lexer);
-    token_print(token);
     if (TOKEN_OK && strcmp(token->value.c, "{") == 0)
     {
         token_free(lexer_pop(lexer));

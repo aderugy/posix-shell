@@ -155,7 +155,6 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     token->type = TOKEN_ERROR;
 
     struct shard *shard = splitter_pop(lexer->ctx);
-    shard_print(shard);
     if (!shard)
     {
         if (lexer->ctx->err)
