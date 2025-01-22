@@ -91,7 +91,7 @@ static bool hash_map_remove(struct hash_map *hash_map, char *key,
         return true;
     }
 
-    while (p && strcmp(p->key, key) && p->type != type)
+    while (p && (strcmp(p->key, key) || p->type != type))
     {
         prev = p;
         p = p->next;
@@ -125,7 +125,7 @@ int hash_map_insert(struct hash_map *hash_map, char *name, void *value,
 
     // Loops through entries
     struct hash_map_elt *p = hash_map->data[index];
-    while (p && strcmp(p->key, name) && p->type != type)
+    while (p && (strcmp(p->key, name) || p->type != type))
     {
         p = p->next;
     }
@@ -184,7 +184,7 @@ void *hash_map_get(struct hash_map *hash_map, char *key,
     }
 
     struct hash_map_elt *p = hash_map->data[index];
-    while (p && strcmp(p->key, key) && p->type != type)
+    while (p && (strcmp(p->key, key) || p->type != type))
     {
         p = p->next;
     }

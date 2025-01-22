@@ -8,9 +8,57 @@
 #include "utils/logger.h"
 #include "utils/naming.h"
 
+#define TOKEN_GOOD (token && token->type == TOKEN_WORD)
+
+#define FUNDEC_ERROR 2
+#define FUNDEC_FREE 4
+#define FUNDEC_NOTHING 8
+
 /*
  * fundec = WORD '(' ')' { '\n' } shell_command ;
  */
+int sub_parse_fundec(struct lexer *lexer, struct token *token)
+{
+    int ret_val = FUNDEC_NOTHING;
+    if (token->next)
+    {
+        token = token->next;
+        ret_val = FUNDEC_FREE;
+    }
+    else
+    {
+        token_free(lexer_pop(lexer));
+        token = lexer_peek(lexer);
+    }
+
+    if (TOKEN_GOOD && strcmp(token->value.c, "()") == 0)
+    {
+        if (token->next)
+        {
+            token = token->next;
+            ret_val = FUNDEC_FREE;
+        }
+        else
+        {
+            token_free(lexer_pop(lexer));
+            token = lexer_peek(lexer);
+        }
+
+        if (!(TOKEN_OK) || strcmp(token->value.c, "{") != 0)
+        {
+            lexer_error(lexer, "function_def : no {");
+            return FUNDEC_ERROR;
+        }
+
+        token_free(lexer_pop(lexer));
+    }
+    else
+    {
+        lexer_error(lexer, "no '(' was found after WORD\n");
+        return FUNDEC_ERROR;
+    }
+    return ret_val;
+}
 /*
 SCL: case 8 [ NAME in function]
 When the TOKEN is exactly a reserved word, the tokenen identifier for that
@@ -24,52 +72,38 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 
     // CASE the name of the function
     struct token *token = lexer_peek(lexer);
-    if (TOKEN_OK && XDB_valid(token->value.c) && !(is_keyword(token->value.c)))
+
+    if (TOKEN_GOOD && XDB_valid(token->value.c)
+        && !(is_keyword(token->value.c)))
     {
         node->name = strdup(token->value.c);
-        lexer_pop(lexer);
-        token_free(token);
 
-        token = lexer_peek(lexer);
-        if (TOKEN_OK && strcmp(token->value.c, "(") == 0)
+        if (sub_parse_fundec(lexer, token) != FUNDEC_ERROR)
         {
-            lexer_pop(lexer);
-            token_free(token);
             token = lexer_peek(lexer);
 
-            if (TOKEN_OK && strcmp(token->value.c, ")") == 0)
+            while (token && token->type == TOKEN_NEW_LINE)
             {
-                lexer_pop(lexer);
-                token_free(token);
+                token_free(lexer_pop(lexer));
                 token = lexer_peek(lexer);
-                while (token && token->type == TOKEN_NEW_LINE)
-                {
-                    lexer_pop(lexer);
-                    token_free(token);
-                    token = lexer_peek(lexer);
-                }
-
-                struct ast_node *shell_cmd =
-                    ast_create(lexer, AST_SHELL_COMMAND);
-                if (!shell_cmd)
-                {
-                    ast_free_fundec(node);
-                    lexer_error(lexer, "expected shell command");
-                    return NULL;
-                }
-                logger("Exit FUNDEC (SUCCESS)\n");
-                node->ast_node = shell_cmd;
-                node->is_declared = false;
-                return node;
             }
-        }
 
-        ast_free_fundec(node);
-        logger("no '(' was found after WORD\n");
-        logger("Exit FUNDEC (FAILED)\n");
-        return NULL;
+            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
+            if (!shell_cmd)
+            {
+                ast_free_fundec(node);
+                lexer_error(lexer, "expected shell command");
+                return NULL;
+            }
+            logger("Exit FUNDEC (SUCCESS)\n");
+            node->ast_node = shell_cmd;
+            node->is_declared = false;
+            return node;
+        }
+        goto error;
     }
     logger("Exit FUNDEC (EXIT)\n");
+error:
     ast_free_fundec(node);
     return NULL;
 }
