@@ -140,7 +140,7 @@ static int token_get_keyword_type(char *str)
 
 bool token_is_valid_identifier(struct token *token)
 {
-    return token->type == TOKEN_WORD && token->quote_type == SHARD_UNQUOTED
+    return token && token->type == TOKEN_WORD && token->quote_type == SHARD_UNQUOTED
         && !token->next;
 }
 
