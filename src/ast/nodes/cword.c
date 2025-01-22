@@ -20,12 +20,9 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     if (!node->next)
     {
         struct eval_output *eval_output = eval_output_init(EVAL_STR);
-
         eval_output->value.str = strdup(node->data);
 
         list_append(out, eval_output);
-
-
         return AST_EVAL_SUCCESS;
     }
 
@@ -36,17 +33,13 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     }
 
     struct eval_output *right_eval_output = right->head->data;
-
     char *right_str = right_eval_output->value.str;
 
     struct eval_output *eval_output = eval_output_init(EVAL_STR);
-
     eval_output->value.str = merge_str(node->data, right_str);
 
     list_append(out, eval_output);
-
     list_free(right, (void (*)(void *))eval_output_free);
-
     return AST_EVAL_SUCCESS;
 }
 
