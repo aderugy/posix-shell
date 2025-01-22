@@ -1,6 +1,8 @@
 #ifndef FUNDEC_H
 #define FUNDEC_H
 
+#include <stdbool.h>
+
 #include "lexer/lexer.h"
 #include "node.h"
 
@@ -8,6 +10,7 @@ struct ast_fundec
 {
     char *name;
     struct ast_node *ast_node; // shell_command
+    bool is_declared; // bool
 };
 
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer);
