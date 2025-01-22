@@ -25,8 +25,8 @@
 
 static void skip_new_line(struct lexer *lexer)
 {
-    struct token *tok = NULL;
-    while ((tok = lexer_peek(lexer)) && tok->type == TOKEN_NEW_LINE)
+    struct token *token = NULL;
+    while ((token = lexer_peek(lexer)) && token->type == TOKEN_NEW_LINE)
     {
         token_free(lexer_pop(lexer));
     }
@@ -34,50 +34,47 @@ static void skip_new_line(struct lexer *lexer)
 
 static void *check_word_done(struct lexer *lexer)
 {
-    struct token *tok = NULL;
-    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
-        || strcmp(tok->value.c, "done"))
+    struct token *token = NULL;
+    if (!(token = lexer_peek(lexer)) || !token_is_valid_keyword(token, "done"))
     {
         lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
         return NULL;
     }
-    return tok;
+    return token;
 }
 
 static void *check_newline_colon(struct lexer *lexer)
 {
-    struct token *tok = NULL;
-    if (!(tok = lexer_peek(lexer))
-        || !(tok->type == TOKEN_NEW_LINE || tok->type == TOKEN_SEMICOLON))
+    struct token *token = NULL;
+    if (!(token = lexer_peek(lexer))
+        || !(token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON))
     {
         lexer_error(lexer, "expected delimiter");
         return NULL;
     }
-    return tok;
+    return token;
 }
 
 static void *check_word_in(struct lexer *lexer)
 {
-    struct token *tok = NULL;
-    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
-        || strcmp(tok->value.c, "in"))
+    struct token *token = NULL;
+    if (!(token = lexer_peek(lexer)) || !token_is_valid_keyword(token, "in"))
     {
         lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
         return NULL;
     }
-    return tok;
+    return token;
 }
 
 static void *check_word_do(struct lexer *lexer)
 {
-    struct token *tok = NULL;
-    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD
-        || strcmp(tok->value.c, "do"))
+    struct token *token = NULL;
+    if (!(token = lexer_peek(lexer)) || !token_is_valid_keyword(token, "do"))
     {
         lexer_error(lexer, "ast_for_node: Syntax error: Bad for loop variable");
         return NULL;
     }
-    return tok;
+    return token;
 }
 
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
@@ -88,24 +85,25 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     ast->items = list_init();
 
     // "for" keyword
-    struct token *tok = lexer_peek(lexer);
-    if (!tok || tok->type != TOKEN_WORD || strcmp(tok->value.c, "for") != 0)
+    struct token *token = lexer_peek(lexer);
+    if (!token || token->type != TOKEN_WORD
+        || strcmp(token->value.c, "for") != 0)
     {
         goto error;
     }
     token_free(lexer_pop(lexer));
 
     // Contains word
-    if (!(tok = lexer_peek(lexer)) || tok->type != TOKEN_WORD)
+    if (!(token = lexer_peek(lexer)) || !token_is_valid_identifier(token))
     {
         lexer_error(lexer, "expected word");
         goto error;
     }
-    ast->name = strdup(tok->value.c);
+    ast->name = strdup(token->value.c);
     token_free(lexer_pop(lexer));
 
     // [ ; ]
-    if ((tok = lexer_peek(lexer)) && tok->type == TOKEN_SEMICOLON)
+    if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON)
     {
         token_free(lexer_pop(lexer));
         list_append(ast->items, strdup("$@"));
@@ -117,7 +115,9 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 
         // 'in'
         if (!check_word_in(lexer))
+        {
             goto error;
+        }
 
         token_free(lexer_pop(lexer));
 
@@ -138,7 +138,9 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 
     // 'do'
     if (!check_word_do(lexer))
+    {
         goto error;
+    }
 
     token_free(lexer_pop(lexer));
 
@@ -149,7 +151,10 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     }
 
     if (!check_word_done(lexer))
+    {
         goto error;
+    }
+
     token_free(lexer_pop(lexer));
 
     logger("EXIT FOR (SUCCESS)\n");
@@ -187,7 +192,6 @@ int ast_eval_for(struct ast_for_node *node,
         value = eval_output->value.str;
 
         ctx_set_local_variable(ctx, node->name, value);
-
 
         ret_val = ast_eval(node->body, NULL, ctx);
         item = item->next;

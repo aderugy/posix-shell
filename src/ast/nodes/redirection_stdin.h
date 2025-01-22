@@ -15,13 +15,14 @@ struct ast_redir
 {
     int number;
     enum token_type pipe;
-    char *file;
+    struct ast_node *file;
 };
 
 struct redirection
 {
     enum token_type type;
-    int (*redir)(struct ast_redir *, struct linked_list*, struct ast_eval_ctx *);
+    int (*redir)(struct ast_redir *, struct linked_list *,
+                 struct ast_eval_ctx *);
     char *token;
 };
 int redir_file_stdin(struct ast_redir *node,

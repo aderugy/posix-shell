@@ -24,20 +24,23 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 
     // CASE the name of the function
     struct token *token = lexer_peek(lexer);
-    if (TOKEN_OK && XDB_valid(token->value.c) && !(is_keyword(token->value.c)))
+    if (token_is_valid_identifier(token) && XDB_valid(token->value.c)
+        && !(is_keyword(token->value.c)))
     {
         node->name = strdup(token->value.c);
         lexer_pop(lexer);
         token_free(token);
 
         token = lexer_peek(lexer);
-        if (TOKEN_OK && strcmp(token->value.c, "(") == 0)
+        if (token_is_valid_identifier(token)
+            && strcmp(token->value.c, "(") == 0)
         {
             lexer_pop(lexer);
             token_free(token);
             token = lexer_peek(lexer);
 
-            if (TOKEN_OK && strcmp(token->value.c, ")") == 0)
+            if (token_is_valid_identifier(token)
+                && strcmp(token->value.c, ")") == 0)
             {
                 lexer_pop(lexer);
                 token_free(token);
@@ -51,12 +54,14 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 
                 struct ast_node *shell_cmd =
                     ast_create(lexer, AST_SHELL_COMMAND);
+
                 if (!shell_cmd)
                 {
                     ast_free_fundec(node);
                     lexer_error(lexer, "expected shell command");
                     return NULL;
                 }
+
                 logger("Exit FUNDEC (SUCCESS)\n");
                 node->ast_node = shell_cmd;
                 node->is_declared = false;
@@ -69,6 +74,7 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
         logger("Exit FUNDEC (FAILED)\n");
         return NULL;
     }
+
     logger("Exit FUNDEC (EXIT)\n");
     ast_free_fundec(node);
     return NULL;

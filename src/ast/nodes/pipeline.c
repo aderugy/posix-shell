@@ -32,7 +32,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
         goto error;
     }
 
-    if (TOKEN_OK && strcmp(token->value.c, "!") == 0)
+    if (token_is_valid_keyword(token, "!"))
     {
         node->not = 1;
         token_free(lexer_pop(lexer));
@@ -94,7 +94,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, struct linked_list *out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not == 1)
+    if (node->not== 1)
     {
         result = !result;
     }

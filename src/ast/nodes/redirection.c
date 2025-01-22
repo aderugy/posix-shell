@@ -77,26 +77,9 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
     redir->pipe = token->type;
     token_free(lexer_pop(lexer));
 
-    token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD)
-    {
-        goto error;
-    }
-
-    redir->file = strdup(token->value.c);
-    token_free(lexer_pop(lexer));
-
+    redir->file = ast_create(lexer, AST_COMPLEX_WORD);
     logger("PARSE REDIR (SUCCESS)\n");
     return redir;
-
-error:
-    if (redir)
-    {
-        logger("Exit REDIR (ERROR)\n");
-        ast_free_redir(redir);
-    }
-
-    return NULL;
 }
 
 /*
@@ -114,6 +97,14 @@ int redir_fopen_rw(struct ast_redir *node,
     }
 
     int saved_stdout = dup(fd2);
+
+    struct linked_list *filenames = list_init();
+    if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
+        || filenames->size != 1)
+    {
+        goto error;
+    }
+
     char *file = node->file;
 
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
@@ -145,7 +136,12 @@ int redir_fopen_rw(struct ast_redir *node,
         list_append(out, eval_output_fd_2);
         list_append(out, eval_output_fd_3);
     }
+
     return 0;
+
+error:
+    list_free(filenames, (void (*)(void *))eval_output_free);
+    return AST_EVAL_ERROR;
 }
 
 int ast_eval_redir(struct ast_redir *node, struct linked_list *out,
@@ -188,6 +184,6 @@ void ast_print_redir(struct ast_redir *node)
     }
     if (node->file)
     {
-        logger("%s", node->file);
+        ast_print(node->file);
     }
 }

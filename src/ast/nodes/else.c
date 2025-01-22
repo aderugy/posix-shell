@@ -23,7 +23,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
 
     logger("\tParsing ELSE_CLAUSE\n");
 
-    if (TOKEN_OK && strcmp(token->value.c, "else") == 0)
+    if (token_is_valid_keyword(token, "else"))
     {
         lexer_pop(lexer);
         token_free(token);
@@ -36,7 +36,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
         return node;
     }
 
-    if (TOKEN_OK && strcmp(token->value.c, "elif") == 0)
+    if (token_is_valid_keyword(token, "elif"))
     {
         lexer_pop(lexer);
         token_free(token);
@@ -46,7 +46,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             return NULL;
 
         token = lexer_peek(lexer);
-        if (!(TOKEN_OK) || strcmp(token->value.c, "then") != 0)
+        if (token_is_valid_keyword(token, "then"))
         {
             return NULL;
         }
