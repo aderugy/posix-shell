@@ -2,10 +2,14 @@
 #include "cword.h"
 
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "eval_ctx.h"
+#include "hs24.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"
 #include "node.h"
@@ -43,11 +47,66 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_subshell(__attribute((unused)) const struct ast_cword *node,
+static int eval_subshell(const struct ast_cword *node,
                          __attribute((unused)) struct linked_list *out,
-                         __attribute((unused)) struct ast_eval_ctx *ctx)
+                         struct ast_eval_ctx *ctx)
 {
-    errx(EXIT_FAILURE, "not implemented");
+    pid_t pid;
+    int pipefd[2];
+    char buffer[64];
+    if (pipe(pipefd) == -1)
+    {
+        errx(EXIT_FAILURE, "subshell: pipe failed");
+    }
+
+    pid = fork();
+    if (pid == -1)
+    {
+        errx(EXIT_FAILURE, "subshell: fork failed");
+    }
+
+    if (pid == 0)
+    {
+        close(pipefd[0]);
+
+        if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+        {
+            perror("dup2");
+            exit(EXIT_FAILURE);
+        }
+
+        close(pipefd[1]);
+
+        struct stream *stream = stream_from_str(node->data);
+        int retval = hs24(stream, ctx);
+
+        exit(retval);
+    }
+    else
+    {
+        close(pipefd[1]);
+        struct mbt_str *stdout_str = mbt_str_init(64);
+
+        ssize_t r;
+        while ((r = read(pipefd[0], buffer, 64 - 1)) > 0)
+        {
+            for (ssize_t i = 0; i < r; i++)
+            {
+                mbt_str_pushc(stdout_str, buffer[i]);
+            }
+        }
+
+        close(pipefd[0]);
+
+        wait(NULL);
+
+        struct eval_output *str = eval_output_init(EVAL_STR);
+        str->value.str = strdup(stdout_str->data);
+        mbt_str_free(stdout_str);
+
+        list_append(out, str);
+        return AST_EVAL_SUCCESS;
+    }
 }
 
 static int eval_arith(__attribute((unused)) const struct ast_cword *node,

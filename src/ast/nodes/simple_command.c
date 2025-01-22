@@ -96,7 +96,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         || cmd_eval->size != 1)
     {
         list_free(cmd_eval, (void (*)(void *))eval_output_free);
-        warnx("here");
         return AST_EVAL_ERROR;
     }
 

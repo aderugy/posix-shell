@@ -1,6 +1,5 @@
-#include "lexer/shard.h"
-#include "lexer/splitter.h"
 #define _POSIX_C_SOURCE 200809L
+
 #include <err.h>
 #include <getopt.h>
 #include <stddef.h>
@@ -14,6 +13,8 @@
 #include "ast/nodes/node.h"
 #include "builtins/commands.h"
 #include "lexer/lexer.h"
+#include "lexer/shard.h"
+#include "lexer/splitter.h"
 #include "streams/streams.h"
 #include "utils/logger.h"
 
@@ -23,15 +24,9 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 
                                   { 0, 0, 0, 0 } };
 
-static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
-                    int nb_args)
+int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
 {
-    ctx_init_local_dollar(*ctx);
-    ctx_init_local_hashtag(nb_args, *ctx);
-    ctx_update_local_qm(*ctx, 0);
-    register_commands();
-
-    struct lexer *lexer = lexer_create(*stream);
+    struct lexer *lexer = lexer_create(stream);
     struct ast_node *node = ast_create(lexer, AST_INPUT);
     int return_value = node ? 0 : 2;
 
@@ -41,7 +36,7 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
     do
     {
         ast_print(node);
-        return_value = ast_eval(node, NULL, *ctx);
+        return_value = ast_eval(node, NULL, ctx);
         ast_free(node);
 
         node = ast_create(lexer, AST_INPUT);
@@ -57,8 +52,22 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
         warnx("Syntax error");
         return_value = 2;
     }
-    ctx_free(*ctx);
+
     lexer_free(lexer);
+    return return_value;
+}
+
+static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
+                    int nb_args)
+{
+    ctx_init_local_dollar(*ctx);
+    ctx_init_local_hashtag(nb_args, *ctx);
+    ctx_update_local_qm(*ctx, 0);
+    register_commands();
+
+    int return_value = hs24(*stream, *ctx);
+
+    ctx_free(*ctx);
     unregister_commands();
 
     return return_value;
