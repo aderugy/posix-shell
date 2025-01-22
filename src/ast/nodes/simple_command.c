@@ -162,12 +162,15 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
         else
         {
+            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+            argv[elt] = NULL;
             ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
         }
     }
 
     for (size_t i = 0; i < elt; i++)
     {
+        logger("freeing %s\n", argv[i]);
         free(argv[i]);
     }
     free(argv);
