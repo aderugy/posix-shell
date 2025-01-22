@@ -99,7 +99,7 @@ char *normalize_path(const char *path)
         token = strtok(NULL, "/");
     }
 
-    *resolved = '\0';
+    *resolved = 0;
     return resolved_path;
 }
 
@@ -215,7 +215,14 @@ int cd(int argc, char **argv,
         free(resolved_path);
     }
     else
+    {
+        size_t len = strlen(resolved_path) - 1;
+        if (resolved_path[len] == '/')
+        {
+            resolved_path[len] = 0;
+        }
         verification = move_cd(current_path, resolved_path);
+    }
     free(current_path);
     return verification;
 }

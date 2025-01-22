@@ -34,6 +34,7 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     struct linked_list *right = list_init();
     if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
     {
+        list_free(right, (void (*)(void *))eval_output_free);
         return AST_EVAL_ERROR;
     }
 
