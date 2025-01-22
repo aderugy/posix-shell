@@ -68,13 +68,14 @@ int ast_eval_prefix(struct ast_prefix *node, struct linked_list *out,
 {
     if (node->type == AST_PREFIX_ASSIGNMENT)
     {
-        char *value = NULL;
         struct linked_list *linked_list = list_init();
         if (ast_eval_cword(node->child.word, linked_list, ctx)
             == AST_EVAL_ERROR)
         {
             return AST_EVAL_ERROR;
         }
+        struct eval_output *eval_output = linked_list->head->data;
+        char *value = eval_output->value.str;
 
         ctx_set_local_variable(ctx, node->name, value);
         free(value);

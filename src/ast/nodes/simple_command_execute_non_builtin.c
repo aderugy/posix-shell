@@ -20,6 +20,10 @@ int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
     int ret_value;
 
     logger("simple command : not a builtin\n");
+    for (int i = 0; i < argc; i++)
+    {
+        logger("exec : %s\n", argv[i]);
+    }
 
     pid_t p = fork();
 

@@ -75,7 +75,6 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
     {
         var = "";
     }
-    out = list_init();
     struct eval_output *eval_output = eval_output_init();
 
     eval_output->value.str = strdup(var);
