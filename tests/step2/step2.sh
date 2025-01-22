@@ -39,7 +39,7 @@ tes() {
 test_from_stdin() {
   bash --posix <"$@" >"$EXPECTED_OUT" 2>"$EXPECTED_ERR_OUT"
   "$F" <"$@" >"$ACTUAL_OUT" 2>"$ACTUAL_ERR_OUT"
-  $OUTPUT_CODE_RETURN=$?
+  OUTPUT_CODE_RETURN=$?
   output_test "./$BIN < $@"
 }
 

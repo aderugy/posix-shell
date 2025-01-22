@@ -108,6 +108,12 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     stream_read(ctx->stream);
                     splitter_read_until(ctx, str, '\'');
                     stream_read(ctx->stream);
+
+                    if (!str->size)
+                    {
+                        continue;
+                    }
+
                     return shard_init(str, true, SHARD_WORD,
                                       SHARD_SINGLE_QUOTED);
                 }
@@ -403,6 +409,10 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                               SHARD_DOUBLE_QUOTED);
 
         case '\\':
+            if (NOT_EMPTY(str))
+            {
+                return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
+            }
             splitter_handle_backslash(ctx, str);
             return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
 
