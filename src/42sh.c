@@ -52,6 +52,7 @@ int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
 
     if (node)
     {
+        return_value = ast_eval(node, NULL, ctx);
         ast_free(node);
     }
 
