@@ -80,8 +80,6 @@ error:
     return NULL;
 }
 
-
-
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
@@ -117,12 +115,14 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ctx->check_redir = false;
 
         struct ast_node *children = list_get(cmd->args, i - 1);
+        logger("found elt\n");
         linked_list = list_init();
 
         ast_eval(children, linked_list, ctx);
-        if (linked_list->head)
+        struct linked_list_element *head = linked_list->head;
+        while (head)
         {
-            struct eval_output *output = linked_list->head->data;
+            struct eval_output *output = head->data;
             if (output->type == EVAL_STR)
             {
                 argv = xrealloc(argv, (elt + 1) * sizeof(char *));
@@ -131,6 +131,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
                 elt++;
             }
+            head = head->next;
         }
         list_free(linked_list, (void (*)(void *))eval_output_free);
     }
