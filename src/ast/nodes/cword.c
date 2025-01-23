@@ -90,12 +90,8 @@ static int eval_subshell_silent(const struct ast_cword *node,
 
     if (pid == 0)
     {
-        logger("================================== BEGIN PARSE SUBSHELL "
-               "===================================\n");
         struct stream *stream = stream_from_str(node->data);
         int retval = hs34(stream, ctx);
-        logger("================================== END PARSE "
-               "SUBSHELL============================= \n");
         exit(retval);
     }
     else
@@ -183,6 +179,7 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
             struct linked_list *right = list_init();
             if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
             {
+                eval_output_free(str);
                 list_free(right, (void (*)(void *))eval_output_free);
                 return AST_EVAL_ERROR;
             }
@@ -200,6 +197,7 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
                 list_append(out, eval_output);
                 head = head->next;
             }
+            eval_output_free(str);
             list_free(right, (void (*)(void *))eval_output_free);
         }
         else
