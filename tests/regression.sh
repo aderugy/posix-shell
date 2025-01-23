@@ -356,6 +356,14 @@ test_blocks() {
   tes '{ { { { { { { echo a; } } } } } } } | tr a h'
   echo "========== BLOCKS END ====="
 }
+test_var() {
+    echo "========== VARIABLES BEGIN =========="
+    for i in $(find step2/assignement_substitution -name "*sh"); do
+        test_from_file $i
+        test_from_stdin $i
+    done
+    echo "========== VARIABLES END =========="
+}
 test_function() {
   echo "========== FUNCTIONS BEGIN ==="
   tes 'fun ( ) { echo a; }; fun'
@@ -385,6 +393,7 @@ testsuite() {
   test_cd
   test_exit
   test_var_local
+  test_var
   test_quoting
   test_for
   test_while
