@@ -288,7 +288,6 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
             goto error;
         }
 
-        stream_read(ctx->stream);
         return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
     }
     else if (c == '(')
