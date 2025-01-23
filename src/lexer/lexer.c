@@ -227,6 +227,7 @@ static struct token *lex(struct lexer *lexer, bool nullable)
                 }
                 shard_free(splitter_pop(lexer->ctx));
                 token->type = TOKEN_SUBSHELL;
+                token->sh_stdout_silent = true;
             }
 
             break;

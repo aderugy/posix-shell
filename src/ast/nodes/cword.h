@@ -13,6 +13,7 @@ struct ast_cword
     enum shard_quote_type quote_type;
 
     struct ast_cword *next;
+    bool sh_stdout_silent;
 };
 
 struct ast_cword_out

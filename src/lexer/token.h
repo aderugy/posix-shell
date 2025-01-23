@@ -47,6 +47,8 @@ struct token
 
     struct token *next;
     enum shard_quote_type quote_type;
+
+    bool sh_stdout_silent;
 };
 
 void token_print(struct token *token);

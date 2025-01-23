@@ -51,6 +51,11 @@ static int eval_subshell(const struct ast_cword *node,
                          __attribute((unused)) struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
+    if (node->sh_stdout_silent)
+    {
+        errx(EXIT_FAILURE, "subshell no dollar: not implemented");
+    }
+
     pid_t pid;
     int pipefd[2];
     char buffer[64];
@@ -79,7 +84,6 @@ static int eval_subshell(const struct ast_cword *node,
 
         struct stream *stream = stream_from_str(node->data);
         int retval = hs24(stream, ctx);
-
         exit(retval);
     }
     else
@@ -175,8 +179,10 @@ struct ast_cword *ast_parse_cword_from_token(struct token *token,
     struct ast_cword *node = xcalloc(1, sizeof(struct ast_cword));
     switch (token->type)
     {
-    case TOKEN_WORD:
     case TOKEN_SUBSHELL:
+        node->sh_stdout_silent = token->sh_stdout_silent;
+        break;
+    case TOKEN_WORD:
     case TOKEN_ARITH:
     case TOKEN_VARIABLE:
     case TOKEN_GLOBBING_STAR:
