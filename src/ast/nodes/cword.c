@@ -91,7 +91,7 @@ static int eval_subshell(const struct ast_cword *node,
     else
     {
         close(pipefd[1]);
-        struct mbt_str *stdout_str = mbt_str_init(64);
+        struct mbt_str *stdout_str = mbt_str_init(63);
 
         ssize_t r;
         while ((r = read(pipefd[0], buffer, 64 - 1)) > 0)
@@ -114,6 +114,7 @@ static int eval_subshell(const struct ast_cword *node,
         wait(NULL);
 
         struct eval_output *str = eval_output_init(EVAL_STR);
+        stdout_str->data[stdout_str->size - 1] = 0;
         str->value.str = strdup(stdout_str->data);
         mbt_str_free(stdout_str);
 

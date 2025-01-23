@@ -1,1 +1,1 @@
-ls -a
+cd ../ && echo $PWD
