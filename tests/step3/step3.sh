@@ -17,9 +17,9 @@ SCRIPT="script.sh"
 # bin name and path
 F="$BIN_PATH"
 # for colors
-G="\033[0;32m"
-R="\033[0;31m"
-D="\033[0m"
+G=""
+R=""
+D=""
 
 # @brief runs a test on all possible input ways
 # @params: a list of strings
