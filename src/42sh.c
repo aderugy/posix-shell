@@ -30,7 +30,7 @@ int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
     ctx_init_local_hashtag(0, ctx);
     ctx_init_local_UID(ctx);
     ctx_update_local_qm(ctx, 0);
-    register_commands();
+    // register_commands();
 
     struct lexer *lexer = lexer_create(stream);
     struct ast_node *node = ast_create(lexer, AST_INPUT);

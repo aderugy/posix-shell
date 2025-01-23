@@ -147,6 +147,7 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
         struct linked_list *right = list_init();
         if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
         {
+            list_free(right, (void (*)(void *))eval_output_free);
             return AST_EVAL_ERROR;
         }
 
@@ -156,8 +157,6 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
         eval_output->value.str = merge_str(var, right_str);
 
         list_append(out, eval_output);
-
-        free(right_str);
         list_free(right, (void (*)(void *))eval_output_free);
     }
     else
