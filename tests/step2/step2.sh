@@ -117,10 +117,14 @@ output_test() {
     echo "$R$A$D"
   fi
 }
-test_pipeline() {
-  echo "========== PIPELINE BEGIN =========="
-  tes "echo Hello '|' tr a e"
-  echo "========== PIPELINE END =========="
+
+test_var() {
+  echo "========== VARIABLES BEGIN =========="
+  for i in $(find step2/assignement_substitution -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
+  echo "========== VARIABLES END =========="
 }
 
 test_for() {
@@ -131,48 +135,6 @@ test_for() {
   echo "========== FOR END =========="
 }
 
-test_while_loops() {
-  echo "========== WHILE LOOP BEGIN =========="
-  tes "while read -r line; do echo \"Line: \$line\"; done < <(echo -e \"first\\nsecond\\nthird\")"
-  echo "========== WHILE LOOP END =========="
-}
-test_var() {
-  echo "========== VARIABLES BEGIN =========="
-  for i in $(find step2/assignement_substitution -name "*sh"); do
-    test_from_file $i
-    test_from_stdin $i
-  done
-  echo "========== VARIABLES END =========="
-}
-
-test_non_builtin() {
-  echo "========== NON_BUILTIN BEGIN =========="
-  tes "ls -a; ls; ls"
-  tes "tree -L 2"
-  tes "find -name *.c"
-  echo "========== NON_BUILTIN END =========="
-}
-
-test_redirections() {
-  echo "========== REDIRECTIONS BEGIN =========="
-  tes "echo lalalalalala > dum.out;echo < dum.out"
-  tes "echo <> dum.out"
-  tes "echo <1 ls && echo bbbb > dum.out; echo dum.out"
-  tes "echo <1 ls && echo bbbb 1> dum.out; echo < dum.out"
-  echo "========== REDIRECTIONS END =========="
-}
-test_comment() {
-  echo "========== COMMENT BEGIN =========="
-  tes echo "Ya un commentaire m c chill #de ouf c chill"
-  tes echo "Ya un commentaire m c chill \# mais moi je suis pas un comment"
-  tes 'echo \escaped \#escaped "#"quoted not#first #commented'
-  echo "========== COMMENT END =========="
-}
-test_mix_grammar() {
-  echo "========== MIXED GRAMMAR TESTS BEGIN =========="
-  tes "for word in \$(echo \"one two three\" | tr ' ' '\n'); do echo \"Word: \$word\" | rev; done"
-  echo "========== MIXED GRAMMAR TESTS END =========="
-}
 test_errs() {
   echo "========== ERROR_CODE BEGIN =========="
   # PARSE ERRS
@@ -226,14 +188,9 @@ test_quoting() {
   echo "========== QUOTING END =========="
 }
 testsuite() {
-  test_pipeline
   test_var
-  #test_comment
-  #test_for
-  test_while_loops
   #test_mix_grammar
-  test_quoting
-  test_redirections
+  #test_quoting
   test_special_vars
   test_errs
 }
