@@ -64,7 +64,6 @@ static int eval_subshell(const struct ast_cword *node,
     if (pipe(pipefd) == -1)
     {
         errx(EXIT_FAILURE, "subshell: pipe failed");
-
     }
 
     pid = fork();
@@ -79,7 +78,7 @@ static int eval_subshell(const struct ast_cword *node,
 
         if (dup2(pipefd[1], STDOUT_FILENO) == -1)
         {
-            perror("dup2");
+            warnx("dup2");
             exit(EXIT_FAILURE);
         }
 
@@ -88,7 +87,6 @@ static int eval_subshell(const struct ast_cword *node,
         struct stream *stream = stream_from_str(node->data);
         int retval = hs24(stream, ctx);
         exit(retval);
-
     }
     else
     {
@@ -100,7 +98,14 @@ static int eval_subshell(const struct ast_cword *node,
         {
             for (ssize_t i = 0; i < r; i++)
             {
-                mbt_str_pushc(stdout_str, buffer[i]);
+                if (buffer[i] == '\n')
+                {
+                    mbt_str_pushc(stdout_str, ' ');
+                }
+                else
+                {
+                    mbt_str_pushc(stdout_str, buffer[i]);
+                }
             }
         }
 
@@ -114,7 +119,6 @@ static int eval_subshell(const struct ast_cword *node,
 
         list_append(out, str);
         return AST_EVAL_SUCCESS;
-
     }
 }
 
