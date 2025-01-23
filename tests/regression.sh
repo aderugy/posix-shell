@@ -397,8 +397,8 @@ testsuite() {
 
 if [ "$COVERAGE" = "yes" ]; then
   #./step1.sh
-  #./step2/step2.sh
-  #./step3/step3.sh
+  ./step2/step2.sh
+  ./step3/step3.sh
   testsuite
   echo -e "TEST : $TOTAL_TEST\nPASSED TEST : $PASSED_TEST\n"
   res=$((100 * $PASSED_TEST / $TOTAL_TEST))
