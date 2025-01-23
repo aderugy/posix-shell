@@ -97,7 +97,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
     size_t elt = 1;
 
-    struct linked_list *linked_list;
+    struct linked_list *linked_list = NULL;
     /* LOOP TO TAKE ARGUMENT OF THE CMD AND ADD THEM IN ARGV */
     for (int i = 1; i < argc; i++)
     {
@@ -131,7 +131,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         // cf src/ast/expansion/vars.c
         struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
 
-        ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
+        ret_value = ast_eval(local_function, linked_list, ctx);
 
         // cf src/ast/expansion/vars.c
         ctx_restore_spe_vars(ctx, params_ctx);
