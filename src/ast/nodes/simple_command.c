@@ -129,6 +129,8 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
                 argv[elt] = strdup(output->value.str);
 
+            logger("logged on simple_command %s\n", argv[elt]);
+
                 elt++;
             }
             head = head->next;

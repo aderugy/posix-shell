@@ -38,13 +38,20 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
         return AST_EVAL_ERROR;
     }
 
-    struct eval_output *right_eval_output = right->head->data;
-    char *right_str = right_eval_output->value.str;
+    struct linked_list_element *head = right->head;
+    while (head)
+    {
+        struct eval_output *right_eval_output = head->data;
+        char *right_str = right_eval_output->value.str;
 
-    struct eval_output *eval_output = eval_output_init(EVAL_STR);
-    eval_output->value.str = merge_str(node->data, right_str);
+        logger("LOGGED ON EVAL WORD \n%s\n", right_str);
 
-    list_append(out, eval_output);
+        struct eval_output *eval_output = eval_output_init(EVAL_STR);
+        eval_output->value.str = merge_str(node->data, right_str);
+
+        list_append(out, eval_output);
+        head = head->next;
+    }
     list_free(right, (void (*)(void *))eval_output_free);
     return AST_EVAL_SUCCESS;
 }
@@ -169,7 +176,35 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
         str->value.str = strdup(stdout_str->data);
         mbt_str_free(stdout_str);
 
+        if (node->next)
+        {
+            struct linked_list *right = list_init();
+            if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
+            {
+                list_free(right, (void (*)(void *))eval_output_free);
+                return AST_EVAL_ERROR;
+            }
+            logger("FOUND NEXT ON SUBSHELL\n");
+
+            struct linked_list_element *head = right->head;
+            while (head)
+            {
+                struct eval_output *right_eval_output = head->data;
+                char *right_str = right_eval_output->value.str;
+
+                struct eval_output *eval_output = eval_output_init(EVAL_STR);
+                eval_output->value.str = merge_str(node->data, right_str);
+
+                list_append(out, eval_output);
+                head = head->next;
+            }
+            list_free(right, (void (*)(void *))eval_output_free);
+        }
+        else {
+        
         list_append(out, str);
+        }
+
         return AST_EVAL_SUCCESS;
     }
 }
