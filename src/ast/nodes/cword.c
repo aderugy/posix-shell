@@ -102,6 +102,7 @@ static int eval_subshell_silent(const struct ast_cword *node,
     }
 }
 
+//@TIDY
 static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
@@ -136,12 +137,8 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
 
         close(pipefd[1]);
 
-        logger("================================== BEGIN PARSE SUBSHELL "
-               "===================================\n");
         struct stream *stream = stream_from_str(node->data);
         int retval = hs34(stream, ctx);
-        logger("================================== END PARSE "
-               "SUBSHELL============================= \n");
         exit(retval);
     }
     else

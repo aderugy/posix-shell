@@ -77,6 +77,7 @@ static void *check_word_do(struct lexer *lexer)
     return token;
 }
 
+//@TIDY
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");
