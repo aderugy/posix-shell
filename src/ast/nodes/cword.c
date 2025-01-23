@@ -24,8 +24,10 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 {
     if (!node->next)
     {
+        logger("no next on cword\n");
         struct eval_output *eval_output = eval_output_init(EVAL_STR);
         eval_output->value.str = strdup(node->data);
+        logger("dupped %s\n", eval_output->value.str);
 
         list_append(out, eval_output);
         return AST_EVAL_SUCCESS;
@@ -56,8 +58,7 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_subshell(const struct ast_cword *node,
-                         __attribute((unused)) struct linked_list *out,
+static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
     if (node->sh_stdout_silent)
@@ -142,16 +143,16 @@ static int eval_subshell(const struct ast_cword *node,
                 char *right_str = right_eval_output->value.str;
 
                 struct eval_output *eval_output = eval_output_init(EVAL_STR);
-                eval_output->value.str = merge_str(node->data, right_str);
+                eval_output->value.str = merge_str(str->value.str, right_str);
 
                 list_append(out, eval_output);
                 head = head->next;
             }
             list_free(right, (void (*)(void *))eval_output_free);
         }
-        else {
-        
-        list_append(out, str);
+        else
+        {
+            list_append(out, str);
         }
 
         return AST_EVAL_SUCCESS;
