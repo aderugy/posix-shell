@@ -72,8 +72,7 @@ int ast_eval_prefix(struct ast_prefix *node, struct linked_list *out,
         if (ast_eval_cword(node->child.word, linked_list, ctx)
             == AST_EVAL_ERROR)
         {
-
-        list_free(linked_list, (void (*)(void *))eval_output_free);
+            list_free(linked_list, (void (*)(void *))eval_output_free);
             return AST_EVAL_ERROR;
         }
         struct eval_output *eval_output = linked_list->head->data;

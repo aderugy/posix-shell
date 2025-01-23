@@ -24,14 +24,7 @@ static struct stream *stream_init(FILE *in)
     setvbuf(in, NULL, _IOLBF, 0);
 
     stream->in = in;
-    if (!isatty(0))
-    {
         stream->tty = false;
-    }
-    else
-    {
-        stream->tty = true;
-    }
     return stream;
 }
 

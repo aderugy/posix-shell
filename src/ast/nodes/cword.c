@@ -58,12 +58,61 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
     return AST_EVAL_SUCCESS;
 }
 
+
+static int hs34(struct stream *stream, struct ast_eval_ctx *ctx)
+{
+    struct lexer *lexer = lexer_create(stream);
+    struct ast_node *node = ast_create(lexer, AST_CLIST);
+    int return_value = node ? ast_eval(node, NULL, ctx) : 2;
+    if (node)
+    {
+        ast_free(node);
+    }
+
+    if (lexer->error)
+    {
+        warnx("Syntax error");
+        return_value = 2;
+    }
+
+    lexer_free(lexer);
+    return return_value;
+}
+
+static int eval_subshell_silent(const struct ast_cword *node,
+                                struct ast_eval_ctx *ctx)
+{
+    pid_t pid;
+    pid = fork();
+    if (pid == -1)
+    {
+        errx(EXIT_FAILURE, "subshell: fork failed");
+    }
+
+    if (pid == 0)
+    {
+        logger("================================== BEGIN PARSE SUBSHELL "
+               "===================================\n");
+        struct stream *stream = stream_from_str(node->data);
+        int retval = hs34(stream, ctx);
+        logger("================================== END PARSE "
+               "SUBSHELL============================= \n");
+        exit(retval);
+    }
+    else
+    {
+        int status;
+        waitpid(pid, &status, 0);
+        return WEXITSTATUS(status);
+    }
+}
+
 static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
     if (node->sh_stdout_silent)
     {
-        errx(EXIT_FAILURE, "subshell no dollar: not implemented");
+        return eval_subshell_silent(node, ctx);
     }
 
     pid_t pid;
@@ -92,8 +141,12 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
 
         close(pipefd[1]);
 
+        logger("================================== BEGIN PARSE SUBSHELL "
+               "===================================\n");
         struct stream *stream = stream_from_str(node->data);
-        int retval = hs24(stream, ctx);
+        int retval = hs34(stream, ctx);
+        logger("================================== END PARSE "
+               "SUBSHELL============================= \n");
         exit(retval);
     }
     else
