@@ -100,7 +100,7 @@ static int eval_subshell(const struct ast_cword *node,
             {
                 if (buffer[i] == '\n')
                 {
-                    mbt_str_pushc(stdout_str, ' ');
+                    mbt_str_pushc(stdout_str, 0);
                 }
                 else
                 {

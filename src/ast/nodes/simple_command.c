@@ -80,8 +80,6 @@ error:
     return NULL;
 }
 
-
-
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
@@ -136,7 +134,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
 
     int ret_value = 0;
-
+    
     struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
     if (local_function) // checks if the function exists in the hashmap
     {
