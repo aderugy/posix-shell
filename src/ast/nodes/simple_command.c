@@ -108,8 +108,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     argv[0] = strdup(name);
 
     size_t elt = 1;
-
-    struct linked_list *linked_list = NULL;
+    struct linked_list *linked_list;
     /* LOOP TO TAKE ARGUMENT OF THE CMD AND ADD THEM IN ARGV */
     for (int i = 1; i < argc; i++)
     {
@@ -123,16 +122,12 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         struct linked_list_element *head = linked_list->head;
         while (head)
         {
-            logger("logged \n\n\n\n\n");
             struct eval_output *output = head->data;
-
             if (output->type == EVAL_STR)
             {
                 argv = xrealloc(argv, (elt + 1) * sizeof(char *));
 
                 argv[elt] = strdup(output->value.str);
-
-                logger("logged on simple_command %s\n", argv[elt]);
 
                 elt++;
             }
@@ -149,7 +144,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         // cf src/ast/expansion/vars.c
         struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
 
-        ret_value = ast_eval(local_function, linked_list, ctx);
+        ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
 
         // cf src/ast/expansion/vars.c
         ctx_restore_spe_vars(ctx, params_ctx);

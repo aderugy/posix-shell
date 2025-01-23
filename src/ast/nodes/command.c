@@ -17,6 +17,22 @@
             | fundec { redirection }
             ;
 */
+
+static void init_ast_node(struct ast_cmd *node, struct ast_node *cmd,
+                          enum command_type type, struct lexer *lexer)
+{
+    node->redirs = list_init();
+    struct ast_node *redir;
+    while ((redir = ast_create(lexer, AST_REDIRECTION)))
+    {
+        list_append(node->redirs, redir);
+    }
+
+    node->type = type;
+    node->cmd = cmd;
+    logger("Exit COMMAND (SUCCESS)\n");
+}
+
 struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
 {
     logger("Parse COMMAND\n");
@@ -35,33 +51,14 @@ struct ast_cmd *ast_parse_cmd(struct lexer *lexer)
     struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
     if (shell_cmd)
     {
-        node->redirs = list_init();
-        struct ast_node *redir;
-        while ((redir = ast_create(lexer, AST_REDIRECTION)))
-        {
-            list_append(node->redirs, redir);
-        }
-
-        node->type = SHELL_CMD;
-        node->cmd = shell_cmd;
-        logger("Exit COMMAND (SUCCESS)\n");
+        init_ast_node(node, shell_cmd, SHELL_CMD, lexer);
         return node;
     }
 
-    // @Remark : redundant code, could be merged
     struct ast_node *fundec = ast_create(lexer, AST_FUNDEC);
     if (fundec)
     {
-        node->redirs = list_init();
-        struct ast_node *redir;
-        while ((redir = ast_create(lexer, AST_REDIRECTION)))
-        {
-            list_append(node->redirs, redir);
-        }
-
-        node->type = FUNDEC;
-        node->cmd = fundec;
-        logger("Exit COMMAND (SUCCESS)\n");
+        init_ast_node(node, fundec, FUNDEC, lexer);
         return node;
     }
 
