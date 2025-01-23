@@ -19,12 +19,12 @@ SCRIPT="script.sh"
 #BIN="42sh"
 F=$BIN_PATH
 # for colors
-#G="\033[0;32m"
-#R="\033[0;31m"
-#D="\033[0m"
-G=""
-R=""
-D=""
+G="\033[0;32m"
+R="\033[0;31m"
+D="\033[0m"
+#G=""
+#R=""
+#D=""
 
 TOTAL_TEST=0
 PASSED_TEST=0
@@ -131,11 +131,10 @@ output_test() {
 }
 
 for_coverage() {
-    "$F" -c "fun () { ls; echo a;}; fun && echo B || echo C"
-    "$F" aaaaa
-    "$F" -vc "echo a"
-    "$F" -tc "echo a"
-    "$F" -sc "echo a"
+    "$F" -c "fun () { ls; echo a;}; fun && echo B || echo C" 1>3 
+    "$F" aaaaa 1>3 2>3
+    "$F" -vc "echo a" 1>3
+    "$F" -tc "echo a" 1>3
 }
 
 test_echo_basic() {
@@ -143,6 +142,18 @@ test_echo_basic() {
   tes "echo     "
   tes 'echo     a'
   tes echo 'a'
+  tes echo 'if'
+  tes echo 'fi'
+  tes echo 'else'
+  tes echo 'then'
+  tes echo 'while'
+  tes echo 'for'
+  tes echo 'bruh{}bruh'
+  tes echo '{}'
+  tes echo '{ echo a;}'
+  tes echo '{{{}bruh{}}}'
+  tes echo 'until'
+  tes echo 'alias'
   tes 'echo "a"'
   tes echo aaa bbb ccc
   tes echo echo
@@ -167,7 +178,7 @@ test_echo_basic() {
 test_non_builtin() {
   echo "========== NON_BUILTIN BEGIN =========="
   tes "ls -a"
-  tes "ls -a; ls; ls"
+  tes "ls -a -v; ls; ls"
   tes "tree -L 2"
   tes "find -name '*.c'"
   echo "========== NON_BUILTIN END =========="
@@ -324,6 +335,7 @@ test_errs() {
   test_pars_lex_error 2 "if true; then echo a; \"fi"
   test_pars_lex_error 2 "\""
   test_pars_lex_error 2 "cd a a"
+  # functions errors
   echo "========== ERROR_CODE END =========="
 }
 test_while() {
