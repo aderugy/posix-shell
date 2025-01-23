@@ -24,8 +24,10 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 {
     if (!node->next)
     {
+        logger("no next on cword\n");
         struct eval_output *eval_output = eval_output_init(EVAL_STR);
         eval_output->value.str = strdup(node->data);
+        logger("dupped %s\n", eval_output->value.str);
 
         list_append(out, eval_output);
         return AST_EVAL_SUCCESS;
@@ -38,24 +40,78 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
         return AST_EVAL_ERROR;
     }
 
-    struct eval_output *right_eval_output = right->head->data;
-    char *right_str = right_eval_output->value.str;
+    struct linked_list_element *head = right->head;
+    while (head)
+    {
+        struct eval_output *right_eval_output = head->data;
+        char *right_str = right_eval_output->value.str;
 
-    struct eval_output *eval_output = eval_output_init(EVAL_STR);
-    eval_output->value.str = merge_str(node->data, right_str);
+        logger("LOGGED ON EVAL WORD \n%s\n", right_str);
 
-    list_append(out, eval_output);
+        struct eval_output *eval_output = eval_output_init(EVAL_STR);
+        eval_output->value.str = merge_str(node->data, right_str);
+
+        list_append(out, eval_output);
+        head = head->next;
+    }
     list_free(right, (void (*)(void *))eval_output_free);
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_subshell(const struct ast_cword *node,
-                         __attribute((unused)) struct linked_list *out,
+static int hs34(struct stream *stream, struct ast_eval_ctx *ctx)
+{
+    struct lexer *lexer = lexer_create(stream);
+    struct ast_node *node = ast_create(lexer, AST_CLIST);
+    int return_value = node ? ast_eval(node, NULL, ctx) : 2;
+    if (node)
+    {
+        ast_free(node);
+    }
+
+    if (lexer->error)
+    {
+        warnx("Syntax error");
+        return_value = 2;
+    }
+
+    lexer_free(lexer);
+    return return_value;
+}
+
+static int eval_subshell_silent(const struct ast_cword *node,
+                                struct ast_eval_ctx *ctx)
+{
+    pid_t pid;
+    pid = fork();
+    if (pid == -1)
+    {
+        errx(EXIT_FAILURE, "subshell: fork failed");
+    }
+
+    if (pid == 0)
+    {
+        logger("================================== BEGIN PARSE SUBSHELL "
+               "===================================\n");
+        struct stream *stream = stream_from_str(node->data);
+        int retval = hs34(stream, ctx);
+        logger("================================== END PARSE "
+               "SUBSHELL============================= \n");
+        exit(retval);
+    }
+    else
+    {
+        int status;
+        waitpid(pid, &status, 0);
+        return WEXITSTATUS(status);
+    }
+}
+
+static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
     if (node->sh_stdout_silent)
     {
-        errx(EXIT_FAILURE, "subshell no dollar: not implemented");
+        return eval_subshell_silent(node, ctx);
     }
 
     pid_t pid;
@@ -84,8 +140,12 @@ static int eval_subshell(const struct ast_cword *node,
 
         close(pipefd[1]);
 
+        logger("================================== BEGIN PARSE SUBSHELL "
+               "===================================\n");
         struct stream *stream = stream_from_str(node->data);
-        int retval = hs24(stream, ctx);
+        int retval = hs34(stream, ctx);
+        logger("================================== END PARSE "
+               "SUBSHELL============================= \n");
         exit(retval);
     }
     else
@@ -118,7 +178,35 @@ static int eval_subshell(const struct ast_cword *node,
         str->value.str = strdup(stdout_str->data);
         mbt_str_free(stdout_str);
 
-        list_append(out, str);
+        if (node->next)
+        {
+            struct linked_list *right = list_init();
+            if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
+            {
+                list_free(right, (void (*)(void *))eval_output_free);
+                return AST_EVAL_ERROR;
+            }
+            logger("FOUND NEXT ON SUBSHELL\n");
+
+            struct linked_list_element *head = right->head;
+            while (head)
+            {
+                struct eval_output *right_eval_output = head->data;
+                char *right_str = right_eval_output->value.str;
+
+                struct eval_output *eval_output = eval_output_init(EVAL_STR);
+                eval_output->value.str = merge_str(str->value.str, right_str);
+
+                list_append(out, eval_output);
+                head = head->next;
+            }
+            list_free(right, (void (*)(void *))eval_output_free);
+        }
+        else
+        {
+            list_append(out, str);
+        }
+
         return AST_EVAL_SUCCESS;
     }
 }

@@ -14,6 +14,7 @@
 */
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
+    logger("Parse IF\n");
     struct token *token = lexer_peek(lexer);
     if (!token_is_valid_keyword(token, "if"))
     {
@@ -58,6 +59,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
 error:
     ast_free_if(ast);
+    logger("PARSE IF (ERROR)\n");
     return NULL;
 }
 

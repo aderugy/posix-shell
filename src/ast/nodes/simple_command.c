@@ -123,12 +123,16 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         struct linked_list_element *head = linked_list->head;
         while (head)
         {
+            logger("logged \n\n\n\n\n");
             struct eval_output *output = head->data;
+
             if (output->type == EVAL_STR)
             {
                 argv = xrealloc(argv, (elt + 1) * sizeof(char *));
 
                 argv[elt] = strdup(output->value.str);
+
+                logger("logged on simple_command %s\n", argv[elt]);
 
                 elt++;
             }

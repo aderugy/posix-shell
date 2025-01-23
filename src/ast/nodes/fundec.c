@@ -81,31 +81,6 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
     if (!token || !token_is_valid_identifier(token)
         || !XDB_valid(token->value.c) || is_keyword(token->value.c))
     {
-        /*
-        node->name = strdup(token->value.c);
-
-        if (sub_parse_fundec(lexer, token) != FUNDEC_ERROR)
-        {
-            token = lexer_peek(lexer);
-
-            while (token && token->type == TOKEN_NEW_LINE)
-            {
-                token_free(lexer_pop(lexer));
-                token = lexer_peek(lexer);
-            }
-
-            struct ast_node *shell_cmd = ast_create(lexer, AST_SHELL_COMMAND);
-            if (!shell_cmd)
-            {
-                ast_free_fundec(node);
-                lexer_error(lexer, "expected shell command");
-                return NULL;
-            }
-            logger("Exit FUNDEC (SUCCESS)\n");
-            node->ast_node = shell_cmd;
-            return node;
-        }
-        */
         goto error;
     }
     node->name = strdup(token->value.c);

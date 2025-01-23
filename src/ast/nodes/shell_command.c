@@ -99,6 +99,7 @@ int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, struct linked_list *out,
 {
     if (cmd->is_sub_shell == 1)
     {
+        errx(1, "non");
         pid_t p;
         p = fork();
         int status;
