@@ -80,6 +80,8 @@ error:
     return NULL;
 }
 
+
+
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
@@ -127,9 +129,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
                 argv[elt] = strdup(output->value.str);
 
-                logger("simple_command.c : get value from output %s\n",
-                       argv[elt]);
-
                 elt++;
             }
         }
@@ -161,7 +160,8 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
         else
         {
-            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+            argv = xrealloc(
+                argv, (elt + 1) * sizeof(char *)); // NULL TERMINATED ARRAY
             argv[elt] = NULL;
             ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
         }
@@ -169,7 +169,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 
     for (size_t i = 0; i < elt; i++)
     {
-        logger("freeing %s\n", argv[i]);
         free(argv[i]);
     }
     free(argv);
