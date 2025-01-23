@@ -12,6 +12,7 @@
 #include "element.h"
 #include "ionumber.h"
 #include "node.h"
+#include "redirection_definition.h"
 #include "redirection_stdin.h"
 #include "redirection_stdout.h"
 #include "utils/logger.h"
@@ -64,39 +65,18 @@ struct ast_redir *ast_parse_redir(struct lexer *lexer)
 
     redir->number = -1;
     char number = 1;
-    size_t i = 0;
     if (isdigit(*token->value.c))
     {
         number = *token->value.c - '0';
+        redir->number = number;
     }
 
-    if (number == 1 && i > 0)
-    {
-        redir->number = atoi(token->value.c);
-    }
     redir->pipe = token->type;
     token_free(lexer_pop(lexer));
 
-    token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD)
-    {
-        goto error;
-    }
-
-    redir->file = strdup(token->value.c);
-    token_free(lexer_pop(lexer));
-
+    redir->file = ast_create(lexer, AST_COMPLEX_WORD);
     logger("PARSE REDIR (SUCCESS)\n");
     return redir;
-
-error:
-    if (redir)
-    {
-        logger("Exit REDIR (ERROR)\n");
-        ast_free_redir(redir);
-    }
-
-    return NULL;
 }
 
 /*
@@ -107,45 +87,65 @@ int redir_fopen_rw(struct ast_redir *node,
                    __attribute((unused)) struct linked_list *out,
                    __attribute((unused)) struct ast_eval_ctx *ctx)
 {
-    int fd2 = 0;
+    int fd = -1;
+    int fd2 = 1;
+    int saved_stdout = -1;
     if (node->number != -1)
     {
         fd2 = node->number;
     }
 
-    int saved_stdout = dup(fd2);
-    char *file = node->file;
+    saved_stdout = dup(fd2);
 
+    struct linked_list *filenames = list_init();
+    if (ast_eval(node->file, filenames, ctx) == AST_EVAL_ERROR
+        || filenames->size != 1)
+    {
+        goto error;
+    }
+
+    struct eval_output *filename = filenames->head->data;
+    if (filename->type != EVAL_STR)
+    {
+        goto error;
+    }
+
+    char *file = filename->value.str;
     if (fcntl(fd2, F_SETFD, FD_CLOEXEC) == -1)
     {
         errx(EXIT_FAILURE, "Invalid file descriptor for redirection");
     }
 
-    int fd = open(file, O_RDWR);
+    fd = open(file, O_RDWR);
     if (fd == -1)
     {
-        errx(EXIT_FAILURE, "eval_redir: no such file: %s", node->file);
+        errx(EXIT_FAILURE, "eval_redir: no such file: %s", file);
     }
 
     if (dup2(fd, fd2) == -1)
     {
         errx(2, "redir_eval: dup: error");
     }
-    if (out)
+    SAVE_FD
+
+    list_free(filenames, (void (*)(void *))eval_output_free);
+    return AST_EVAL_SUCCESS;
+
+error:
+    if (fd != -1)
     {
-        struct eval_output *eval_output_fd_1 = eval_output_init();
-        struct eval_output *eval_output_fd_2 = eval_output_init();
-        struct eval_output *eval_output_fd_3 = eval_output_init();
-
-        eval_output_fd_1->value.fd = fd;
-        eval_output_fd_2->value.fd = fd2;
-        eval_output_fd_3->value.fd = saved_stdout;
-
-        list_append(out, eval_output_fd_1);
-        list_append(out, eval_output_fd_2);
-        list_append(out, eval_output_fd_3);
+        close(fd);
     }
-    return 0;
+    if (fd2 != -1)
+    {
+        close(fd2);
+    }
+    if (saved_stdout != -1)
+    {
+        close(saved_stdout);
+    }
+    list_free(filenames, (void (*)(void *))eval_output_free);
+    return AST_EVAL_ERROR;
 }
 
 int ast_eval_redir(struct ast_redir *node, struct linked_list *out,
@@ -164,7 +164,10 @@ int ast_eval_redir(struct ast_redir *node, struct linked_list *out,
 
 void ast_free_redir(struct ast_redir *node)
 {
-    free(node->file);
+    if (node->file)
+    {
+        ast_free(node->file);
+    }
     free(node);
 }
 
@@ -188,6 +191,6 @@ void ast_print_redir(struct ast_redir *node)
     }
     if (node->file)
     {
-        logger("%s", node->file);
+        ast_print(node->file);
     }
 }

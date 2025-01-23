@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "eval_ctx.h"
 #include "node.h"
 #include "utils/logger.h"
 #include "utils/naming.h"
+#include "utils/xalloc.h"
 
 #define TOKEN_GOOD (token && token->type == TOKEN_WORD)
 
@@ -70,14 +72,16 @@ for a name, the tokenen identifier NAME shall result. Otherwise, rule 7 applies.
 struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
 {
     logger("Parse FUNDEC\n");
-    struct ast_fundec *node = calloc(1, sizeof(struct ast_fundec));
+    struct ast_node *fun = NULL;
+    struct ast_fundec *node = xcalloc(1, sizeof(struct ast_fundec));
+    node->redirs = list_init();
 
-    // CASE the name of the function
+    // WORD
     struct token *token = lexer_peek(lexer);
-
-    if (TOKEN_GOOD && XDB_valid(token->value.c)
-        && !(is_keyword(token->value.c)))
+    if (!token || !token_is_valid_identifier(token)
+        || !XDB_valid(token->value.c) || is_keyword(token->value.c))
     {
+        /*
         node->name = strdup(token->value.c);
 
         if (sub_parse_fundec(lexer, token) != FUNDEC_ERROR)
@@ -101,30 +105,100 @@ struct ast_fundec *ast_parse_fundec(struct lexer *lexer)
             node->ast_node = shell_cmd;
             return node;
         }
+        */
         goto error;
     }
-    logger("Exit FUNDEC (EXIT)\n");
+    node->name = strdup(token->value.c);
+    token_free(lexer_pop(lexer));
+
+    // '('
+    if (!(token = lexer_peek(lexer)) || token->type != TOKEN_LEFT_PARENTHESIS)
+    {
+        goto error;
+    }
+    token_free(lexer_pop(lexer));
+
+    // ')'
+    if (!(token = lexer_peek(lexer)) || token->type != TOKEN_RIGHT_PARENTHESIS)
+    {
+        lexer_error(lexer, "unmatched parenthesis");
+        goto error;
+    }
+    token_free(lexer_pop(lexer));
+
+    // { \n }
+    while ((token = lexer_peek(lexer)) && token->type == TOKEN_NEW_LINE)
+    {
+        token_free(lexer_pop(lexer));
+    }
+
+    // shell_command
+    fun = ast_create(lexer, AST_SHELL_COMMAND);
+    if (!fun)
+    {
+        goto error;
+    }
+
+    struct ast_node *redir;
+    while ((redir = ast_create(lexer, AST_REDIRECTION)))
+    {
+        list_append(node->redirs, redir);
+    }
+
+    logger("Exit FUNDEC (SUCCESS)\n");
+    node->fun = fun;
+    return node;
 error:
+    logger("Exit FUNDEC (ERROR)\n");
+    if (fun)
+    {
+        ast_free(fun);
+    }
+
     ast_free_fundec(node);
     return NULL;
 }
-int ast_eval_fundec(struct ast_fundec *f,
-                    __attribute__((unused)) struct linked_list *ptr,
+
+int ast_eval_fundec(struct ast_fundec *node,
+                    __attribute((unused)) struct linked_list *ptr,
                     struct ast_eval_ctx *ctx)
 {
-    ctx_set_function(ctx, f->name, f->ast_node);
-    f->ast_node = NULL;
-    return EXIT_SUCCESS;
+    ctx_set_function(ctx, node->name, node->fun);
+    node->fun = NULL;
+    return AST_EVAL_SUCCESS;
 }
+
 void ast_free_fundec(struct ast_fundec *f)
 {
-    free(f->name);
-    ast_free(f->ast_node);
-    free(f);
+    if (f)
+    {
+        if (f->name)
+        {
+            free(f->name);
+        }
+
+        if (f->fun)
+        {
+            ast_free(f->fun);
+        }
+
+        list_free(f->redirs, (void (*)(void *))ast_free);
+        free(f);
+    }
 }
 void ast_print_fundec(struct ast_fundec *f)
 {
-    logger("%s () { ", f->name);
-    ast_print(f->ast_node);
-    logger(" }");
+    logger("%s () {\n", f->name);
+    ast_print(f->fun);
+    if (f->redirs->size)
+    {
+        struct linked_list_element *head = f->redirs->head;
+        while (head)
+        {
+            logger(" ");
+            ast_print(head->data);
+            head = head->next;
+        }
+    }
+    logger("\n}\n");
 }

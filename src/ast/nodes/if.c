@@ -15,15 +15,13 @@
 struct ast_if_node *ast_parse_if(struct lexer *lexer)
 {
     struct token *token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "if") != 0)
+    if (!token_is_valid_keyword(token, "if"))
     {
         return NULL;
     }
-    lexer_pop(lexer);
-    token_free(token);
+    token_free(lexer_pop(lexer));
 
     struct ast_if_node *ast = xcalloc(1, sizeof(struct ast_if_node));
-
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
@@ -32,30 +30,35 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
 
     logger("PARSE IF\n");
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "then") != 0)
+    if (!token_is_valid_keyword(token, "then"))
     {
-        errx(2, "missing then token");
+        lexer_error(lexer, "expected then");
+        goto error;
     }
     token_free(token);
 
-    struct ast_node *body = ast_create(lexer, AST_CLIST);
-    if (body == NULL)
+    ast->body = ast_create(lexer, AST_CLIST);
+    if (ast->body == NULL)
     {
-        errx(2, "missing if body");
+        lexer_error(lexer, "expected body");
+        goto error;
     }
-    ast->body = body;
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
-
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "fi") != 0)
+    if (!token_is_valid_keyword(token, "fi"))
     {
-        errx(2, "missing fi");
+        lexer_error(lexer, "expected fi");
+        goto error;
     }
-
     token_free(token);
+
     logger("PARSE IF (SUCCESS)\n");
     return ast;
+
+error:
+    ast_free_if(ast);
+    return NULL;
 }
 
 int ast_eval_if(struct ast_if_node *node, struct linked_list *out,

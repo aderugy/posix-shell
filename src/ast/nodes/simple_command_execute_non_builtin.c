@@ -33,14 +33,11 @@ int simple_command_execute_non_builtin(struct ast_simple_cmd *cmd, char **argv,
             ast_eval(children, NULL, ctx);
         }
 
-        logger("simple_command.c : execute : %s\n", argv[0]);
-        for (int i = 1; i < argc; i++)
+        for (int i = 0; i < argc; i++)
         {
             logger("execute non built : %s\n", argv[i]);
         }
         /* ENSURE THAT ARGV IS A NULL TERMINATED ARRAY*/
-        argv = xrealloc(argv, (argc + 1) * sizeof(char *));
-        argv[argc] = NULL;
 
         ret_value = execvp(argv[0], argv);
         exit(ret_value);

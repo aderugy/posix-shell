@@ -1,3 +1,4 @@
+#include "shard.h"
 #define _POSIX_C_SOURCE 200809L
 
 #include <ctype.h>
@@ -21,6 +22,9 @@ void shard_print(struct shard *shard)
     char *type = NULL;
     switch (shard->type)
     {
+    case SHARD_OPERATOR:
+        type = "OPERATOR ";
+        break;
     case SHARD_EXPANSION_VARIABLE:
         type = "VAR      ";
         break;
@@ -139,7 +143,13 @@ int shard_is_redir(struct mbt_str *str)
     return status;
 }
 
-int shard_is_operator(struct mbt_str *str)
+bool shard_is_operator(struct shard *shard, const char *str)
+{
+    return shard && shard->type == SHARD_OPERATOR
+        && strcmp(shard->data, str) == 0;
+}
+
+int shard_is_any_operator(struct mbt_str *str)
 {
     for (size_t i = 0; OPERATORS[i]; i++)
     {

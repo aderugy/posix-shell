@@ -2,12 +2,14 @@
 #include "cword.h"
 
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "eval_ctx.h"
+#include "hs24.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"
@@ -22,104 +24,102 @@ static int eval_word(const struct ast_cword *node, struct linked_list *out,
 {
     if (!node->next)
     {
-        struct eval_output *eval_output = eval_output_init();
-
+        struct eval_output *eval_output = eval_output_init(EVAL_STR);
         eval_output->value.str = strdup(node->data);
 
         list_append(out, eval_output);
-
         return AST_EVAL_SUCCESS;
     }
 
     struct linked_list *right = list_init();
     if (ast_eval_cword(node->next, right, ctx) != AST_EVAL_SUCCESS)
     {
+        list_free(right, (void (*)(void *))eval_output_free);
         return AST_EVAL_ERROR;
     }
 
     struct eval_output *right_eval_output = right->head->data;
     char *right_str = right_eval_output->value.str;
 
-    struct eval_output *eval_output = eval_output_init();
-
+    struct eval_output *eval_output = eval_output_init(EVAL_STR);
     eval_output->value.str = merge_str(node->data, right_str);
 
     list_append(out, eval_output);
-
-    free(right_str);
     list_free(right, (void (*)(void *))eval_output_free);
-
     return AST_EVAL_SUCCESS;
 }
 
-static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
+static int eval_subshell(const struct ast_cword *node,
+                         __attribute((unused)) struct linked_list *out,
                          struct ast_eval_ctx *ctx)
 {
-    int pipefd[2];
-    pid_t pid;
+    if (node->sh_stdout_silent)
+    {
+        errx(EXIT_FAILURE, "subshell no dollar: not implemented");
+    }
 
+    pid_t pid;
+    int pipefd[2];
+    char buffer[64];
     if (pipe(pipefd) == -1)
     {
-        warnx("eval_subshell: pipe error");
-        return 1;
+        errx(EXIT_FAILURE, "subshell: pipe failed");
     }
 
     pid = fork();
     if (pid == -1)
     {
-        warnx("eval_subshell: pid error");
-        return 1;
+        errx(EXIT_FAILURE, "subshell: fork failed");
     }
 
-    if (pid == 0) // CHILD
+    if (pid == 0)
     {
         close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
-        struct stream *stream = stream_from_str(node->data);
-        struct lexer *lexer2 = lexer_create(stream);
-        struct ast_node *node = ast_create(lexer2, AST_INPUT);
-        int return_value = node ? 0 : 2;
-        do
-        {
-            ast_print(node);
-            return_value = ast_eval(node, NULL, ctx);
-            ast_free(node);
 
-            node = ast_create(lexer2, AST_INPUT);
-        } while (!lexer2->eof && !lexer2->error && node && !return_value);
-        lexer_free(lexer2);
-        if (node)
+        if (dup2(pipefd[1], STDOUT_FILENO) == -1)
         {
-            ast_free(node);
+            warnx("dup2");
+            exit(EXIT_FAILURE);
         }
 
-        exit(return_value);
+        close(pipefd[1]);
+
+        struct stream *stream = stream_from_str(node->data);
+        int retval = hs24(stream, ctx);
+        exit(retval);
     }
     else
     {
         close(pipefd[1]);
-        int status;
-        waitpid(pid, &status, 0);
-        char *buffer = xcalloc(1, 128);
-        size_t buffer_size = 128;
-        size_t total_read = 0;
-        ssize_t bytes_read;
-        while ((bytes_read = read(pipefd[0], buffer + total_read,
-                                  buffer_size - total_read - 1))
-               > 0)
+        struct mbt_str *stdout_str = mbt_str_init(63);
+
+        ssize_t r;
+        while ((r = read(pipefd[0], buffer, 64 - 1)) > 0)
         {
-            total_read += bytes_read;
-            if (total_read >= buffer_size - 1)
+            for (ssize_t i = 0; i < r; i++)
             {
-                buffer_size *= 2;
-                buffer = xrealloc(buffer, buffer_size);
+                if (buffer[i] == '\n')
+                {
+                    mbt_str_pushc(stdout_str, ' ');
+                }
+                else
+                {
+                    mbt_str_pushc(stdout_str, buffer[i]);
+                }
             }
         }
-        buffer[total_read] = 0;
-        list_append(out, buffer);
+
         close(pipefd[0]);
-        return WEXITSTATUS(status);
+
+        wait(NULL);
+
+        struct eval_output *str = eval_output_init(EVAL_STR);
+        stdout_str->data[stdout_str->size - 1] = 0;
+        str->value.str = strdup(stdout_str->data);
+        mbt_str_free(stdout_str);
+
+        list_append(out, str);
+        return AST_EVAL_SUCCESS;
     }
 }
 
@@ -140,7 +140,7 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
         var = "";
     }
 
-    struct eval_output *eval_output = eval_output_init();
+    struct eval_output *eval_output = eval_output_init(EVAL_STR);
 
     if (node->next)
     {
@@ -212,8 +212,10 @@ struct ast_cword *ast_parse_cword_from_token(struct token *token,
     struct ast_cword *node = xcalloc(1, sizeof(struct ast_cword));
     switch (token->type)
     {
-    case TOKEN_WORD:
     case TOKEN_SUBSHELL:
+        node->sh_stdout_silent = token->sh_stdout_silent;
+        break;
+    case TOKEN_WORD:
     case TOKEN_ARITH:
     case TOKEN_VARIABLE:
     case TOKEN_GLOBBING_STAR:

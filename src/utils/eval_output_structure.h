@@ -17,6 +17,6 @@ struct eval_output
     enum eval_output_type type;
 };
 
-struct eval_output *eval_output_init(void);
+struct eval_output *eval_output_init(enum eval_output_type type);
 void eval_output_free(struct eval_output *eval_output);
 #endif // !EVAL_OUTPUT_STRUCTURE_H

@@ -15,7 +15,7 @@ struct ast_redir
 {
     int number;
     enum token_type pipe;
-    char *file;
+    struct ast_node *file;
 };
 
 struct redirection

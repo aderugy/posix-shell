@@ -47,23 +47,24 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
         return cmd;
     }
 
+    struct token *parenthesis = lexer_peek_two(lexer);
+    if (parenthesis && parenthesis->type == TOKEN_LEFT_PARENTHESIS)
+    {
+        goto error;
+    }
+
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || (token->value.c && is_keyword(token->value.c)))
+    if (!token || (token->value.c && is_keyword(token->value.c)))
     {
         goto error;
     }
 
-    struct token *parenthese = lexer_peek_two(lexer);
-
-    if (parenthese && parenthese->type == TOKEN_WORD
-        && strcmp(parenthese->value.c, "()") == 0)
+    cmd->cmd = ast_create(lexer, AST_COMPLEX_WORD);
+    if (!cmd->cmd)
     {
         goto error;
     }
-
-    cmd->cmd = strdup(token->value.c);
-    token_free(lexer_pop(lexer));
 
     struct ast_node *element;
     while ((element = ast_create(lexer, AST_ELEMENT)))
@@ -90,10 +91,21 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
     }
     logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
+    struct linked_list *cmd_eval = list_init();
+    if (ast_eval(cmd->cmd, cmd_eval, ctx) == AST_EVAL_ERROR
+        || cmd_eval->size != 1)
+    {
+        list_free(cmd_eval, (void (*)(void *))eval_output_free);
+        return AST_EVAL_ERROR;
+    }
+
+    struct eval_output *name_out = cmd_eval->head->data;
+    char *name = name_out->value.str;
+
     int argc = cmd->args->size + 1;
     char **argv = xcalloc(1, sizeof(char *));
 
-    argv[0] = strdup(cmd->cmd);
+    argv[0] = strdup(name);
 
     size_t elt = 1;
 
@@ -104,21 +116,23 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ctx->check_redir = false;
 
         struct ast_node *children = list_get(cmd->args, i - 1);
-
+        logger("found elt\n");
         linked_list = list_init();
 
         ast_eval(children, linked_list, ctx);
-        if (linked_list->head)
+        struct linked_list_element *head = linked_list->head;
+        while (head)
         {
-            struct eval_output *output = linked_list->head->data;
+            struct eval_output *output = head->data;
+            if (output->type == EVAL_STR)
+            {
+                argv = xrealloc(argv, (elt + 1) * sizeof(char *));
 
-            argv = xrealloc(argv, (elt + 1) * sizeof(char *));
+                argv[elt] = strdup(output->value.str);
 
-            argv[elt] = output->value.str;
-
-            logger("simple_command.c : get value from output %s\n", argv[elt]);
-
-            elt++;
+                elt++;
+            }
+            head = head->next;
         }
         list_free(linked_list, (void (*)(void *))eval_output_free);
     }
@@ -148,8 +162,10 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         }
         else
         {
-            ret_value =
-                simple_command_execute_non_builtin(cmd, argv, ctx, argc);
+            argv = xrealloc(
+                argv, (elt + 1) * sizeof(char *)); // NULL TERMINATED ARRAY
+            argv[elt] = NULL;
+            ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
         }
     }
 
@@ -158,6 +174,7 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         free(argv[i]);
     }
     free(argv);
+    list_free(cmd_eval, (void (*)(void *))eval_output_free);
     return ret_value;
 }
 
@@ -176,7 +193,7 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
     if (cmd->cmd)
     {
-        free(cmd->cmd);
+        ast_free(cmd->cmd);
     }
     list_free(cmd->args, (void (*)(void *))ast_free);
 
@@ -185,7 +202,12 @@ void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
 
 void ast_print_simple_cmd(struct ast_simple_cmd *cmd)
 {
-    logger("command");
+    logger("command ");
+    if (cmd->cmd)
+    {
+        ast_print(cmd->cmd);
+        logger(" ");
+    }
 
     struct linked_list_element *head = cmd->args->head;
     while (head)

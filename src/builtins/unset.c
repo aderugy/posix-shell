@@ -36,6 +36,7 @@ int unset_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
     }
 
     char *name = argv[optind];
+    int return_value = unsetenv(name);
 
     logger("unset %s\n", name);
     if (var && !hash_map_remove(ast_eval_ctx->value, name, HASH_VARIABLE))
@@ -62,7 +63,7 @@ int unset_builtin(int argc, char **argv, struct ast_eval_ctx *ast_eval_ctx)
         }
         else
         {
-            return unsetenv(name);
+            return return_value;
         }
     }
     return 0;

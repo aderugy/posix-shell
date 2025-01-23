@@ -30,6 +30,10 @@ enum token_type
     TOKEN_ARITH,
     TOKEN_GLOBBING_STAR,
     TOKEN_GLOBBING_QM, // Questionmark '?'
+    TOKEN_LEFT_PARENTHESIS,
+    TOKEN_RIGHT_PARENTHESIS,
+    TOKEN_LEFT_BRACKET,
+    TOKEN_RIGHT_BRACKET,
 };
 
 struct token
@@ -43,6 +47,8 @@ struct token
 
     struct token *next;
     enum shard_quote_type quote_type;
+
+    bool sh_stdout_silent;
 };
 
 void token_print(struct token *token);

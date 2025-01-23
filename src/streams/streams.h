@@ -3,12 +3,14 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <stdbool.h>
 #include <stdio.h>
 
 struct stream
 {
     FILE *in;
     char next;
+    bool tty;
 };
 
 struct stream *stream_from_file(const char *path);

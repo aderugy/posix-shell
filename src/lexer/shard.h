@@ -23,12 +23,11 @@ enum shard_type
     SHARD_GLOBBING_QUESTIONMARK,
     SHARD_OPERATOR,
     SHARD_REDIR,
-    SHARD_DELIMITER
+    SHARD_DELIMITER,
 };
 
 struct shard
 {
-    char *state;
     char *data;
 
     bool can_chain;
@@ -40,9 +39,11 @@ struct shard
 struct shard *shard_init(struct mbt_str *data, bool can_chain,
                          enum shard_type type,
                          enum shard_quote_type quote_type);
+
+bool shard_is_operator(struct shard *shard, const char *str);
+
 int shard_is_redir(struct mbt_str *str);
-int shard_is_operator(struct mbt_str *str);
-int shard_is_operator(struct mbt_str *str);
+int shard_is_any_operator(struct mbt_str *str);
 void shard_print(struct shard *shard);
 void shard_free(struct shard *shard);
 
