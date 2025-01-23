@@ -26,6 +26,7 @@ static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
 {
     ctx_init_local_dollar(*ctx);
     ctx_init_local_hashtag(nb_args, *ctx);
+    ctx_init_local_UID(*ctx);
     ctx_update_local_qm(*ctx, 0);
     register_commands();
 
