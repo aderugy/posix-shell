@@ -41,7 +41,7 @@ int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
 
         node = ast_create(lexer, AST_INPUT);
     } while (!lexer->eof && !lexer->error && node
-             && !(return_value && !(*stream)->tty));
+             && !(return_value && !stream->tty));
 
     if (node)
     {
