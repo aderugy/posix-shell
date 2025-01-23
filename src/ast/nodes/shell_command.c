@@ -50,7 +50,6 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
             goto error;
         }
 
-
         token_free(lexer_pop(lexer));
         node->ast_node = clist;
         return node;
@@ -100,6 +99,7 @@ int ast_eval_shell_cmd(struct ast_shell_cmd *cmd, struct linked_list *out,
 {
     if (cmd->is_sub_shell == 1)
     {
+        errx(1, "non");
         pid_t p;
         p = fork();
         int status;
