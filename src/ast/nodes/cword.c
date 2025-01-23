@@ -135,8 +135,9 @@ static int eval_variable(const struct ast_cword *node, struct linked_list *out,
         var = "";
     }
     struct eval_output *eval_output = eval_output_init(EVAL_STR);
-
     eval_output->value.str = strdup(var);
+
+    // @TODO: recursion on child
 
     list_append(out, eval_output);
     return AST_EVAL_SUCCESS;
