@@ -2,7 +2,6 @@
 #define REDIRECTION_H
 
 #include "element.h"
-#include "ionumber.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "node.h"

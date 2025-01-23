@@ -13,7 +13,6 @@
 #include "fundec.h"
 #include "if.h"
 #include "input.h"
-#include "ionumber.h"
 #include "list.h"
 #include "pipeline.h"
 #include "prefix.h"
@@ -71,11 +70,6 @@ static const struct ast_node_operations AST_FN[] = {
     { (void *(*)(struct lexer *))ast_parse_else,
       (int (*)(void *, struct linked_list *, void *))ast_eval_else,
       (void (*)(void *))ast_free_else, (void (*)(void *))ast_print_else },
-
-    { (void *(*)(struct lexer *))ast_parse_ionumber,
-      (int (*)(void *, struct linked_list *, void *))ast_eval_ionumber,
-      (void (*)(void *))ast_free_ionumber,
-      (void (*)(void *))ast_print_ionumber },
 
     { (void *(*)(struct lexer *))ast_parse_while,
       (int (*)(void *, struct linked_list *, void *))ast_eval_while,

@@ -35,8 +35,6 @@ libast_a_SOURCES =  \
   nodes/simple_command_execute_builtin.h \
   nodes/simple_command_execute_non_builtin.c \
   nodes/simple_command_execute_non_builtin.h \
-  nodes/ionumber.c \
-  nodes/ionumber.h \
   nodes/redirection.c \
   nodes/redirection.h \
   nodes/prefix.c \

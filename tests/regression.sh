@@ -130,6 +130,14 @@ output_test() {
   fi
 }
 
+for_coverage() {
+    "$F" -c "fun () { ls; echo a;}; fun && echo B || echo C"
+    "$F" aaaaa
+    "$F" -vc "echo a"
+    "$F" -tc "echo a"
+    "$F" -sc "echo a"
+}
+
 test_echo_basic() {
   echo "========== ECHO BEGIN =========="
   tes "echo     "
@@ -405,6 +413,7 @@ testsuite() {
   test_unset
   test_blocks
   test_function
+  for_coverage
 }
 
 if [ "$COVERAGE" = "yes" ]; then

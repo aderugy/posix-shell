@@ -26,13 +26,12 @@ enum ast_type
     AST_LIST, // 8
     AST_IF, // 9
     AST_ELSE, // 10
-    AST_IONUMBER, // 11
-    AST_WHILE, // 12
-    AST_UNTIL, // 13
-    AST_FOR, // 14
-    AST_REDIRECTION, // 15
-    AST_PREFIX, // 16
-    AST_FUNDEC, // 17
+    AST_WHILE, // 11
+    AST_UNTIL, // 12
+    AST_FOR, // 13
+    AST_REDIRECTION, // 14
+    AST_PREFIX, // 15
+    AST_FUNDEC, // 16
     AST_COMPLEX_WORD
 };
 

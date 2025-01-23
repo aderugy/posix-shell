@@ -19,50 +19,6 @@
 /*
  * fundec = WORD '(' ')' { '\n' } shell_command ;
  */
-int sub_parse_fundec(struct lexer *lexer, struct token *token)
-{
-    int ret_val = FUNDEC_NOTHING;
-    if (token->next)
-    {
-        token = token->next;
-        ret_val = FUNDEC_FREE;
-    }
-    else
-    {
-        token_free(lexer_pop(lexer));
-        token = lexer_peek(lexer);
-    }
-
-    if (TOKEN_GOOD && strcmp(token->value.c, "()") == 0)
-    {
-        if (token->next)
-        {
-            token = token->next;
-            ret_val = FUNDEC_FREE;
-        }
-        else
-        {
-            token_free(lexer_pop(lexer));
-            token = lexer_peek(lexer);
-        }
-
-        /*
-        if (!(TOKEN_OK) || strcmp(token->value.c, "{") != 0)
-        {
-            lexer_error(lexer, "function_def : no {");
-            return FUNDEC_ERROR;
-        }
-
-        token_free(lexer_pop(lexer));
-        */
-    }
-    else
-    {
-        lexer_error(lexer, "no '(' was found after WORD\n");
-        return FUNDEC_ERROR;
-    }
-    return ret_val;
-}
 /*
 SCL: case 8 [ NAME in function]
 When the TOKEN is exactly a reserved word, the tokenen identifier for that
