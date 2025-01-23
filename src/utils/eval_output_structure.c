@@ -15,10 +15,11 @@ struct eval_output *eval_output_init(enum eval_output_type type)
 
 void eval_output_free(struct eval_output *eval_output)
 {
+    /*
     if (eval_output->type == EVAL_STR)
     {
         free(eval_output->value.str);
     }
-
+     */
     free(eval_output); // free the struct
 }
