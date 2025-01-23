@@ -451,6 +451,7 @@ touch $ACTUAL_ERR_OUT
 touch $DIFF_OUT
 touch $DIFF_ERR
 touch $SCRIPT
+touch 3
 #==================-^
 rm $EXPECTED_OUT
 rm $ACTUAL_OUT
@@ -459,3 +460,4 @@ rm $ACTUAL_ERR_OUT
 rm $DIFF_OUT
 rm $DIFF_ERR
 rm $SCRIPT
+rm 3
