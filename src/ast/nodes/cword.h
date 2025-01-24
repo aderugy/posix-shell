@@ -1,5 +1,5 @@
-#ifndef AST_CWORD_H
-#define AST_CWORD_H
+#ifndef CWORD_H
+#define CWORD_H
 
 #include "eval_ctx.h"
 #include "lexer/shard.h"
