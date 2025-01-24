@@ -146,6 +146,37 @@ char *my_reverse_strcat(char *src, char *dest)
     return result;
 }
 
+static int tiret(void)
+{
+    char *oldpwd = getenv("OLDPWD");
+    char *current_path = get_current_path(); // RULE 2
+    if (!current_path)
+    {
+        return 2;
+    }
+    int verification = move_cd(current_path, oldpwd);
+    if (verification == 0)
+        printf("%s\n", oldpwd);
+    free(current_path);
+    return verification;
+}
+
+static int cd_with_no_arg(void)
+{
+    char *home = getenv("HOME");
+    if (home == NULL || strlen(home) == 0) // RULE 1
+    {
+        warnx("cd: empty or unddefined HOME environment");
+        return 2;
+    }
+    char *current_path = get_current_path(); // RULE 2
+    if (!current_path)
+        return 1;
+    int verification = move_cd(current_path, home);
+    free(current_path);
+    return verification;
+}
+
 int cd(int argc, char **argv,
        __attribute__((unused)) struct ast_eval_ctx *ast_eval_ctx)
 {
@@ -157,33 +188,12 @@ int cd(int argc, char **argv,
 
     if (argc == 1)
     {
-        char *home = getenv("HOME");
-        if (home == NULL || strlen(home) == 0) // RULE 1
-        {
-            warnx("cd: empty or unddefined HOME environment");
-            return 2;
-        }
-        char *current_path = get_current_path(); // RULE 2
-        if (!current_path)
-            return 1;
-        int verification = move_cd(current_path, home);
-        free(current_path);
-        return verification;
+        return cd_with_no_arg();
     }
 
     if (strcmp("-", argv[1]) == 0)
     {
-        char *oldpwd = getenv("OLDPWD");
-        char *current_path = get_current_path(); // RULE 2
-        if (!current_path)
-        {
-            return 2;
-        }
-        int verification = move_cd(current_path, oldpwd);
-        if (verification == 0)
-            printf("%s\n", oldpwd);
-        free(current_path);
-        return verification;
+        return tiret();
     }
 
     struct stat path_stat;
