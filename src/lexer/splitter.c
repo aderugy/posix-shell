@@ -60,6 +60,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         {
             enum shard_ctx_type exp_meta = exp->value;
             free(stack_pop(ctx->expect));
+
             return splitter_handle_expansion(
                 ctx, str,
                 exp_meta == SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);

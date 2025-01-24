@@ -8,6 +8,7 @@ liblex_a_SOURCES =  \
   shard.h \
   splitter.h \
   lexer.h \
+  token.c \
   token.h 
 
 liblex_a_CPPFLAGS = -I$(top_srcdir)/src
