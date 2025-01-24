@@ -125,7 +125,7 @@ int redir_fopen_rw(struct ast_redir *node,
     {
         errx(2, "redir_eval: dup: error");
     }
-    SAVE_FD
+    save_fd(fd, fd2, saved_stdout, out);
 
     list_free(filenames, (void (*)(void *))eval_output_free);
     return AST_EVAL_SUCCESS;

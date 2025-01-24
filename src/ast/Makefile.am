@@ -55,6 +55,8 @@ libast_a_SOURCES =  \
   nodes/redirection_stdin.c \
   nodes/redirection_stdout.c \
   nodes/redirection_stdout.h \
+  nodes/redirection_definition.h \
+  nodes/redirection_definition.c \
   nodes/ast_simple_cmd.h \
   nodes/node.h 
 
