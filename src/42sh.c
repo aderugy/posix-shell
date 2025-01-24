@@ -26,14 +26,6 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 
 int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
 {
-    /*
-    ctx_init_local_dollar(ctx);
-    ctx_init_local_hashtag(0, ctx);
-    ctx_init_local_UID(ctx);
-    ctx_update_local_qm(ctx, 0);
-    register_commands();
-    */
-
     struct lexer *lexer = lexer_create(stream);
     struct ast_node *node = ast_create(lexer, AST_INPUT);
     int return_value = node ? 0 : 2;
@@ -66,21 +58,50 @@ int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
     return return_value;
 }
 
-static int sub_main(struct stream **stream, struct ast_eval_ctx **ctx,
+static int sub_main(struct stream *stream, struct ast_eval_ctx *ctx,
                     int nb_args)
 {
-    ctx_init_local_dollar(*ctx);
-    ctx_init_local_hashtag(nb_args, *ctx);
-    ctx_init_local_UID(*ctx);
-    ctx_update_local_qm(*ctx, 0);
+    ctx_init_local_dollar(ctx);
+    ctx_init_local_hashtag(nb_args, ctx);
+    ctx_init_local_UID(ctx);
+    ctx_update_local_qm(ctx, 0);
     register_commands();
 
-    int return_value = hs24(*stream, *ctx);
+    int return_value = hs24(stream, ctx);
 
-    ctx_free(*ctx);
+    ctx_free(ctx);
     unregister_commands();
 
     return return_value;
+}
+
+static int main_shards(struct stream *stream, struct ast_eval_ctx *ctx)
+{
+    ctx_free(ctx);
+
+    struct shard *shard;
+    struct splitter_ctx *spltctx = splitter_ctx_init(stream);
+    while ((shard = splitter_pop(spltctx)))
+    {
+        shard_print(shard);
+        shard_free(shard);
+    }
+    splitter_ctx_free(spltctx);
+    return 0;
+}
+
+static int main_tokens(struct stream *stream, struct ast_eval_ctx *ctx)
+{
+    struct lexer *lexer = lexer_create(stream);
+    struct token *token;
+    while ((token = lexer_pop(lexer)))
+    {
+        token_print(token);
+        token_free(token);
+    }
+    lexer_free(lexer);
+    ctx_free(ctx);
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -139,32 +160,15 @@ int main(int argc, char *argv[])
 
     if (disp_shards)
     {
-        struct shard *shard;
-        struct splitter_ctx *ctx = splitter_ctx_init(stream);
-        while ((shard = splitter_pop(ctx)))
-        {
-            shard_print(shard);
-            shard_free(shard);
-        }
-        splitter_ctx_free(ctx);
-        return 0;
+        return main_shards(stream, ctx);
     }
 
     if (disp_lex)
     {
-        struct lexer *lexer = lexer_create(stream);
-        struct token *token;
-        while ((token = lexer_pop(lexer)))
-        {
-            token_print(token);
-            token_free(token);
-        }
-        lexer_free(lexer);
-        ctx_free(ctx);
-        return 0;
+        return main_tokens(stream, ctx);
     }
 
     nb_args = ctx_init_local_args(argc, argv, ctx);
 
-    return sub_main(&stream, &ctx, nb_args);
+    return sub_main(stream, ctx, nb_args);
 }
