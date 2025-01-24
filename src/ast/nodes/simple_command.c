@@ -13,6 +13,7 @@
 #include "builtins/builtins.h"
 #include "builtins/commands.h"
 #include "builtins/run_command.h"
+#include "eval_ctx.h"
 #include "expansion/vars.h"
 #include "lexer/token.h"
 #include "node.h"
@@ -80,6 +81,47 @@ error:
     return NULL;
 }
 
+int eval_run_command(struct ast_simple_cmd *cmd, char **argv, size_t elt,
+                     struct ast_eval_ctx *ctx)
+{
+    int ret_value = 0;
+
+    struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
+    if (local_function) // checks if the function exists in the hashmap
+    {
+        struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
+
+        ret_value = ast_eval(local_function, NULL, ctx);
+
+        ctx_restore_spe_vars(ctx, params_ctx);
+        list_free(params_ctx, free);
+    }
+    else
+    {
+        struct runnable *cmd_runnable =
+            get_command(argv[0], NULL); // get the builtin if exists
+
+        if (cmd_runnable) // check if it is a builtin
+        {
+            ret_value = simple_command_execute_builtin(cmd, argv, ctx);
+        }
+        else
+        {
+            argv = xrealloc(
+                argv, (elt + 1) * sizeof(char *)); // NULL TERMINATED ARRAY
+            argv[elt] = NULL;
+            ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
+        }
+    }
+
+    for (size_t i = 0; i < elt; i++)
+    {
+        free(argv[i]);
+    }
+    free(argv);
+    return ret_value;
+}
+
 int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
                         __attribute((unused)) struct linked_list *out,
                         struct ast_eval_ctx *ctx)
@@ -136,45 +178,8 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         list_free(linked_list, (void (*)(void *))eval_output_free);
     }
 
-    int ret_value = 0;
-
-    struct ast_node *local_function = ctx_get_function(ctx, argv[0]);
-    if (local_function) // checks if the function exists in the hashmap
-    {
-        // cf src/ast/expansion/vars.c
-        struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
-
-        ret_value = ast_eval(local_function, /*(void **)argv + 1*/ NULL, ctx);
-
-        // cf src/ast/expansion/vars.c
-        ctx_restore_spe_vars(ctx, params_ctx);
-        list_free(params_ctx, free);
-    }
-    else
-    {
-        struct runnable *cmd_runnable =
-            get_command(argv[0], NULL); // get the builtin if exists
-
-        if (cmd_runnable) // check if it is a builtin
-        {
-            ret_value = simple_command_execute_builtin(cmd, argv, ctx);
-        }
-        else
-        {
-            argv = xrealloc(
-                argv, (elt + 1) * sizeof(char *)); // NULL TERMINATED ARRAY
-            argv[elt] = NULL;
-            ret_value = simple_command_execute_non_builtin(cmd, argv, ctx, elt);
-        }
-    }
-
-    for (size_t i = 0; i < elt; i++)
-    {
-        free(argv[i]);
-    }
-    free(argv);
     list_free(cmd_eval, (void (*)(void *))eval_output_free);
-    return ret_value;
+    return eval_run_command(cmd, argv, elt, ctx);
 }
 
 void ast_free_simple_cmd(struct ast_simple_cmd *cmd)
