@@ -9,7 +9,7 @@
 #include "mbtstr/str.h"
 #include "shard.h"
 #include "utils/logger.h"
-#include "utils/xalloc.c"
+#include "utils/xalloc.h"
 
 DEFINE_VARIABLES;
 DEFINE_REDIRS;
@@ -468,7 +468,7 @@ static void splitter_handle_backslash(struct splitter_ctx *ctx,
     stream_read(ctx->stream);
 
     char c = stream_read(ctx->stream);
-    if (c > 0)
+    if (c > 0 && c != '\n')
     {
         mbt_str_pushc(str, c);
     }
