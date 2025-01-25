@@ -78,6 +78,22 @@ static int token_get_keyword_type(char *str)
     return TOKEN_ERROR;
 }
 
+int copy_value(struct token *token, struct shard *shard, struct lexer *lexer)
+{
+    token->value.c = strdup(shard->data);
+    if (token->type == TOKEN_ERROR)
+    {
+        return 1;
+    }
+
+    if (shard->can_chain)
+    {
+        token->next = lexer_chain(lexer);
+    }
+    shard_free(shard);
+    return 0;
+}
+
 static struct token *lex(struct lexer *lexer, bool nullable)
 {
     if (lexer->eof)
@@ -181,18 +197,10 @@ static struct token *lex(struct lexer *lexer, bool nullable)
 
         return lex(lexer, nullable);
     }
-
-    token->value.c = strdup(shard->data);
-    if (token->type == TOKEN_ERROR)
+    if (copy_value(token, shard, lexer) == 1)
     {
         goto error;
     }
-
-    if (shard->can_chain)
-    {
-        token->next = lexer_chain(lexer);
-    }
-    shard_free(shard);
 
     return token;
 
