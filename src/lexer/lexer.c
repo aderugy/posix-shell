@@ -78,68 +78,6 @@ static int token_get_keyword_type(char *str)
     return TOKEN_ERROR;
 }
 
-static int token_get_op(struct shard *shard, struct shard *next,
-                        struct lexer *lexer, struct token *token)
-{
-    if (shard_is_operator(shard, "("))
-    {
-        splitter_ctx_expect(lexer->ctx,
-                            SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
-
-        next = splitter_peek(lexer->ctx);
-        if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
-        {
-            shard_free(splitter_pop(lexer->ctx));
-            token->type = TOKEN_LEFT_PARENTHESIS;
-        }
-        else
-        {
-            shard_free(shard);
-            shard = splitter_pop(lexer->ctx);
-            if (!shard || !splitter_peek(lexer->ctx))
-            {
-                return 1;
-            }
-            shard_free(splitter_pop(lexer->ctx));
-            token->type = TOKEN_SUBSHELL;
-            token->sh_stdout_silent = true;
-        }
-
-        return -1;
-    }
-
-    if (shard->quote_type == SHARD_UNQUOTED && !token->next)
-    {
-        token->type = token_get_keyword_type(shard->data);
-
-        if (token->type == TOKEN_ERROR)
-        {
-            token->type = TOKEN_WORD;
-        }
-    }
-    else
-    {
-        token->type = TOKEN_WORD;
-    }
-    return -1;
-}
-
-int copy_value(struct token *token, struct shard *shard, struct lexer *lexer)
-{
-    token->value.c = strdup(shard->data);
-    if (token->type == TOKEN_ERROR)
-    {
-        return 1;
-    }
-
-    if (shard->can_chain)
-    {
-        token->next = lexer_chain(lexer);
-    }
-    shard_free(shard);
-    return 0;
-}
-
 static struct token *lex(struct lexer *lexer, bool nullable)
 {
     if (lexer->eof)
@@ -170,22 +108,52 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     {
     case SHARD_REDIR:
         token->type = token_get_keyword_type(shard->data
-                                             + (isdigit(*shard->data) ? 1 : 0));
+                                             + (isdigit(*shard->data)? 1 : 0));
         break;
 
     case SHARD_WORD:
     case SHARD_OPERATOR:
-        token_get_op(shard, next, lexer, token);
-        if (token_get_op(shard, next, lexer, token) == 1)
+        if (shard_is_operator(shard, "("))
         {
-            goto error;
+            splitter_ctx_expect(lexer->ctx,
+                                SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
+
+            next = splitter_peek(lexer->ctx);
+            if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
+            {
+                shard_free(splitter_pop(lexer->ctx));
+                token->type = TOKEN_LEFT_PARENTHESIS;
+            }
+            else
+            {
+                shard_free(shard);
+                shard = splitter_pop(lexer->ctx);
+                if (!shard || !splitter_peek(lexer->ctx))
+                {
+                    goto error;
+                }
+                shard_free(splitter_pop(lexer->ctx));
+                token->type = TOKEN_SUBSHELL;
+                token->sh_stdout_silent = true;
+            }
+
+            break;
+        }
+
+        if (shard->quote_type == SHARD_UNQUOTED && !token->next)
+        {
+            token->type = token_get_keyword_type(shard->data);
+
+            if (token->type == TOKEN_ERROR)
+            {
+                token->type = TOKEN_WORD;
+            }
         }
         else
         {
-            break;
+            token->type = TOKEN_WORD;
         }
         break;
-
     case SHARD_EXPANSION_VARIABLE:
         token->type = TOKEN_VARIABLE;
         break;
@@ -213,10 +181,18 @@ static struct token *lex(struct lexer *lexer, bool nullable)
 
         return lex(lexer, nullable);
     }
-    if (copy_value(token, shard, lexer) == 1)
+
+    token->value.c = strdup(shard->data);
+    if (token->type == TOKEN_ERROR)
     {
         goto error;
     }
+
+    if (shard->can_chain)
+    {
+        token->next = lexer_chain(lexer);
+    }
+    shard_free(shard);
 
     return token;
 

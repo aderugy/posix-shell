@@ -443,9 +443,7 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
         case '"':
             if (expected->value != SHARD_CONTEXT_DOUBLE_QUOTES)
             {
-                splitter_ctx_error(ctx, "expected double quote");
-                mbt_str_free(str);
-                return NULL;
+                goto error;
             }
 
             stream_read(ctx->stream);
@@ -472,10 +470,10 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             }
 
             mbt_str_pushc(str, stream_read(ctx->stream));
-            return shard_init(str, true, GLOB_TYPE, SHARD_DOUBLE_QUOTED);
+            return shard_init(str, true, GLOB_TYPE(c), SHARD_DOUBLE_QUOTED);
 
         case '\\':
-            if (NOT_EMPTY(str))
+            if (!str->size)
             {
                 return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
             }
@@ -488,11 +486,15 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             return NULL;
 
         default:
-            mbt_str_pushc(str, c);
-            stream_read(ctx->stream);
+            mbt_str_pushc(str, stream_read(ctx->stream));
             break;
         }
     }
+
+error:
+    splitter_ctx_error(ctx, "expected double quote");
+    mbt_str_free(str);
+    return NULL;
 }
 
 static void splitter_handle_backslash(struct splitter_ctx *ctx,
