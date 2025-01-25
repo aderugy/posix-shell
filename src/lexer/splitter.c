@@ -87,6 +87,56 @@ static struct shard *splitter_handle_unescaped_quote(struct splitter_ctx *ctx,
     return NULL;
 }
 
+static struct shard *splitter_shard_operator(struct mbt_str *str)
+{
+    if (shard_is_any_operator(str))
+    {
+        return shard_init(str, false, SHARD_OPERATOR, SHARD_UNQUOTED);
+    }
+    if (shard_is_redir(str))
+    {
+        return shard_init(str, false, SHARD_REDIR, SHARD_UNQUOTED);
+    }
+
+    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+}
+
+static struct shard *splitter_resume(struct splitter_ctx *ctx,
+                                     struct mbt_str *str)
+{
+    struct splitter_ctx_exp *exp = stack_peek(ctx->expect);
+
+    if (exp->value == SCE || exp->value == SCEPP)
+    {
+        enum shard_ctx_type exp_meta = exp->value;
+        free(stack_pop(ctx->expect));
+
+        return splitter_handle_expansion(ctx, str, exp_meta == SCEPP);
+    }
+    else if (exp->value == SHARD_CONTEXT_DOUBLE_QUOTES)
+    {
+        return splitter_handle_double_quotes(ctx, str);
+    }
+
+    return NULL;
+}
+
+static struct shard *splitter_handle_newlines(struct splitter_ctx *ctx,
+                                              struct mbt_str *str, char c)
+{
+    if (NOT_EMPTY(str))
+    {
+        return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+    }
+    else
+    {
+        mbt_str_pushc(str, c); // @ref1
+        stream_read(ctx->stream);
+    }
+
+    return shard_init(str, false, SHARD_WORD, SHARD_UNQUOTED);
+}
+
 /*
  * ---------------------------------------------------------------------------
  * PROTOTYPES
@@ -101,19 +151,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
     if (ctx->expect->size)
     {
-        struct splitter_ctx_exp *exp = stack_peek(ctx->expect);
-
-        if (exp->value == SCE || exp->value == SCEPP)
-        {
-            enum shard_ctx_type exp_meta = exp->value;
-            free(stack_pop(ctx->expect));
-
-            return splitter_handle_expansion(ctx, str, exp_meta == SCEPP);
-        }
-        else if (exp->value == SHARD_CONTEXT_DOUBLE_QUOTES)
-        {
-            return splitter_handle_double_quotes(ctx, str);
-        }
+        return splitter_resume(ctx, str);
     }
     else
     {
@@ -133,10 +171,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 {
                     mbt_str_pop(str); // Not an operator -> We delimit
 
-                    return shard_init(str, false,
-                                      shard_is_redir(str) ? SHARD_REDIR
-                                                          : SHARD_OPERATOR,
-                                      SHARD_UNQUOTED);
+                    return splitter_shard_operator(str);
                 }
             }
 
@@ -195,17 +230,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
             // Case 7: Newlines
             if (c == '\n')
             {
-                if (NOT_EMPTY(str))
-                {
-                    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
-                }
-                else
-                {
-                    mbt_str_pushc(str, c); // @ref1
-                    stream_read(ctx->stream);
-                }
-
-                return shard_init(str, false, SHARD_WORD, SHARD_UNQUOTED);
+                return splitter_handle_newlines(ctx, str, c);
             }
 
             // Case 8: delimiter
@@ -250,16 +275,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
     if (NOT_EMPTY(str))
     {
-        if (shard_is_any_operator(str))
-        {
-            return shard_init(str, false, SHARD_OPERATOR, SHARD_UNQUOTED);
-        }
-        if (shard_is_redir(str))
-        {
-            return shard_init(str, false, SHARD_REDIR, SHARD_UNQUOTED);
-        }
-
-        return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+        return splitter_shard_operator(str);
     }
 
     mbt_str_free(str);
