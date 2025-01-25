@@ -473,7 +473,7 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             return shard_init(str, true, GLOB_TYPE(c), SHARD_DOUBLE_QUOTED);
 
         case '\\':
-            if (!str->size)
+            if (NOT_EMPTY(str))
             {
                 return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
             }
