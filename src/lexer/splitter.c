@@ -17,6 +17,7 @@ DEFINE_OPERATORS;
 
 #define SCE SHARD_CONTEXT_EXPANSION
 #define SCEPP SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS
+#define PUSH_AND_READ(str) mbt_str_pushc(str, stream_read(ctx->stream));
 
 /*
  * ---------------------------------------------------------------------------
@@ -45,9 +46,8 @@ static bool list_any_begins_with(const char *list[], char c);
 
 static void discard_comment(struct splitter_ctx *ctx);
 
-static struct shard *splitter_handle_unescaped_quote(struct splitter_ctx *ctx,
-                                                     struct mbt_str *str,
-                                                     char c)
+static struct shard *splitter_prepare_quotes(struct splitter_ctx *ctx,
+                                             struct mbt_str *str, char c)
 {
     if (NOT_EMPTY(str))
     {
@@ -137,13 +137,43 @@ static struct shard *splitter_handle_newlines(struct splitter_ctx *ctx,
     return shard_init(str, false, SHARD_WORD, SHARD_UNQUOTED);
 }
 
+static struct shard *splitter_prepare_expansion(struct splitter_ctx *ctx,
+                                                struct mbt_str *str, char c)
+{
+    if (NOT_EMPTY(str))
+    {
+        return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+    }
+
+    if (c == '$')
+    {
+        stream_read(ctx->stream);
+    }
+
+    return splitter_handle_expansion(ctx, str, false);
+}
+
+static struct shard *splitter_handle_spaces(struct splitter_ctx *ctx,
+                                            struct mbt_str *str, char c)
+{
+    if (NOT_EMPTY(str))
+    {
+        return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+    }
+
+    while ((c = stream_peek(ctx->stream)) > 0 && isspace(c))
+    {
+        stream_read(ctx->stream);
+    }
+
+    return DELIMITER(str);
+}
+
 /*
  * ---------------------------------------------------------------------------
  * PROTOTYPES
  * ---------------------------------------------------------------------------
  */
-// @TIDY
-#define PUSH_AND_READ(str) mbt_str_pushc(str, stream_read(ctx->stream));
 
 static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
@@ -177,8 +207,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
             if (strchr("\\\"\'", c))
             {
-                struct shard *shard =
-                    splitter_handle_unescaped_quote(ctx, str, c);
+                struct shard *shard = splitter_prepare_quotes(ctx, str, c);
                 if (shard)
                 {
                     return shard;
@@ -189,17 +218,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
             if (c == '`' || c == '$')
             {
-                if (NOT_EMPTY(str))
-                {
-                    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
-                }
-
-                if (c == '$')
-                {
-                    stream_read(ctx->stream);
-                }
-
-                return splitter_handle_expansion(ctx, str, false);
+                return splitter_prepare_expansion(ctx, str, c);
             }
 
             // Case 5: Expansions
@@ -236,17 +255,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
             // Case 8: delimiter
             if (isspace(c))
             {
-                if (NOT_EMPTY(str))
-                {
-                    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
-                }
-
-                while ((c = stream_peek(ctx->stream)) > 0 && isspace(c))
-                {
-                    stream_read(ctx->stream);
-                }
-
-                return DELIMITER(str);
+                return splitter_handle_spaces(ctx, str, c);
             }
 
             // Case 9: existing word
@@ -279,7 +288,6 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
     }
 
     mbt_str_free(str);
-
 error:
     return NULL;
 }
