@@ -56,7 +56,7 @@ struct ast_simple_cmd *ast_parse_simple_cmd(struct lexer *lexer)
 
     // { prefix } WORD { element }
     token = lexer_peek(lexer);
-    if (!token || (token->value.c && is_keyword(token->value.c)))
+    if (!token || (token->quote_type == SHARD_UNQUOTED && !token->next && token->value.c && is_keyword(token->value.c)))
     {
         goto error;
     }

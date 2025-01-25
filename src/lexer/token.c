@@ -1,10 +1,10 @@
+#include "shard.h"
 #define _POSIX_C_SOURCE 200809L
-
-#include "token.h"
 
 #include <stdlib.h>
 #include <string.h>
 
+#include "token.h"
 #include "utils/logger.h"
 
 static const char *token_names[] = {
@@ -47,8 +47,12 @@ const char *get_token_name(enum token_type token)
 
 void token_print(struct token *token)
 {
-    logger("%s '%s'\n", get_token_name(token->type),
-           token->value.c ? token->value.c : "");
+    char quotes = token->quote_type == SHARD_DOUBLE_QUOTED
+        ? '"'
+        : (token->quote_type == SHARD_SINGLE_QUOTED ? '\'' : ' ');
+
+    logger("%s %c%s%c\n", get_token_name(token->type), quotes,
+           token->value.c ? token->value.c : "", quotes);
 
     if (token->next)
     {

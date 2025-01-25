@@ -41,6 +41,49 @@ static bool is_valid_identifier(struct mbt_str *str);
 static bool list_any_begins_with(const char *list[], char c);
 
 static void discard_comment(struct splitter_ctx *ctx);
+
+static struct shard *splitter_handle_unescaped_quote(struct splitter_ctx *ctx,
+                                                     struct mbt_str *str,
+                                                     char c)
+{
+    if (NOT_EMPTY(str))
+    {
+        return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+    }
+
+    if (c == '\\')
+    {
+        splitter_handle_backslash(ctx, str);
+        return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
+    }
+
+    if (c == '\'')
+    {
+        stream_read(ctx->stream);
+        splitter_read_until(ctx, str, '\'');
+        char end_quote = stream_read(ctx->stream);
+
+        if (end_quote != '\'')
+        {
+            warnx("Syntax error: unmatched simple quote");
+            ctx->err = true;
+            mbt_str_free(str);
+            return NULL;
+        }
+
+        return shard_init(str, true, SHARD_WORD, SHARD_SINGLE_QUOTED);
+    }
+
+    if (c == '"')
+    {
+        stream_read(ctx->stream); // Pop the quote
+        splitter_ctx_expect(ctx, SHARD_CONTEXT_DOUBLE_QUOTES);
+        return splitter_handle_double_quotes(ctx, str);
+    }
+
+    return NULL;
+}
+
 /*
  * ---------------------------------------------------------------------------
  * PROTOTYPES
@@ -97,41 +140,11 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
 
             if (strchr("\\\"\'", c))
             {
-                if (NOT_EMPTY(str))
+                struct shard *shard =
+                    splitter_handle_unescaped_quote(ctx, str, c);
+                if (shard)
                 {
-                    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
-                }
-
-                if (c == '\\')
-                {
-                    splitter_handle_backslash(ctx, str);
-                    return shard_init(str, true, SHARD_WORD,
-                                      SHARD_BACKSLASH_QUOTED);
-                }
-
-                if (c == '\'')
-                {
-                    stream_read(ctx->stream);
-                    splitter_read_until(ctx, str, '\'');
-                    char end_quote = stream_read(ctx->stream);
-
-                    if (end_quote != '\'')
-                    {
-                        warnx("Syntax error: unmatched simple quote");
-                        ctx->err = true;
-                        mbt_str_free(str);
-                        return NULL;
-                    }
-
-                    return shard_init(str, true, SHARD_WORD,
-                                      SHARD_SINGLE_QUOTED);
-                }
-
-                if (c == '"')
-                {
-                    stream_read(ctx->stream); // Pop the quote
-                    splitter_ctx_expect(ctx, SHARD_CONTEXT_DOUBLE_QUOTES);
-                    return splitter_handle_double_quotes(ctx, str);
+                    return shard;
                 }
 
                 break;
@@ -230,6 +243,11 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
         }
     }
 
+    if (ctx->err)
+    {
+        goto error;
+    }
+
     if (NOT_EMPTY(str))
     {
         if (shard_is_any_operator(str))
@@ -245,6 +263,8 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
     }
 
     mbt_str_free(str);
+
+error:
     return NULL;
 }
 

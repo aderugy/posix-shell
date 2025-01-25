@@ -39,6 +39,7 @@ int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
         node = ast_create(lexer, AST_INPUT);
         if (!node)
         {
+            warnx("42sh: Syntax error");
             return_value = 2;
             break;
         }
