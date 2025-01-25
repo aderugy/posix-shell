@@ -123,11 +123,6 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                         return NULL;
                     }
 
-                    if (!str->size)
-                    {
-                        continue;
-                    }
-
                     return shard_init(str, true, SHARD_WORD,
                                       SHARD_SINGLE_QUOTED);
                 }

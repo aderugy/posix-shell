@@ -27,26 +27,26 @@ static struct option l_opts[] = { { "verbose", no_argument, 0, 'v' },
 int hs24(struct stream *stream, struct ast_eval_ctx *ctx)
 {
     struct lexer *lexer = lexer_create(stream);
-    struct ast_node *node = ast_create(lexer, AST_INPUT);
-    int return_value = node ? 0 : 2;
+
+    int return_value;
+    struct ast_node *node;
 
     /*
      * Process input line by line (AST_INPUT after AST_INPUT)
      */
     do
     {
+        node = ast_create(lexer, AST_INPUT);
+        if (!node)
+        {
+            return_value = 2;
+            break;
+        }
+
         ast_print(node);
         return_value = ast_eval(node, NULL, ctx);
         ast_free(node);
-
-        node = ast_create(lexer, AST_INPUT);
     } while (!lexer->eof && !lexer->error && node && !(return_value));
-
-    if (node)
-    {
-        return_value = ast_eval(node, NULL, ctx);
-        ast_free(node);
-    }
 
     if (lexer->error)
     {

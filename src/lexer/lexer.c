@@ -113,20 +113,6 @@ static struct token *lex(struct lexer *lexer, bool nullable)
 
     case SHARD_WORD:
     case SHARD_OPERATOR:
-        if (!*shard->data)
-        {
-            token_free(token);
-            shard_free(shard);
-
-            shard = splitter_peek(lexer->ctx);
-            if (nullable && (!shard || !shard->can_chain))
-            {
-                return NULL;
-            }
-
-            return lex(lexer, nullable);
-        }
-
         if (shard_is_operator(shard, "("))
         {
             splitter_ctx_expect(lexer->ctx,
@@ -285,6 +271,7 @@ struct token *lexer_peek_two(struct lexer *lexer)
 
 struct token *lexer_pop(struct lexer *lexer)
 {
+    logger("LEXER POP\n");
     if (lexer->error || lexer->eof)
     {
         return lexer->tokens->size ? stack_pop(lexer->tokens) : NULL;
