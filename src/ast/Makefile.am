@@ -27,8 +27,8 @@ libast_a_SOURCES =  \
   nodes/fundec.h \
   nodes/shell_command.c \
   nodes/shell_command.h \
-  nodes/simple_command.c \
   nodes/simple_command.h \
+  nodes/simple_command.c \
   nodes/command.c \
   nodes/command.h \
   nodes/simple_command_execute_builtin.c \
@@ -57,7 +57,6 @@ libast_a_SOURCES =  \
   nodes/redirection_stdout.h \
   nodes/redirection_definition.h \
   nodes/redirection_definition.c \
-  nodes/ast_simple_cmd.h \
   nodes/node.h 
 
 libast_a_CPPFLAGS = -I$(top_srcdir)/src
