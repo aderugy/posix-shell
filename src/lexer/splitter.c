@@ -175,120 +175,107 @@ static struct shard *splitter_handle_spaces(struct splitter_ctx *ctx,
  * ---------------------------------------------------------------------------
  */
 
-static struct shard *splitter_next(struct splitter_ctx *ctx)
+static struct shard *splitter_next(struct splitter_ctx *ctx,
+                                   struct mbt_str *str)
 {
-    struct mbt_str *str = mbt_str_init(64);
-
-    if (ctx->expect->size)
+    char c;
+    while (!ctx->err && (c = stream_peek(ctx->stream)) > 0)
     {
-        return splitter_resume(ctx, str);
-    }
-    else
-    {
-        char c;
-        while ((c = stream_peek(ctx->stream)) > 0)
+        // Case 1: EOF handled by exiting the loop
+        if (shard_is_any_operator(str) || shard_is_redir(str))
         {
-            // Case 1: EOF handled by exiting the loop
-            if (shard_is_any_operator(str) || shard_is_redir(str))
+            mbt_str_pushc(str, c);
+            if (shard_is_any_operator(str) || shard_is_redir(str)) // Case 2
             {
-                mbt_str_pushc(str, c);
-                if (shard_is_any_operator(str) || shard_is_redir(str)) // Case 2
-                {
-                    stream_read(ctx->stream);
-                    continue;
-                }
-                else // Case 3
-                {
-                    mbt_str_pop(str); // Not an operator -> We delimit
+                stream_read(ctx->stream);
+            }
+            else // Case 3
+            {
+                mbt_str_pop(str); // Not an operator -> We delimit
 
-                    return splitter_shard_operator(str);
-                }
+                return splitter_shard_operator(str);
+            }
+        }
+
+        else if (strchr("\\\"\'", c))
+        {
+            struct shard *shard = splitter_prepare_quotes(ctx, str, c);
+            if (shard)
+            {
+                return shard;
             }
 
-            if (strchr("\\\"\'", c))
-            {
-                struct shard *shard = splitter_prepare_quotes(ctx, str, c);
-                if (shard)
-                {
-                    return shard;
-                }
+            break;
+        }
 
+        else if (c == '`' || c == '$')
+        {
+            return splitter_prepare_expansion(ctx, str, c);
+        }
+
+        // Case 5: Expansions
+        // Case 6: New operator
+        else if (list_any_begins_with(OPERATORS, c)) // Case 6: matched
+        {
+            if (NOT_EMPTY(str))
+            {
+                return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
+            }
+
+            PUSH_AND_READ(str);
+        }
+
+        else if (list_any_begins_with(REDIRS, c))
+        {
+            // We allow at most 1 digit before redirection
+            if (str->size > 1 || (str->size && !isdigit(str->data[0])))
+            {
                 break;
             }
 
-            if (c == '`' || c == '$')
-            {
-                return splitter_prepare_expansion(ctx, str, c);
-            }
+            PUSH_AND_READ(str);
+        }
 
-            // Case 5: Expansions
-            // Case 6: New operator
-            if (list_any_begins_with(OPERATORS, c)) // Case 6: matched
-            {
-                if (NOT_EMPTY(str))
-                {
-                    return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
-                }
+        // Case 7: Newlines
+        else if (c == '\n')
+        {
+            return splitter_handle_newlines(ctx, str, c);
+        }
 
-                PUSH_AND_READ(str);
-                continue;
-            }
+        // Case 8: delimiter
+        else if (isspace(c))
+        {
+            return splitter_handle_spaces(ctx, str, c);
+        }
 
-            if (list_any_begins_with(REDIRS, c))
-            {
-                // We allow at most 1 digit before redirection
-                if (str->size > 1 || (str->size && !isdigit(str->data[0])))
-                {
-                    break;
-                }
+        // Case 9: existing word
+        else if (NOT_EMPTY(str))
+        {
+            PUSH_AND_READ(str);
+        }
 
-                PUSH_AND_READ(str);
-                continue;
-            }
+        // Case 10: comments
+        else if (c == '#')
+        {
+            discard_comment(ctx);
+        }
 
-            // Case 7: Newlines
-            if (c == '\n')
-            {
-                return splitter_handle_newlines(ctx, str, c);
-            }
-
-            // Case 8: delimiter
-            if (isspace(c))
-            {
-                return splitter_handle_spaces(ctx, str, c);
-            }
-
-            // Case 9: existing word
-            if (NOT_EMPTY(str))
-            {
-                PUSH_AND_READ(str);
-                continue;
-            }
-
-            // Case 10: comments
-            if (c == '#')
-            {
-                discard_comment(ctx);
-                continue;
-            }
-
-            // Case 11: new word: keep looping
+        // Case 11: new word: keep looping
+        else
+        {
             PUSH_AND_READ(str);
         }
     }
 
-    if (ctx->err)
-    {
-        goto error;
-    }
-
-    if (NOT_EMPTY(str))
+    if (!ctx->err && NOT_EMPTY(str))
     {
         return splitter_shard_operator(str);
     }
 
-    mbt_str_free(str);
-error:
+    if (!ctx->err)
+    {
+        mbt_str_free(str);
+    }
     return NULL;
 }
 
@@ -296,7 +283,9 @@ struct shard *splitter_peek(struct splitter_ctx *ctx)
 {
     if (!ctx->cache)
     {
-        ctx->cache = splitter_next(ctx);
+        struct mbt_str *str = mbt_str_init(64);
+        ctx->cache = ctx->expect->size ? splitter_resume(ctx, str)
+                                       : splitter_next(ctx, str);
     }
 
     return ctx->cache;
