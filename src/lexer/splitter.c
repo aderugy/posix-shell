@@ -427,6 +427,9 @@ error:
     return NULL;
 }
 
+#define SGS SHARD_GLOBBING_STAR
+#define GLOB_TYPE(c) c == '*' ? SGS : SHARD_GLOBBING_QUESTIONMARK
+
 static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
                                                    struct mbt_str *str)
 {
@@ -440,7 +443,9 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
         case '"':
             if (expected->value != SHARD_CONTEXT_DOUBLE_QUOTES)
             {
-                goto error;
+                splitter_ctx_error(ctx, "expected double quote");
+                mbt_str_free(str);
+                return NULL;
             }
 
             stream_read(ctx->stream);
@@ -448,12 +453,12 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
 
         case '$':
-            if (NOT_EMPTY(str)) // If there is already a token, return it
+            if (NOT_EMPTY(str))
             {
                 return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
             }
 
-            stream_read(ctx->stream); // Discard $
+            stream_read(ctx->stream); // Discard
             return splitter_handle_expansion(ctx, str, false);
 
         case '`':
@@ -467,10 +472,7 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             }
 
             mbt_str_pushc(str, stream_read(ctx->stream));
-            return shard_init(str, true,
-                              c == '*' ? SHARD_GLOBBING_STAR
-                                       : SHARD_GLOBBING_QUESTIONMARK,
-                              SHARD_DOUBLE_QUOTED);
+            return shard_init(str, true, GLOB_TYPE, SHARD_DOUBLE_QUOTED);
 
         case '\\':
             if (NOT_EMPTY(str))
@@ -491,13 +493,6 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             break;
         }
     }
-
-error:
-    mbt_str_free(str);
-    warnx("Syntax error: unmatched quote");
-    ctx->err = true;
-
-    return NULL;
 }
 
 static void splitter_handle_backslash(struct splitter_ctx *ctx,
