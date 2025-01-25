@@ -44,6 +44,7 @@ static const struct keyword KEYWORDS[] = {
 
 #define KEYWORDS_LEN (sizeof(KEYWORDS) / sizeof(KEYWORDS[0]) - 1)
 
+static struct token *lex(struct lexer *lexer, bool nullable);
 static struct token *lexer_chain(struct lexer *lexer);
 
 struct lexer *lexer_create(struct stream *stream)
@@ -78,82 +79,74 @@ static int token_get_keyword_type(char *str)
     return TOKEN_ERROR;
 }
 
-static struct token *lex(struct lexer *lexer, bool nullable)
+static bool lexer_handle_operator(struct lexer *lexer, struct shard *shard,
+                                  struct token *token)
 {
-    if (lexer->eof)
+    struct shard *next;
+    if (shard_is_operator(shard, "("))
+    {
+        splitter_ctx_expect(lexer->ctx,
+                            SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
+
+        next = splitter_peek(lexer->ctx);
+        if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
+        {
+            shard_free(splitter_pop(lexer->ctx));
+            token->type = TOKEN_LEFT_PARENTHESIS;
+        }
+        else
+        {
+            shard_free(shard);
+            shard = splitter_pop(lexer->ctx);
+            if (!shard || !splitter_peek(lexer->ctx))
+            {
+                return true;
+            }
+            shard_free(splitter_pop(lexer->ctx));
+            token->type = TOKEN_SUBSHELL;
+            token->sh_stdout_silent = true;
+        }
+
+        return false;
+    }
+
+    if (shard->quote_type == SHARD_UNQUOTED && !token->next)
+    {
+        token->type = token_get_keyword_type(shard->data);
+
+        if (token->type == TOKEN_ERROR)
+        {
+            token->type = TOKEN_WORD;
+        }
+    }
+    else
+    {
+        token->type = TOKEN_WORD;
+    }
+
+    return false;
+}
+
+static struct token *lexer_handle_delimiters(struct lexer *lexer,
+                                             struct token *token,
+                                             struct shard *shard, bool nullable)
+{
+    token_free(token);
+    shard_free(shard);
+
+    shard = splitter_peek(lexer->ctx);
+    if (nullable && (!shard || !shard->can_chain))
     {
         return NULL;
     }
 
-    struct token *token = xcalloc(1, sizeof(struct token));
-    token->type = TOKEN_ERROR;
+    return lex(lexer, nullable);
+}
 
-    struct shard *shard = splitter_pop(lexer->ctx);
-    if (!shard)
-    {
-        if (lexer->ctx->err)
-        {
-            lexer_error(lexer, NULL);
-            goto error;
-        }
-
-        token->type = TOKEN_EOF;
-        lexer->eof = true;
-        return token;
-    }
-
-    token->quote_type = shard->quote_type;
-    struct shard *next;
+static void lexer_get_token_type(struct token *token, struct shard *shard)
+{
     switch (shard->type)
     {
-    case SHARD_REDIR:
-        token->type = token_get_keyword_type(shard->data
-                                             + (isdigit(*shard->data)? 1 : 0));
-        break;
-
-    case SHARD_WORD:
-    case SHARD_OPERATOR:
-        if (shard_is_operator(shard, "("))
-        {
-            splitter_ctx_expect(lexer->ctx,
-                                SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
-
-            next = splitter_peek(lexer->ctx);
-            if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
-            {
-                shard_free(splitter_pop(lexer->ctx));
-                token->type = TOKEN_LEFT_PARENTHESIS;
-            }
-            else
-            {
-                shard_free(shard);
-                shard = splitter_pop(lexer->ctx);
-                if (!shard || !splitter_peek(lexer->ctx))
-                {
-                    goto error;
-                }
-                shard_free(splitter_pop(lexer->ctx));
-                token->type = TOKEN_SUBSHELL;
-                token->sh_stdout_silent = true;
-            }
-
-            break;
-        }
-
-        if (shard->quote_type == SHARD_UNQUOTED && !token->next)
-        {
-            token->type = token_get_keyword_type(shard->data);
-
-            if (token->type == TOKEN_ERROR)
-            {
-                token->type = TOKEN_WORD;
-            }
-        }
-        else
-        {
-            token->type = TOKEN_WORD;
-        }
-        break;
     case SHARD_EXPANSION_VARIABLE:
         token->type = TOKEN_VARIABLE;
         break;
@@ -169,25 +162,57 @@ static struct token *lex(struct lexer *lexer, bool nullable)
     case SHARD_GLOBBING_QUESTIONMARK:
         token->type = TOKEN_GLOBBING_QM;
         break;
-    case SHARD_DELIMITER:
-        token_free(token);
-        shard_free(shard);
+    default:
+        break;
+    }
+}
 
-        shard = splitter_peek(lexer->ctx);
-        if (nullable && (!shard || !shard->can_chain))
+#define OFFSET(shard) isdigit(*shard->data) ? 1 : 0
+static struct token *lex(struct lexer *lexer, bool nullable)
+{
+    struct token *token = xcalloc(1, sizeof(struct token));
+    token->type = TOKEN_ERROR;
+
+    struct shard *shard = splitter_pop(lexer->ctx);
+    if (!shard)
+    {
+        if (lexer->ctx->err)
         {
-            return NULL;
+            goto error;
         }
 
-        return lex(lexer, nullable);
+        token->type = TOKEN_EOF;
+        lexer->eof = true;
+        return token;
     }
 
-    token->value.c = strdup(shard->data);
+    token->quote_type = shard->quote_type;
+    switch (shard->type)
+    {
+    case SHARD_REDIR:
+        token->type = token_get_keyword_type(shard->data + (OFFSET(shard)));
+        break;
+
+    case SHARD_WORD:
+    case SHARD_OPERATOR:
+        if (lexer_handle_operator(lexer, shard, token))
+        {
+            goto error;
+        }
+        break;
+    case SHARD_DELIMITER:
+        return lexer_handle_delimiters(lexer, token, shard, nullable);
+    default:
+        lexer_get_token_type(token, shard);
+        break;
+    }
+
     if (token->type == TOKEN_ERROR)
     {
         goto error;
     }
 
+    token->value.c = strdup(shard->data);
     if (shard->can_chain)
     {
         token->next = lexer_chain(lexer);
