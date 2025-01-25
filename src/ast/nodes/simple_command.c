@@ -128,10 +128,8 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
 {
     if (!cmd->cmd)
     {
-        logger("Eval SIMPLE_COMMAND: RULE 1\n");
         return ast_eval(cmd->prefix, NULL, ctx);
     }
-    logger("Eval SIMPLE_COMMAND: RULE 2\n");
 
     struct linked_list *cmd_eval = list_init();
     if (ast_eval(cmd->cmd, cmd_eval, ctx) == AST_EVAL_ERROR
@@ -157,7 +155,6 @@ int ast_eval_simple_cmd(struct ast_simple_cmd *cmd,
         ctx->check_redir = false;
 
         struct ast_node *children = list_get(cmd->args, i - 1);
-        logger("found elt\n");
         linked_list = list_init();
 
         ast_eval(children, linked_list, ctx);

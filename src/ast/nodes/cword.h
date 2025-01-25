@@ -31,4 +31,4 @@ void ast_print_cword(struct ast_cword *node);
 struct ast_cword *ast_parse_cword_from_token(struct token *token,
                                              struct lexer *lexer);
 
-#endif // !AST_CWORD_H
+#endif // !CWORD_H

@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "eval_ctx.h"
-#include "hs24.h"
 #include "lexer/lexer.h"
 #include "lexer/token.h"
 #include "mbtstr/str.h"

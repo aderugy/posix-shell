@@ -92,7 +92,6 @@ int redir_stdin_fd(struct ast_redir *node,
     {
         goto error;
     }
-    logger("found filenames");
 
     char *val = filename->value.str;
     for (size_t i = 0; val[i]; i++)
