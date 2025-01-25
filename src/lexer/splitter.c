@@ -298,6 +298,85 @@ struct shard *splitter_pop(struct splitter_ctx *ctx)
     return shard;
 }
 
+static struct shard *splitter_handle_sh_expansion(struct splitter_ctx *ctx,
+                                                  struct mbt_str *str,
+                                                  enum shard_quote_type type,
+                                                  bool popped)
+{
+    char c = stream_peek(ctx->stream);
+    bool is_arith = c == '(' && popped;
+    if (!popped || is_arith)
+    {
+        stream_read(ctx->stream);
+    }
+
+    while ((c = stream_peek(ctx->stream)) > 0 && c == ' ')
+    {
+        stream_read(ctx->stream);
+    }
+
+    if (splitter_read_between(ctx, str, '(', ')'))
+    {
+        splitter_ctx_error(ctx, "expected )");
+        return NULL;
+    }
+
+    if (is_arith || !popped)
+    {
+        c = stream_read(ctx->stream);
+
+        if (c != ')')
+        {
+            splitter_ctx_error(ctx, "expected )");
+            return NULL;
+        }
+    }
+
+    return shard_init(
+        str, true, is_arith ? SHARD_EXPANSION_ARITH : SHARD_EXPANSION_SUBSHELL,
+        type);
+}
+
+static struct shard *splitter_handle_var_expansion(struct splitter_ctx *ctx,
+                                                   struct mbt_str *str,
+                                                   enum shard_quote_type type)
+{
+    char c;
+    while ((c = stream_peek(ctx->stream)) > 0)
+    {
+        mbt_str_pushc(str, c);
+        for (size_t i = 0; VARIABLES[i]; i++)
+        {
+            if (strcmp(str->data, VARIABLES[i]) == 0)
+            {
+                stream_read(ctx->stream);
+                return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
+            }
+        }
+
+        if (!is_valid_identifier(str))
+        {
+            mbt_str_pop(str);
+            if (!str->size)
+            {
+                break;
+            }
+
+            return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
+        }
+
+        stream_read(ctx->stream);
+    }
+
+    if (!str->size)
+    {
+        mbt_str_pushc(str, '$');
+        return shard_init(str, true, SHARD_WORD, type);
+    }
+
+    return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
+}
+
 // @TIDY
 static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
                                                struct mbt_str *str, bool popped)
@@ -310,7 +389,7 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
         stream_read(ctx->stream);
         if (splitter_read_between(ctx, str, '{', '}'))
         {
-            warnx("Syntax error: unmatched bracked");
+            splitter_ctx_error(ctx, "expected }");
             goto error;
         }
 
@@ -319,54 +398,19 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     }
     else if (c == '(' || popped)
     {
-        if (!popped)
+        struct shard *shard = splitter_handle_sh_expansion(ctx, str, c, popped);
+        if (!shard)
         {
-            stream_read(ctx->stream);
-        }
-
-        while ((c = stream_peek(ctx->stream)) > 0 && c == ' ')
-        {
-            stream_read(ctx->stream);
-        }
-
-        bool is_arith = c == '(';
-        if (is_arith)
-        {
-            stream_read(ctx->stream);
-        }
-
-        if (splitter_read_between(ctx, str, '(', ')'))
-        {
-            warnx("Syntax error: unmatched parenthesis");
             goto error;
         }
-
-        if (!popped)
-        {
-            stream_read(ctx->stream);
-        }
-
-        if (is_arith)
-        {
-            c = stream_read(ctx->stream);
-
-            if (c != ')')
-            {
-                warnx("Syntax error: unmatched parenthesis");
-                goto error;
-            }
-        }
-
-        return shard_init(
-            str, true,
-            is_arith ? SHARD_EXPANSION_ARITH : SHARD_EXPANSION_SUBSHELL, type);
+        return shard;
     }
     else if (c == '`')
     {
         stream_read(ctx->stream);
         if (splitter_read_until(ctx, str, '`'))
         {
-            warnx("Syntax error: unmatched backtick");
+            splitter_ctx_error(ctx, "expected `");
             goto error;
         }
 
@@ -375,44 +419,10 @@ static struct shard *splitter_handle_expansion(struct splitter_ctx *ctx,
     }
     else
     {
-        while ((c = stream_peek(ctx->stream)) > 0)
-        {
-            mbt_str_pushc(str, c);
-            for (size_t i = 0; VARIABLES[i]; i++)
-            {
-                if (strcmp(str->data, VARIABLES[i]) == 0)
-                {
-                    stream_read(ctx->stream);
-                    return shard_init(str, true, SHARD_EXPANSION_VARIABLE,
-                                      type);
-                }
-            }
-
-            if (!is_valid_identifier(str))
-            {
-                mbt_str_pop(str);
-                if (!str->size)
-                {
-                    break;
-                }
-
-                return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
-            }
-
-            stream_read(ctx->stream);
-        }
-
-        if (!str->size)
-        {
-            mbt_str_pushc(str, '$');
-            return shard_init(str, true, SHARD_WORD, type);
-        }
-
-        return shard_init(str, true, SHARD_EXPANSION_VARIABLE, type);
+        return splitter_handle_var_expansion(ctx, str, type);
     }
 
 error:
-    ctx->err = true;
     mbt_str_free(str);
     return NULL;
 }

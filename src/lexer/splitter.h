@@ -67,6 +67,7 @@ struct shard *splitter_peek(struct splitter_ctx *ctx);
 struct shard *splitter_pop(struct splitter_ctx *ctx);
 
 struct splitter_ctx *splitter_ctx_init(struct stream *stream);
+void splitter_ctx_error(struct splitter_ctx *ctx, const char *error);
 void splitter_ctx_free(struct splitter_ctx *ctx);
 void splitter_ctx_expect(struct splitter_ctx *ctx, int value);
 enum shard_quote_type splitter_ctx_get_active_quote(struct splitter_ctx *ctx);

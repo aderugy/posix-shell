@@ -1,4 +1,7 @@
+#include <err.h>
+
 #include "splitter.h"
+#include "streams/streams.h"
 #include "utils/xalloc.h"
 
 struct splitter_ctx *splitter_ctx_init(struct stream *stream)
@@ -27,6 +30,19 @@ void splitter_ctx_free(struct splitter_ctx *ctx)
     }
 
     free(ctx);
+}
+
+void splitter_ctx_error(struct splitter_ctx *ctx, const char *error)
+{
+    if (error)
+    {
+        warnx("42sh: Syntax error: %s", error);
+    }
+    ctx->err = true;
+    while (stream_read(ctx->stream) > 0)
+    {
+        continue;
+    }
 }
 
 enum shard_quote_type splitter_ctx_get_active_quote(struct splitter_ctx *ctx)
