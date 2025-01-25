@@ -77,7 +77,7 @@ static void *check_word_do(struct lexer *lexer)
     return token;
 }
 
-int skip_dot_and_newlines(struct ast_for_node *ast,struct lexer *lexer)
+int skip_dot_and_newlines(struct ast_for_node *ast, struct lexer *lexer)
 {
     struct token *token;
     if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON)
