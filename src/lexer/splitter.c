@@ -15,6 +15,9 @@ DEFINE_VARIABLES;
 DEFINE_REDIRS;
 DEFINE_OPERATORS;
 
+#define SCE SHARD_CONTEXT_EXPANSION
+#define SCEPP SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS
+
 /*
  * ---------------------------------------------------------------------------
  * PROTOTYPES
@@ -90,6 +93,8 @@ static struct shard *splitter_handle_unescaped_quote(struct splitter_ctx *ctx,
  * ---------------------------------------------------------------------------
  */
 // @TIDY
+#define PUSH_AND_READ(str) mbt_str_pushc(str, stream_read(ctx->stream));
+
 static struct shard *splitter_next(struct splitter_ctx *ctx)
 {
     struct mbt_str *str = mbt_str_init(64);
@@ -98,15 +103,12 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
     {
         struct splitter_ctx_exp *exp = stack_peek(ctx->expect);
 
-        if (exp->value == SHARD_CONTEXT_EXPANSION
-            || exp->value == SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS)
+        if (exp->value == SCE || exp->value == SCEPP)
         {
             enum shard_ctx_type exp_meta = exp->value;
             free(stack_pop(ctx->expect));
 
-            return splitter_handle_expansion(
-                ctx, str,
-                exp_meta == SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
+            return splitter_handle_expansion(ctx, str, exp_meta == SCEPP);
         }
         else if (exp->value == SHARD_CONTEXT_DOUBLE_QUOTES)
         {
@@ -174,7 +176,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     return shard_init(str, true, SHARD_WORD, SHARD_UNQUOTED);
                 }
 
-                mbt_str_pushc(str, stream_read(ctx->stream));
+                PUSH_AND_READ(str);
                 continue;
             }
 
@@ -186,8 +188,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                     break;
                 }
 
-                mbt_str_pushc(str, c);
-                stream_read(ctx->stream);
+                PUSH_AND_READ(str);
                 continue;
             }
 
@@ -200,7 +201,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
                 }
                 else
                 {
-                    mbt_str_pushc(str, c);
+                    mbt_str_pushc(str, c); // @ref1
                     stream_read(ctx->stream);
                 }
 
@@ -226,7 +227,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
             // Case 9: existing word
             if (NOT_EMPTY(str))
             {
-                mbt_str_pushc(str, stream_read(ctx->stream));
+                PUSH_AND_READ(str);
                 continue;
             }
 
@@ -238,8 +239,7 @@ static struct shard *splitter_next(struct splitter_ctx *ctx)
             }
 
             // Case 11: new word: keep looping
-            mbt_str_pushc(str, c);
-            stream_read(ctx->stream);
+            PUSH_AND_READ(str);
         }
     }
 
