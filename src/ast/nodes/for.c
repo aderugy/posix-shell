@@ -77,6 +77,41 @@ static void *check_word_do(struct lexer *lexer)
     return token;
 }
 
+int skip_dot_and_newlines(struct ast_for_node *ast,struct lexer *lexer)
+{
+    struct token *token;
+    if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON)
+    {
+        token_free(lexer_pop(lexer));
+        list_append(ast->items, strdup("$@"));
+    }
+    else
+    {
+        // { \n }
+        skip_new_line(lexer);
+
+        // 'in'
+        if (!check_word_in(lexer))
+        {
+            return 1;
+        }
+
+        token_free(lexer_pop(lexer));
+
+        // { WORD }
+        struct ast_node *child = NULL;
+        while ((child = ast_create(lexer, AST_COMPLEX_WORD)))
+        {
+            list_append(ast->items, child);
+        }
+
+        if (!check_newline_colon(lexer))
+            return 1;
+        token_free(lexer_pop(lexer));
+    }
+    return 0;
+}
+
 //@TIDY
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
@@ -104,35 +139,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
     token_free(lexer_pop(lexer));
 
     // [ ; ]
-    if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON)
-    {
-        token_free(lexer_pop(lexer));
-        list_append(ast->items, strdup("$@"));
-    }
-    else
-    {
-        // { \n }
-        skip_new_line(lexer);
-
-        // 'in'
-        if (!check_word_in(lexer))
-        {
-            goto error;
-        }
-
-        token_free(lexer_pop(lexer));
-
-        // { WORD }
-        struct ast_node *child = NULL;
-        while ((child = ast_create(lexer, AST_COMPLEX_WORD)))
-        {
-            list_append(ast->items, child);
-        }
-
-        if (!check_newline_colon(lexer))
-            goto error;
-        token_free(lexer_pop(lexer));
-    }
+    skip_dot_and_newlines(ast, lexer);
 
     // { '\n' }
     skip_new_line(lexer);
