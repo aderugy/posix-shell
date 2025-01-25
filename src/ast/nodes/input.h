@@ -1,12 +1,16 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <stdbool.h>
+
 #include "lexer/lexer.h"
 #include "node.h"
 
 struct ast_input
 {
     struct ast_node *list;
+
+    bool no_eval;
 };
 
 struct ast_input *ast_parse_input(struct lexer *lexer);

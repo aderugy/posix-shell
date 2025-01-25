@@ -14,6 +14,10 @@ struct ast_input *ast_parse_input(struct lexer *lexer)
 {
     struct ast_input *input = xcalloc(1, sizeof(struct ast_input));
     input->list = ast_create(lexer, AST_LIST);
+    if (!input->list)
+    {
+        input->no_eval = true;
+    }
 
     if (lexer->error)
     {
@@ -50,7 +54,7 @@ int ast_eval_input(struct ast_input *node, struct linked_list *out,
 {
     if (node->list == NULL)
     {
-        logger("intput.c : eval : exit succes\n");
+        logger("input.c : eval : exit succes\n");
         return AST_EVAL_SUCCESS;
     }
 
