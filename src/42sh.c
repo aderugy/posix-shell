@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
     int opt_idx = 0;
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
-    int nb_args = 0;
 
     bool disp_lex = false;
     bool disp_shards = false;
@@ -168,7 +167,7 @@ int main(int argc, char *argv[])
         return main_tokens(stream, ctx);
     }
 
-    nb_args = ctx_init_local_args(argc, argv, ctx);
+    int nb_args = ctx_init_local_args(argc, argv, ctx);
 
     return sub_main(stream, ctx, nb_args);
 }
