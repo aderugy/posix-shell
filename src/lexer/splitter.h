@@ -48,6 +48,12 @@ struct splitter_ctx_exp
     enum shard_ctx_type value;
 };
 
+struct case_p
+{
+    bool popped;
+    char *c;
+};
+
 struct splitter_ctx
 {
     bool err;
