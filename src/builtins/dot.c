@@ -33,22 +33,27 @@ int dot(__attribute__((unused)) int argc, __attribute__((unused)) char **argv,
     struct ast_node *node;
     int return_value = 0;
 
-    /*
-     * Process input line by line (AST_INPUT after AST_INPUT)
-     */
-    while ((node = ast_create(lexer, AST_INPUT)) && !return_value)
+    do
     {
+        node = ast_create(lexer, AST_INPUT);
+        if (!node)
+        {
+            warnx("42sh: Syntax error");
+            return_value = 2;
+            break;
+        }
+
         ast_print(node);
         return_value = ast_eval(node, NULL, ast_eval_ctx);
-
         ast_free(node);
-    }
+    } while (!lexer->eof && !lexer->error && node && !(return_value));
 
     if (lexer->error)
     {
         warnx("Syntax error");
         return_value = 2;
     }
+
     lexer_free(lexer);
     return return_value;
 }
