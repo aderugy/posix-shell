@@ -131,10 +131,10 @@ output_test() {
 }
 
 for_coverage() {
-    "$F" -c "fun () { ls; echo a;}; fun && echo B || echo C" 1>3 
-    "$F" aaaaa 1>3 2>3
-    "$F" -vc "echo a" 1>3
-    "$F" -tc "echo a" 1>3
+  "$F" -c "fun () { ls; echo a;}; fun && echo B || echo C" 1>3
+  "$F" aaaaa 1>3 2>3
+  "$F" -vc "echo a" 1>3
+  "$F" -tc "echo a" 1>3
 }
 
 test_echo_basic() {
@@ -163,6 +163,8 @@ test_echo_basic() {
   tes "echo foo echo 'a'"
   tes "echo hello!"
   tes "echo hello!hello"
+  tes 'echo -x bad option'
+  tes 'echo -x -n -e bad option bad option'
   tes "echo !heelo"
   tes "echo !heelo; echo yooo!o!!o!o!!!o"
   tes "echo -e !heelo;echo yooo!o!!o!o!!!o"
@@ -297,6 +299,9 @@ test_quoting() {
   tes "echo Hello World!"
   tes "'echo' hello 'my' dream"
   tes "'ls'"
+  tes 'echo a '\& ' ' \& echo b''
+  tes 'echo a "\& \&" echo b'
+  tes 'echo "\A \A "'
   echo "========== QUOTING END =========="
 }
 test_cd() {
@@ -331,6 +336,23 @@ test_errs() {
   test_pars_lex_error 2 "if if; then if fi"
   test_pars_lex_error 2 "then true; then if fi"
   test_pars_lex_error 2 "true; then if fi"
+  test_pars_lex_error 2 "'echo' 'hello world"
+  test_pars_lex_error 2 "if true';' then echo a; fi"
+  test_pars_lex_error 2 "if true; then echo a; 'fi'"
+  test_pars_lex_error 2 "if true; 'then' echo a; fi"
+  test_pars_lex_error 2 "if true; then echo a; 'else' echo b fi"
+  test_pars_lex_error 2 'if true'
+  test_pars_lex_error 2 'if true; then'
+  test_pars_lex_error 2 'if true; then echo a;'
+  test_pars_lex_error 2 'if true; then echo a; else'
+  test_pars_lex_error 2 "echo "Unfinished" ||"
+  test_pars_lex_error 2 "echo "Unfinished" || ; echo a"
+  test_pars_lex_error 2 "echo "Unfinished" || ; echo a"
+  test_pars_lex_error 2 "while true; do ; done"
+  test_pars_lex_error 2 "until ; do ; done"
+  test_pars_lex_error 2 "while ; do ; done"
+  test_pars_lex_error 2 "! |"
+
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
   test_pars_lex_error 2 "\""
@@ -358,6 +380,10 @@ test_for() {
   echo "========= FOR LOOP BEGIN =========="
   tes 'for i in a b; do echo $i; done'
   tes 'for i in ls; do echo $i; done'
+  tes 'for var; do echo $var; done'
+  tes "for var in  
+
+ do echo $var; done"
   echo "========= FOR LOOP END =========="
 }
 test_export() {
@@ -379,13 +405,21 @@ test_blocks() {
   tes '{ { { { { { { echo a; } } } } } } } | tr a h'
   echo "========== BLOCKS END ====="
 }
+
+test_subshell() {
+  echo "========== SUBSHELL BEGIN ==="
+  tes 'result=$(exit 1)'
+  tes '(echo 1)'
+  echo "========== SUBSHELL END ==="
+}
+
 test_var() {
-    echo "========== VARIABLES BEGIN =========="
-    for i in $(find step2/assignement_substitution -name "*sh"); do
-        test_from_file $i
-        test_from_stdin $i
-    done
-    echo "========== VARIABLES END =========="
+  echo "========== VARIABLES BEGIN =========="
+  for i in $(find step2/assignement_substitution -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
+  echo "========== VARIABLES END =========="
 }
 test_function() {
   echo "========== FUNCTIONS BEGIN ==="
