@@ -73,6 +73,8 @@ int echo(int argc, char **argv,
     echo_opts->str = NULL;
 
     optind = 1;
+    opterr = 0;
+    char err = 0;
     while ((c = getopt_long(argc, argv, "enE", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -89,18 +91,25 @@ int echo(int argc, char **argv,
             echo_opts->not_interpret_backslash_default = true;
             break;
         case '?':
+            err = 1;
+            break;
         default:
-            goto error;
+            break;
+            // goto error;
+        }
+        if (err == 1)
+        {
+            break;
         }
     }
-    echo_opts->str = argv + optind;
-    print_echo(echo_opts, argc - optind);
+    echo_opts->str = argv + optind - err;
+    print_echo(echo_opts, argc - optind + err);
 
     free(echo_opts);
 
     return EXIT_SUCCESS;
 
-error:
-    free(echo_opts);
-    return EXIT_FAILURE;
+    /*error:
+        free(echo_opts);
+        return EXIT_FAILURE;*/
 }

@@ -123,6 +123,7 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             stream = stream_from_str(optarg);
+            ctx->stream_type = STREAM_FROM_STR;
             break;
         case 's':
             logger(NULL, NULL);
@@ -146,10 +147,12 @@ int main(int argc, char *argv[])
         {
             char *path = argv[optind];
             stream = stream_from_file(path);
+            ctx->stream_type = STREAM_FROM_FILE;
         }
         else
         {
             stream = stream_from_stream(stdin);
+            ctx->stream_type = STREAM_FROM_STREAM;
         }
     }
 

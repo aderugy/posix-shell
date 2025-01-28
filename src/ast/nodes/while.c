@@ -14,7 +14,7 @@
 struct ast_while_node *ast_parse_while(struct lexer *lexer)
 {
     struct token *token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "while") != 0)
+    if (!token_is_valid_keyword(token, "while"))
     {
         return NULL;
     }
@@ -30,7 +30,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     }
 
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "do") != 0)
+    if (!token_is_valid_keyword(token, "do"))
     {
         lexer_error(lexer, "expecting 'do'");
         goto error;
@@ -45,7 +45,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     }
 
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "done") != 0)
+    if (!token_is_valid_keyword(token, "done"))
     {
         lexer_error(lexer, "expecting 'done'");
         goto error;

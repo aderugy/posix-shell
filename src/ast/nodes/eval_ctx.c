@@ -17,6 +17,7 @@ struct ast_eval_ctx *ctx_init(void)
     ctx->value = hash_map_init(64);
     ctx->break_count = 0;
     ctx->continue_count = 0;
+    ctx->stream_type = STREAM_FROM_FILE;
     return ctx;
 }
 

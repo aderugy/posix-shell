@@ -14,7 +14,7 @@
 struct ast_until_node *ast_parse_until(struct lexer *lexer)
 {
     struct token *token = lexer_peek(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "until") != 0)
+    if (!token_is_valid_keyword(token, "until"))
     {
         return NULL;
     }
@@ -30,7 +30,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     }
 
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "do") != 0)
+    if (!token_is_valid_keyword(token, "do"))
     {
         lexer_error(lexer, "expecting 'do'");
         goto error;
@@ -45,7 +45,7 @@ struct ast_until_node *ast_parse_until(struct lexer *lexer)
     }
 
     token = lexer_pop(lexer);
-    if (!(TOKEN_OK) || strcmp(token->value.c, "done") != 0)
+    if (!token_is_valid_keyword(token, "done"))
     {
         lexer_error(lexer, "expecting 'done'");
         goto error;

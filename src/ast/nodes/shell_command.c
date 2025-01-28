@@ -44,7 +44,8 @@ struct ast_shell_cmd *ast_parse_shell_cmd(struct lexer *lexer)
         }
 
         token = lexer_peek(lexer);
-        if (!token || token->type != TOKEN_RIGHT_BRACKET)
+        if ((!token || token->type != TOKEN_RIGHT_BRACKET)
+            && token->quote_type != SHARD_UNQUOTED)
         {
             lexer_error(lexer, "unmatched bracket");
             goto error;

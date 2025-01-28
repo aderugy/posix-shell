@@ -4,12 +4,20 @@
 #include "lexer/lexer.h"
 #include "utils/hash_map.h"
 
+enum stream_type
+{
+    STREAM_FROM_STR,
+    STREAM_FROM_FILE,
+    STREAM_FROM_STREAM,
+};
+
 struct ast_eval_ctx
 {
     struct hash_map *value;
     bool check_redir;
     long break_count;
     long continue_count;
+    enum stream_type stream_type;
 };
 
 struct ast_eval_ctx *ctx_init(void);

@@ -80,10 +80,10 @@ static void *check_word_do(struct lexer *lexer)
 int skip_dot_and_newlines(struct ast_for_node *ast, struct lexer *lexer)
 {
     struct token *token;
-    if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON)
+    if ((token = lexer_peek(lexer)) && token->type == TOKEN_SEMICOLON
+        && token->quote_type == SHARD_UNQUOTED)
     {
         token_free(lexer_pop(lexer));
-        list_append(ast->items, strdup("$@"));
     }
     else
     {
@@ -112,7 +112,6 @@ int skip_dot_and_newlines(struct ast_for_node *ast, struct lexer *lexer)
     return 0;
 }
 
-//@TIDY
 struct ast_for_node *ast_parse_for(struct lexer *lexer)
 {
     logger("PARSE FOR\n");
@@ -122,8 +121,7 @@ struct ast_for_node *ast_parse_for(struct lexer *lexer)
 
     // "for" keyword
     struct token *token = lexer_peek(lexer);
-    if (!token || token->type != TOKEN_WORD
-        || strcmp(token->value.c, "for") != 0)
+    if (!token_is_valid_keyword(token, "for"))
     {
         goto error;
     }
@@ -186,6 +184,41 @@ int ast_eval_for(struct ast_for_node *node,
 
     int ret_val = AST_EVAL_SUCCESS;
     struct linked_list_element *item = node->items->head;
+    if (node->items->size == 0)
+    {
+        if (ctx->stream_type != STREAM_FROM_FILE)
+        {
+            return 0;
+        }
+        char *var = ctx_get_variable(ctx, "@");
+        char *strToken = strtok(var, " ");
+        while (strToken != NULL)
+        {
+            char *value = strToken;
+            ctx_set_local_variable(ctx, node->name, value);
+
+            ret_val = ast_eval(node->body, NULL, ctx);
+
+            if (ctx->break_count > 0)
+            {
+                ctx->break_count--;
+                return ret_val;
+            }
+            if (ctx->continue_count > 1)
+            {
+                ctx->continue_count--;
+                return ret_val;
+            }
+            else if (ctx->continue_count == 1)
+            {
+                ctx->continue_count--;
+            }
+
+            strToken = strtok(NULL, " ");
+        }
+        return ret_val;
+    }
+
     while (item)
     {
         char *value = NULL;

@@ -36,7 +36,9 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     list_append(node->list, and_or);
 
     while ((token = lexer_peek(lexer))
-           && (token->type == TOKEN_NEW_LINE || token->type == TOKEN_SEMICOLON))
+           && (token->type == TOKEN_NEW_LINE
+               || (token->type == TOKEN_SEMICOLON
+                   && token->quote_type == SHARD_UNQUOTED)))
     {
         token_free(lexer_pop(lexer));
 
@@ -56,7 +58,8 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
     }
 
     token = lexer_peek(lexer);
-    if (token && token->type == TOKEN_SEMICOLON)
+    if (token && token->type == TOKEN_SEMICOLON
+        && token->quote_type == SHARD_UNQUOTED)
     {
         token_free(lexer_pop(lexer));
     }

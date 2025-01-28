@@ -42,11 +42,16 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
+        if (node->not== 1)
+        {
+            lexer_error(lexer, "pipeline: command error");
+        }
         goto error;
     }
     list_append(node->commands, command);
 
-    while ((token = lexer_peek(lexer)) && token->type == TOKEN_PIPE)
+    while ((token = lexer_peek(lexer)) && token->type == TOKEN_PIPE
+           && token->quote_type == SHARD_UNQUOTED)
     {
         token_free(lexer_pop(lexer));
         token = lexer_peek(lexer);
@@ -94,7 +99,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, struct linked_list *out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not == 1)
+    if (node->not== 1)
     {
         result = !result;
     }
