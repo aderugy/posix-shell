@@ -18,7 +18,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
     {
         return NULL;
     }
-    token_free(lexer_pop(lexer));
+    lexer_pop(lexer);
 
     struct ast_while_node *ast = xcalloc(1, sizeof(struct ast_while_node));
 
@@ -28,7 +28,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         lexer_error(lexer, "expecting condition");
         goto error;
     }
-
+    token_free(token);
     token = lexer_pop(lexer);
     if (!token_is_valid_keyword(token, "do"))
     {
