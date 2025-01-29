@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ast/ast.h"
 #include "if.h"
 #include "lexer/lexer.h"
 #include "node.h"
@@ -27,10 +28,12 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     {
         lexer_pop(lexer);
         token_free(token);
+        token = NULL;
         struct ast_node *body = ast_create(lexer, AST_CLIST);
         if (!body)
         {
-            return NULL;
+            lexer_error(lexer, "else: expected body");
+            goto error;
         }
         node->body = body;
         return node;
@@ -40,22 +43,30 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     {
         lexer_pop(lexer);
         token_free(token);
+        token = NULL;
 
         struct ast_node *condition = ast_create(lexer, AST_CLIST);
         if (!condition)
-            return NULL;
-
+        {
+            lexer_error(lexer, "else: no condition");
+            goto error;
+        }
         token = lexer_peek(lexer);
         if (!token_is_valid_keyword(token, "then"))
         {
-            return NULL;
+            lexer_error(lexer, "else: no then");
+            goto error;
         }
         lexer_pop(lexer);
         token_free(token);
+        token = NULL;
 
         struct ast_node *body = ast_create(lexer, AST_CLIST);
         if (!body)
-            return NULL;
+        {
+            lexer_error(lexer, "else: no then");
+            goto error;
+        }
 
         struct ast_node *else_clause = ast_create(lexer, AST_ELSE);
 
@@ -66,9 +77,17 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
     }
     else
     {
-        free(node);
+        ast_free_else(node);
         return NULL;
     }
+error:
+    ast_free_else(node);
+    if (token)
+    {
+        token_free(token);
+    }
+    logger("EXIT ELSE (ERROR)\n");
+    return NULL;
 }
 
 int ast_eval_else(struct ast_else_node *node, struct linked_list *out,

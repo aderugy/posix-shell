@@ -153,13 +153,11 @@ struct linked_list *ctx_save_spe_vars(struct ast_eval_ctx *ctx)
     list_append(list, strdup(ctx_get_variable(ctx, "#")));
 
     int nb_args = atoi(ctx_get_variable(ctx, "#"));
-
     // handles $1, $2, $3, etc
     for (int i = 1; i <= nb_args; i++)
     {
         char *buffer = xcalloc(12, sizeof(char));
         char *name = my_itoa(i, buffer);
-
         list_append(list, strdup(ctx_get_variable(ctx, name)));
         free(name);
     }

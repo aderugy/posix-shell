@@ -66,7 +66,6 @@ struct hash_map *hash_map_init(size_t size)
     return hm;
 }
 
-// @refactor
 // return true on success, else false
 bool hash_map_remove(struct hash_map *hash_map, char *key,
                      enum hash_map_elt_type type)
