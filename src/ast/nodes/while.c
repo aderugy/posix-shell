@@ -35,7 +35,6 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         lexer_error(lexer, "expecting 'do'");
         goto error;
     }
-    token_free(token);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
@@ -44,6 +43,7 @@ struct ast_while_node *ast_parse_while(struct lexer *lexer)
         goto error;
     }
 
+    token_free(token);
     token = lexer_pop(lexer);
     if (!token_is_valid_keyword(token, "done"))
     {

@@ -20,14 +20,16 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     {
         return NULL;
     }
-    token_free(lexer_pop(lexer));
+    lexer_pop(lexer);
 
     struct ast_if_node *ast = xcalloc(1, sizeof(struct ast_if_node));
     ast->condition = ast_create(lexer, AST_CLIST);
     if (ast->condition == NULL)
     {
-        errx(2, "missing if condition");
+        lexer_error(lexer, "expected then");
+        goto error;
     }
+    token_free(token);
 
     logger("PARSE IF\n");
     token = lexer_pop(lexer);
@@ -36,7 +38,6 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         lexer_error(lexer, "expected then");
         goto error;
     }
-    token_free(token);
 
     ast->body = ast_create(lexer, AST_CLIST);
     if (ast->body == NULL)
@@ -44,6 +45,7 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
         lexer_error(lexer, "expected body");
         goto error;
     }
+    token_free(token);
 
     ast->else_clause = ast_create(lexer, AST_ELSE);
     token = lexer_pop(lexer);
