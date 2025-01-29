@@ -150,7 +150,9 @@ test_echo_basic() {
   tes echo 'for'
   tes echo 'bruh{}bruh'
   tes echo '{}'
-  tes echo '{ echo a;}'
+  tes echo '{{}{}{}}}}}}'
+  tes echo '{echo a}'
+  tes echo '{echo a }'
   tes echo '{{{}bruh{}}}'
   tes echo 'until'
   tes echo 'alias'
@@ -220,6 +222,10 @@ test_comment() {
   tes 'echo \escaped \#escaped "#"quoted not#first #commented'
   tes echo "Ya un commentaire m c chill \# mais moi je suis pas un comment"
   tes echo "Ya un commentaire m c chill #de ouf c chill"
+  for i in $(find comments -name "*sh"); do
+    test_from_file $i
+    test_from_stdin $i
+  done
   echo "========== COMMENT END =========="
 }
 
@@ -302,6 +308,7 @@ test_quoting() {
   tes 'echo a '\& ' ' \& echo b''
   tes 'echo a "\& \&" echo b'
   tes 'echo "\A \A "'
+  tes 'echo "\Ae"e"e"e" \A "'
   echo "========== QUOTING END =========="
 }
 test_cd() {

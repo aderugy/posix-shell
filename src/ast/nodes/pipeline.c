@@ -42,7 +42,7 @@ struct ast_pipeline *ast_parse_pipeline(struct lexer *lexer)
     command = ast_create(lexer, AST_COMMAND);
     if (!command)
     {
-        if (node->not== 1)
+        if (node->not == 1)
         {
             lexer_error(lexer, "pipeline: command error");
         }
@@ -99,7 +99,7 @@ int ast_eval_pipeline(struct ast_pipeline *node, struct linked_list *out,
     {
         result = exec_pipeline(node->commands, ctx);
     }
-    if (node->not== 1)
+    if (node->not == 1)
     {
         result = !result;
     }

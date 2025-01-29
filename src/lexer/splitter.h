@@ -24,8 +24,8 @@
 #define DELIMITER(str) shard_init(str, false, SHARD_DELIMITER, SHARD_UNQUOTED);
 
 #define DEFINE_OPERATORS                                                       \
-    static const char *OPERATORS[] = { ";", "&&", "&", "|", "||",              \
-                                       "(", ")",  "{", "}", NULL }
+    static const char *OPERATORS[] = { ";",  "&&", "&", "|",                   \
+                                       "||", "(",  ")", /*"{", "}",*/ NULL }
 
 #define DEFINE_REDIRS                                                          \
     static const char *REDIRS[] = {                                            \

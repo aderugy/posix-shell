@@ -72,7 +72,7 @@ configure\~
 *.txt
 out
 *.out
-a.sh
+*.sh
 vgcore*
 
 *.gcno
