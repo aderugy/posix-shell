@@ -83,6 +83,23 @@ error:
     return NULL;
 }
 
+struct ast_node *eval_function_command(struct ast_eval_ctx *ctx, char *name,
+                                       struct linked_list *args, int *ret_value)
+{
+    struct ast_node *local_function = ctx_get_function(ctx, name);
+    if (local_function) // checks if the function exists in the hashmap
+    {
+        struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
+
+        *ret_value = ast_eval(local_function, args, ctx);
+
+        ctx_restore_spe_vars(ctx, params_ctx);
+        list_free(params_ctx, free);
+
+        return local_function;
+    }
+    return NULL;
+}
 int eval_run_command(struct ast_simple_cmd *cmd, char **argv, size_t elt,
                      struct ast_eval_ctx *ctx)
 {
@@ -93,6 +110,12 @@ int eval_run_command(struct ast_simple_cmd *cmd, char **argv, size_t elt,
     {
         struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
 
+        ctx_init_local_dollar(ctx);
+        ctx_init_local_hashtag(elt, ctx);
+        ctx_init_local_UID(ctx);
+        ctx_update_local_qm(ctx, 0);
+        ctx_reload_local_args(elt, argv, ctx);
+
         ret_value = ast_eval(local_function, NULL, ctx);
 
         ctx_restore_spe_vars(ctx, params_ctx);
@@ -102,7 +125,6 @@ int eval_run_command(struct ast_simple_cmd *cmd, char **argv, size_t elt,
     {
         struct runnable *cmd_runnable =
             get_command(argv[0], NULL); // get the builtin if exists
-
         if (cmd_runnable) // check if it is a builtin
         {
             ret_value = simple_command_execute_builtin(cmd, argv, ctx);

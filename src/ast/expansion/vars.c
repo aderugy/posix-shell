@@ -59,6 +59,45 @@ void ctx_init_local_UID(struct ast_eval_ctx *ctx)
     free(str);
     free(name);
 }
+
+// inits $1, $2, $3, $n + the arobase and the star
+// params argv is supposed to be shifted
+// argv[0] != nom de la fonction: Cf SCL
+// @return the numbers of $ args
+void ctx_reload_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
+{
+    // FOR $@ = $1 + IFS + $2 + IFS + etc
+    struct mbt_str *arobase_args = mbt_str_init(64);
+
+    for (int i = 1; i < argc; i++)
+    {
+        // Accumlution to form the list of arguments
+        mbt_str_pushcstr(arobase_args, argv[i]);
+
+        if (i < argc - 1)
+        {
+            // $@ += IFS
+            mbt_str_pushc(arobase_args, ' ');
+        }
+
+        char *buffer = xcalloc(12, sizeof(char));
+        char *name = my_itoa(i, buffer);
+        char *str = argv[i];
+
+        ctx_set_local_variable(ctx, name, str);
+        free(name);
+    }
+
+    char *str = arobase_args->data;
+
+    ctx_set_local_variable(ctx, "@", str);
+
+    // Until I understand it better, the arobase is the same as the star
+    ctx_set_local_variable(ctx, "*", str);
+
+    mbt_str_free(arobase_args);
+}
+
 // inits $1, $2, $3, $n + the arobase and the star
 // @return the numbers of $ args
 int ctx_init_local_args(int argc, char *argv[], struct ast_eval_ctx *ctx)
@@ -137,7 +176,7 @@ void ctx_restore_spe_vars(struct ast_eval_ctx *ctx, struct linked_list *old_ctx)
     ctx_set_local_variable(ctx, "$", list_get(old_ctx, 3));
     ctx_set_local_variable(ctx, "#", list_get(old_ctx, 4));
 
-    for (unsigned int i = 5; i < old_ctx->size; i++)
+    for (int i = 5; i < (int)old_ctx->size; i++)
     {
         char *buffer = xcalloc(12, sizeof(char));
         // shift to get i at the correct value eg: $1, $2, etc
