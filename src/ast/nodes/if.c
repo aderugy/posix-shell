@@ -58,6 +58,10 @@ struct ast_if_node *ast_parse_if(struct lexer *lexer)
     return ast;
 
 error:
+if (token)
+    {
+        token_free(token);
+    }
     ast_free_if(ast);
     logger("PARSE IF (ERROR)\n");
     return NULL;
@@ -67,6 +71,7 @@ int ast_eval_if(struct ast_if_node *node, struct linked_list *out,
                 struct ast_eval_ctx *ctx)
 {
     int value = ast_eval(node->condition, out, ctx);
+    
 
     if (value == 0)
     {
