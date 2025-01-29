@@ -359,6 +359,16 @@ test_errs() {
   test_pars_lex_error 2 "until ; do ; done"
   test_pars_lex_error 2 "while ; do ; done"
   test_pars_lex_error 2 "! |"
+  test_pars_lex_error 2 "{echo a; }"
+  test_pars_lex_error 2 "{ echo a }"
+  test_pars_lex_error 2 "{ echo a}"
+  test_pars_lex_error 2 "echo ()"
+  test_pars_lex_error 2 "echo BBB | | echo"
+  test_pars_lex_error 2 "echo BBB | { echo }"
+  test_pars_lex_error 2 "fun(){echo a; }"
+  test_pars_lex_error 127 "{{}"
+  test_pars_lex_error 127 "echo BBB | echo | {}"
+  test_pars_lex_error 127 "echo BBB | echo && {}"
 
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
