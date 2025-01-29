@@ -303,9 +303,9 @@ test_quoting() {
     test_from_stdin $i
   done
   tes "echo Hello World!"
-  tes "'echo' hello 'my' dream"
+  tes '"echo" hello "my" dream'
   tes "'ls'"
-  tes 'echo a '\& ' ' \& echo b''
+  tes 'echo a "\& " " \& echo b"'
   tes 'echo a "\& \&" echo b'
   tes 'echo "\A \A "'
   tes 'echo "\Ae"e"e"e" \A "'
@@ -323,10 +323,10 @@ test_exit() {
 }
 test_var_local() {
   echo "========== ASSIGNMENT BEGIN =========="
-  tes "A=2; echo $A"
-  tes "A=42; B=55; echo $A $B"
-  tes "A=42; A=55; A=58; A=59; A=kjhgfrtyj; echo $A"
-  tes "A=42; B=$A; echo $A$B$C"
+  tes 'A=2; echo $A'
+  tes 'A=42; B=55; echo $A $B'
+  tes 'A=42; A=55; A=58; A=59; A=kjhgfrtyj; echo $A'
+  tes 'A=42; B=$A; echo $A$B$C'
   echo "========== ASSIGNMENT END =========="
 }
 test_errs() {
