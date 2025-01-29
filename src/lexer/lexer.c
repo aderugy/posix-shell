@@ -89,7 +89,7 @@ static bool lexer_handle_operator(struct lexer *lexer, struct shard *shard,
                             SHARD_CONTEXT_EXPANSION_POPPED_PARENTHESIS);
 
         next = splitter_peek(lexer->ctx);
-        if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*next->data)
+        if (next && next->type == SHARD_EXPANSION_SUBSHELL && !*(next->data))
         {
             shard_free(splitter_pop(lexer->ctx));
             token->type = TOKEN_LEFT_PARENTHESIS;
@@ -212,6 +212,11 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         goto error;
     }
 
+    if (shard->data)
+    {
+        logger("char = %c\n", (shard->data)[0]);
+    }
+    logger("shard->data = %s\n", shard->data);
     token->value.c = strdup(shard->data);
     if (shard->can_chain)
     {

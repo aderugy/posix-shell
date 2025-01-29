@@ -205,8 +205,10 @@ static int eval_subshell(const struct ast_cword *node, struct linked_list *out,
 
         close(pipefd[0]);
 
-        wait(NULL);
-        return sub_subshell(stdout_str, node, ctx, out);
+        int status;
+        wait(&status);
+        sub_subshell(stdout_str, node, ctx, out);
+        return WEXITSTATUS(status);
     }
 }
 

@@ -111,7 +111,7 @@ int eval_run_command(struct ast_simple_cmd *cmd, char **argv, size_t elt,
         struct linked_list *params_ctx = ctx_save_spe_vars(ctx);
 
         ctx_init_local_dollar(ctx);
-        ctx_init_local_hashtag(elt, ctx);
+        ctx_init_local_hashtag(elt - 1, ctx);
         ctx_init_local_UID(ctx);
         ctx_update_local_qm(ctx, 0);
         ctx_reload_local_args(elt, argv, ctx);
