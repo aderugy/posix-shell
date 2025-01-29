@@ -625,8 +625,9 @@ static bool is_valid_identifier(struct mbt_str *str)
 static void discard_comment(struct splitter_ctx *ctx)
 {
     char c;
-    while ((c = stream_peek(ctx->stream)) > 0 && c != '\n')
+    while ((c = stream_peek(ctx->stream)) != EOF && c != '\n')
     {
         stream_read(ctx->stream);
     }
+    stream_read(ctx->stream);
 }
