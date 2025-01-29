@@ -472,13 +472,15 @@ static struct shard *splitter_handle_double_quotes(struct splitter_ctx *ctx,
             mbt_str_pushc(str, stream_read(ctx->stream));
             return shard_init(str, true, GLOB_TYPE(c), SHARD_DOUBLE_QUOTED);
 
-        case '\\':
-            if (NOT_EMPTY(str))
-            {
-                return shard_init(str, true, SHARD_WORD, SHARD_DOUBLE_QUOTED);
-            }
-            splitter_handle_backslash(ctx, str);
-            return shard_init(str, true, SHARD_WORD, SHARD_BACKSLASH_QUOTED);
+            /*case '\\':
+                if (NOT_EMPTY(str))
+                {
+                    return shard_init(str, true, SHARD_WORD,
+               SHARD_DOUBLE_QUOTED);
+                }
+                splitter_handle_backslash(ctx, str);
+                return shard_init(str, true, SHARD_WORD,
+               SHARD_BACKSLASH_QUOTED);*/
 
         case 0:
         case EOF:
