@@ -64,6 +64,7 @@ error:
     {
         token_free(token);
     }
+
     ast_free_if(ast);
     logger("PARSE IF (ERROR)\n");
     return NULL;

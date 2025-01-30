@@ -79,7 +79,10 @@ void shard_free(struct shard *shard)
 {
     if (shard)
     {
-        free(shard->data);
+        if (shard->data)
+        {
+            free(shard->data);
+        }
         free(shard);
     }
 }

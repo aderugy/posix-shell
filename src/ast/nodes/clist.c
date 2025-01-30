@@ -46,6 +46,7 @@ struct ast_clist *ast_parse_clist(struct lexer *lexer)
         {
             token_free(lexer_pop(lexer));
         }
+        logger("not everytime freed token %s %s\n", get_token_name(token->type), token->value.c);
 
         struct ast_node *and_or = ast_create(lexer, AST_AND_OR);
         if (!and_or)

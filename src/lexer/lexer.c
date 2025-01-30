@@ -96,12 +96,15 @@ static bool lexer_handle_operator(struct lexer *lexer, struct shard *shard,
         }
         else
         {
-            shard_free(shard);
-            shard = splitter_pop(lexer->ctx);
-            if (!shard || !splitter_peek(lexer->ctx))
+            struct shard *shard_two = splitter_pop(lexer->ctx);
+            if (!shard_two || !splitter_peek(lexer->ctx))
             {
+                logger("returning true for parenthesis\n");
+                shard_free(shard_two);
                 return true;
             }
+
+            shard_free(shard);
             shard_free(splitter_pop(lexer->ctx));
             token->type = TOKEN_SUBSHELL;
             token->sh_stdout_silent = true;
