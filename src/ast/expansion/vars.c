@@ -159,6 +159,10 @@ struct linked_list *ctx_save_spe_vars(struct ast_eval_ctx *ctx)
         char *buffer = xcalloc(12, sizeof(char));
         char *name = my_itoa(i, buffer);
         list_append(list, strdup(ctx_get_variable(ctx, name)));
+
+        // erases the old value
+        ctx_set_local_variable(ctx, name, "");
+
         free(name);
     }
 
