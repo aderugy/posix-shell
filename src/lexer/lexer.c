@@ -215,11 +215,6 @@ static struct token *lex(struct lexer *lexer, bool nullable)
         goto error;
     }
 
-    if (shard->data)
-    {
-        logger("char = %c\n", (shard->data)[0]);
-    }
-    logger("shard->data = %s\n", shard->data);
     token->value.c = strdup(shard->data);
     if (shard->can_chain)
     {

@@ -171,6 +171,25 @@ error:
     logger("EXIT FOR (ERROR)\n");
     return NULL;
 }
+// return 0 on return and 1 on conitnue
+static int handle_brean_and_continue(struct ast_eval_ctx *ctx)
+{
+    if (ctx->break_count > 0)
+    {
+        ctx->break_count--;
+        return 0;
+    }
+    if (ctx->continue_count > 1)
+    {
+        ctx->continue_count--;
+        return 0;
+    }
+    else if (ctx->continue_count == 1)
+    {
+        ctx->continue_count--;
+    }
+    return 1;
+}
 
 int ast_eval_for(struct ast_for_node *node,
                  __attribute((unused)) struct linked_list *out,
@@ -198,20 +217,9 @@ int ast_eval_for(struct ast_for_node *node,
             ctx_set_local_variable(ctx, node->name, value);
 
             ret_val = ast_eval(node->body, NULL, ctx);
-
-            if (ctx->break_count > 0)
+            if (handle_brean_and_continue(ctx) == 0)
             {
-                ctx->break_count--;
                 return ret_val;
-            }
-            if (ctx->continue_count > 1)
-            {
-                ctx->continue_count--;
-                return ret_val;
-            }
-            else if (ctx->continue_count == 1)
-            {
-                ctx->continue_count--;
             }
 
             strToken = strtok(NULL, " ");
