@@ -154,7 +154,9 @@ test_echo_basic() {
   tes echo '{echo a}'
   tes echo '{echo a }'
   tes echo '{{{}bruh{}}}'
-  tes echo 'until'
+  tes echo '{{{}bruh{}}}'
+  tes 'echo until'
+  tes 'echo until'
   tes echo 'alias'
   tes 'echo "a"'
   tes echo aaa bbb ccc
@@ -310,7 +312,13 @@ test_quoting() {
   tes 'echo a "\& " " \& echo b"'
   tes 'echo a "\& \&" echo b'
   tes 'echo "\A \A "'
+  tes 'echo a\;echo b'
   tes 'echo "\Ae"e"e"e" \A "'
+  tes 'echo {\(bruh\)}'
+  tes 'echo \(\)'
+  tes 'echo \)'
+  tes 'echo \('
+  tes 'echo fun\(\){ echo a\;};'
   echo "========== QUOTING END =========="
 }
 test_cd() {
@@ -326,6 +334,12 @@ test_cd() {
 test_exit() {
   echo "========== exit ========="
   test_code_error 1 "exit 1"
+  test_code_error 0 "exit 0"
+  test_code_error 42 "exit 42"
+  test_code_error 49 "exit 49"
+  test_code_error 127 "exit 127"
+  # trust le process, bash --posix donne 89
+  test_code_error 89 "exit 345"
   echo "========== exit END ========="
 }
 test_var_local() {
@@ -378,6 +392,10 @@ test_errs() {
   test_pars_lex_error 127 "echo BBB | echo && {}"
   test_pars_lex_error 2 ". hello"
   test_pars_lex_error 2 ". hello world"
+  test_pars_lex_error 2 "{ echo a;"
+  test_pars_lex_error 2 "{ { { echo a;} }"
+  test_pars_lex_error 2 "echo a; }"
+  test_pars_lex_error 2 '{ { echo aaaaaa;} | tr a h && echo bbbbbbb } | tr b h'
 
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
@@ -463,6 +481,8 @@ test_var() {
     test_from_file $i
     test_from_stdin $i
   done
+  tes 'bully=bully; echo $bully'
+  tes 'bully=bully{{}}bully; echo $bully'
   echo "========== VARIABLES END =========="
 }
 test_function() {
