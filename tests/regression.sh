@@ -467,6 +467,11 @@ test_break() {
   test_from_file "break.sh"
   echo "========== BREAK END ==="
 }
+test_continue() {
+  echo "========== CONTINUE BEGIN ==="
+  test_from_file "continue.sh"
+  echo "========== CONTINUE END ==="
+}
 
 test_subshell() {
   echo "========== SUBSHELL BEGIN ==="
@@ -526,6 +531,7 @@ testsuite() {
   test_function
   test_dot
   test_break
+  test_continue
   for_coverage
 }
 
