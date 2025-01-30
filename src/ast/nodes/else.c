@@ -16,13 +16,18 @@
     'else' compound_list
     | 'elif' compound_list 'then' compound_list [else_clause]
  */
+static void poppin_tok(struct lexer *lexer, struct token **token)
+{
+    lexer_pop(lexer);
+    token_free(*token);
+
+    *token = NULL;
+}
 
 struct ast_else_node *ast_parse_else(struct lexer *lexer)
 {
     struct ast_else_node *node = xcalloc(1, sizeof(struct ast_else_node));
     struct token *token = lexer_peek(lexer);
-
-    logger("\tParsing ELSE_CLAUSE\n");
 
     if (token_is_valid_keyword(token, "else"))
     {
@@ -41,9 +46,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
 
     if (token_is_valid_keyword(token, "elif"))
     {
-        lexer_pop(lexer);
-        token_free(token);
-        token = NULL;
+        poppin_tok(lexer, &token);
 
         struct ast_node *condition = ast_create(lexer, AST_CLIST);
         if (!condition)
@@ -57,9 +60,7 @@ struct ast_else_node *ast_parse_else(struct lexer *lexer)
             lexer_error(lexer, "else: no then");
             goto error;
         }
-        lexer_pop(lexer);
-        token_free(token);
-        token = NULL;
+        poppin_tok(lexer, &token);
 
         struct ast_node *body = ast_create(lexer, AST_CLIST);
         if (!body)
@@ -86,7 +87,6 @@ error:
     {
         token_free(token);
     }
-    logger("EXIT ELSE (ERROR)\n");
     return NULL;
 }
 
