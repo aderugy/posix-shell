@@ -14,20 +14,8 @@ int last_status = 0;
 static int init_commands(void)
 {
     commands = xcalloc(1, sizeof(struct runnables_list));
-
-    if (!commands)
-    {
-        return 1;
-    }
-
     commands->capacity = 16;
     commands->list = xcalloc(16, sizeof(struct runnable *));
-
-    if (!commands->list)
-    {
-        return 1;
-    }
-
     return 0;
 }
 

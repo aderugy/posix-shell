@@ -279,11 +279,13 @@ test_redirections() {
   tes "echo 'Line 1' > file1; echo 'Line 2' >> file1; cat file1;"
   tes "cat < file1"
   tes "cat < file1 > out.txt 2>&1; cat out.txt"
+  tes "echo hello bg <> file1"
   tes "ls | echo > dum.out; echo < dum.out"
   tes "echo tchou > dum.out;echo bebe >> dum.out; cat dum.out; rm dum.out"
   tes "echo tchou > dum.out;echo boubou > dum.out; cat dum.out; rm dum.out"
   tes "echo aads 1<&2 cat coverage.sh"
   tes "echo aads 1>&2 cat coverage.sh"
+  tes "2> file1; echa a; cat file1"
 
   touch dum.out
   rm dum.out
@@ -314,6 +316,11 @@ test_quoting() {
 test_cd() {
   echo "========== CD ========="
   tes 'cd && echo $PWD'
+  tes 'cd ; echo $PWD'
+  tes 'cd ..; echo $PWD'
+  tes 'cd ..; cd -; cd -; cd -; echo $OLDPWD'
+  tes 'cd -; cd -; cd -; cd -; echo $OLDPWD'
+  tes 'cd / && echo $PWD'
   echo "========== CD END ========="
 }
 test_exit() {
@@ -369,6 +376,8 @@ test_errs() {
   test_pars_lex_error 127 "{{}"
   test_pars_lex_error 127 "echo BBB | echo | {}"
   test_pars_lex_error 127 "echo BBB | echo && {}"
+  test_pars_lex_error 2 ". hello"
+  test_pars_lex_error 2 ". hello world"
 
   # LEXER ERRS
   test_pars_lex_error 2 "if true; then echo a; \"fi"
@@ -412,8 +421,19 @@ test_unset() {
   echo "========== UNSET BEGIN ==="
   tes 'export ABCD=5; echo $ABCD; unset ABCD;'
   tes 'a=99; echo $a; export a; unset a; echo $a'
+  tes 'hello () { echo a; } ; hello; unset -f hello;'
+  tes 'hello () { echo a; } ; hello; unset -v hello;'
   echo "========== UNSET END ====="
 }
+
+test_dot() {
+  echo "========== DOT BEGIN ==="
+  for i in $(find step2/loops -name "until*sh"); do
+    tes ". $i"
+  done
+  echo "========== DOT END ==="
+}
+
 test_blocks() {
   echo "========== BLOCKS BEGIN ==="
   tes '{ echo a; echo b; } | tr b h'
@@ -421,6 +441,13 @@ test_blocks() {
   tes '{ echo a;} | tr a h'
   tes '{ { { { { { { echo a; } } } } } } } | tr a h'
   echo "========== BLOCKS END ====="
+}
+
+test_break() {
+  echo "========== BREAK BEGIN ==="
+  test_from_file "while_test.sh"
+  test_from_file "break.sh"
+  echo "========== BREAK END ==="
 }
 
 test_subshell() {
@@ -469,6 +496,7 @@ testsuite() {
   test_var_local
   test_var
   test_quoting
+  test_subshell
   test_for
   test_while
   test_until
@@ -476,6 +504,8 @@ testsuite() {
   test_unset
   test_blocks
   test_function
+  test_dot
+  test_break
   for_coverage
 }
 
