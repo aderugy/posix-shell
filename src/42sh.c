@@ -76,7 +76,7 @@ static int sub_main(struct stream *stream, struct ast_eval_ctx *ctx,
     return return_value;
 }
 
-static int main_shards(struct stream *stream, struct ast_eval_ctx *ctx)
+/*static int main_shards(struct stream *stream, struct ast_eval_ctx *ctx)
 {
     ctx_free(ctx);
 
@@ -89,9 +89,9 @@ static int main_shards(struct stream *stream, struct ast_eval_ctx *ctx)
     }
     splitter_ctx_free(spltctx);
     return 0;
-}
+}*/
 
-static int main_tokens(struct stream *stream, struct ast_eval_ctx *ctx)
+/*static int main_tokens(struct stream *stream, struct ast_eval_ctx *ctx)
 {
     struct lexer *lexer = lexer_create(stream);
     struct token *token;
@@ -103,7 +103,7 @@ static int main_tokens(struct stream *stream, struct ast_eval_ctx *ctx)
     lexer_free(lexer);
     ctx_free(ctx);
     return 0;
-}
+}*/
 
 int main(int argc, char *argv[])
 {
@@ -112,8 +112,8 @@ int main(int argc, char *argv[])
     struct stream *stream = NULL;
     struct ast_eval_ctx *ctx = ctx_init();
 
-    bool disp_lex = false;
-    bool disp_shards = false;
+    /*bool disp_lex = false;
+    bool disp_shards = false;*/
     while ((c = getopt_long(argc, argv, "vc:ts", l_opts, &opt_idx)) != -1)
     {
         switch (c)
@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
             break;
         case 's':
             logger(NULL, NULL);
-            disp_shards = true;
+            // disp_shards = true;
             break;
         case 't':
             logger(NULL, NULL);
-            disp_lex = true;
+            // disp_lex = true;
             break;
         case '?':
             exit(1);
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
         errx(1, "stream error");
     }
 
-    if (disp_shards)
+    /*disp_shards)
     {
         return main_shards(stream, ctx);
     }
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     if (disp_lex)
     {
         return main_tokens(stream, ctx);
-    }
+    }*/
 
     int nb_args = ctx_init_local_args(argc, argv, ctx);
 
